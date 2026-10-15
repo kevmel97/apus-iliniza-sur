@@ -54,7 +54,7 @@
   }
 
   /* =========================================================
-     ESTRUCTURA DE VENTANAS EXACTA A LAS CAPTURAS
+     ESTRUCTURA DE VENTANAS Y MENÚS
      ========================================================= */
   .overlay {
     position: absolute;
@@ -243,9 +243,7 @@
     text-shadow: 2px 2px 0 #000;
   }
 
-  /* =========================================================
-     CREADOR DE PERSONAJE: PERSONAJE ARRIBA FIJO + SCROLL ABAJO
-     ========================================================= */
+  /* CREADOR DE PERSONAJE: PERSONAJE ARRIBA FIJO + SCROLL ABAJO */
   .creator-vertical-container {
     display: flex;
     flex-direction: column;
@@ -485,8 +483,8 @@
     <button class="icon-btn" id="btn-sound" title="Sonido">🔊 ON</button>
   </div>
 
-  <!-- MENU PRINCIPAL -->
-  <div id="menu-overlay" class="overlay active">
+  <!-- MENU PRINCIPAL (SE ACTIVA AUTOMÁTICAMENTE TRAS LA INTRO) -->
+  <div id="menu-overlay" class="overlay">
     <div class="retro-box">
       <canvas id="logoCanvas" class="logo-badge" width="96" height="96"></canvas>
       <h1>APUS' GUARDIANS</h1>
@@ -576,7 +574,7 @@
     </div>
   </div>
 
-  <!-- CREADOR DE PERSONAJE: PERSONAJE ARRIBA FIJO + OPCIONES CON SCROLL ABAJO -->
+  <!-- CREADOR DE PERSONAJE -->
   <div id="custom-creator-overlay" class="overlay">
     <div class="retro-box" style="padding:12px;">
       <div class="creator-vertical-container">
@@ -586,14 +584,12 @@
           <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
         </div>
 
-        <!-- PERSONAJE FIJO ARRIBA (NO SE MUEVE AL HACER SCROLL) -->
         <div class="creator-fixed-top">
           <canvas id="creatorPreviewCanvas" width="130" height="155"></canvas>
           <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:6px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
           <div class="status-badge" id="creator-save-status">Se guarda en tu cuenta activa.</div>
         </div>
 
-        <!-- OPCIONES ABAJO CON SCROLL INDEPENDIENTE -->
         <div class="creator-scrollable-options">
           <div class="opt-row">
             <span class="opt-label">1. GÉNERO DEL PERSONAJE:</span>
@@ -818,6 +814,19 @@ let isPortrait = false;
 
 const FIGHT_STAGE_W = 960;
 const FIGHT_MOVE_SPEED = 4.0;
+
+// Variables para la animación cinemática inicial
+let introActive = true;
+let introTimer = 0;
+const INTRO_DURATION_FRAMES = 260; // Aprox. 4.3 segundos a 60 FPS
+
+function finishIntroAndOpenMenu() {
+  if (!introActive) return;
+  introActive = false;
+  gameState = "MENU";
+  showOverlay("menu-overlay");
+  sound.playBGM("bgm_menu");
+}
 
 function updateCanvasOrientation() {
   isPortrait = window.innerHeight > window.innerWidth;
@@ -1439,7 +1448,7 @@ const LEVELS = [
 let diffIndex = 1;
 let selectedCharacter = "JORDY";
 let pendingMode = "story";
-let gameState = "MENU";
+let gameState = "INTRO"; // Inicia en la cinemática
 let forceTouchUI = true;
 
 let storyData = {
@@ -1471,47 +1480,6 @@ let currentRoomCode = "";
 /* ============================================================================
    6. SPRITES PIXEL ART
    ============================================================================ */
-function drawApusLogo(ctx, x, y, size) {
-  ctx.save();
-  ctx.translate(x, y);
-  const r = size / 2;
-  ctx.beginPath();
-  ctx.arc(r, r, r - 4, 0, Math.PI * 2);
-  ctx.fillStyle = "#1459a6";
-  ctx.fill();
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#ffffff";
-  ctx.stroke();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.moveTo(6, r + 8);
-  ctx.lineTo(r - 12, r - 12);
-  ctx.lineTo(r, r - 2);
-  ctx.lineTo(r + 14, r - 14);
-  ctx.lineTo(size - 6, r + 8);
-  ctx.lineTo(r + 10, r - 4);
-  ctx.lineTo(r, r + 6);
-  ctx.lineTo(r - 12, r - 2);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#f7931e";
-  ctx.fillRect(r - 18, size - 18, 36, 10);
-  ctx.fillRect(r - 10, r + 6, 7, 16);
-  ctx.fillRect(r + 1, r - 1, 7, 13);
-  ctx.fillRect(r - 8, r - 18, 14, 22);
-  ctx.fillRect(r - 15, r - 16, 8, 18);
-  ctx.fillRect(r - 5, r - 26, 11, 9);
-  ctx.strokeStyle = "#f7931e";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(r + 14, r - 16);
-  ctx.lineTo(r + 6, size - 14);
-  ctx.stroke();
-  ctx.restore();
-}
-
 function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   const {
     scale = 1, facing = 1, anim = 0, swinging = false, crouching = false,
@@ -2216,7 +2184,7 @@ function toggleSound() {
   if (!sound.enabled) {
     sound.stopBGM();
   } else {
-    if (gameState === "MENU") sound.playBGM("bgm_menu");
+    if (gameState === "MENU" || gameState === "INTRO") sound.playBGM("bgm_menu");
     else if (gameState === "MINIGAME") sound.playBGM("bgm_versus");
     else if (gameState === "STORY") {
       const lvl = LEVELS[storyData.levelIdx];
@@ -2458,11 +2426,7 @@ function setupOnlineHandlers() {
       attacker.actionTimer = 14;
       sound.playSFX("sfx_jump");
       projectiles.push({
-        owner: 1,
-        x: attacker.x + attacker.facing * 32,
-        y: attacker.y - 24,
-        vx: attacker.facing * 8.5,
-        rot: 0
+        owner: 1, x: attacker.x + attacker.facing * 32, y: attacker.y - 24, vx: attacker.facing * 8.5, rot: 0
       });
     } else if (data.type === "WINNER") {
       if (!vsWinner) {
@@ -2510,6 +2474,7 @@ const keys = {
 const joyState = { active: false, dx: 0, dy: 0 };
 
 window.addEventListener("keydown", (e) => {
+  if (introActive) { finishIntroAndOpenMenu(); return; }
   if (document.activeElement && document.activeElement.tagName === "INPUT") return;
   const code = e.code;
   if (code === "ArrowLeft" || code === "KeyA") keys.left = true;
@@ -3535,7 +3500,79 @@ function renderVersusMiniGame() {
 }
 
 /* ============================================================================
-   14. INICIALIZACIÓN Y BUCLE
+   14. ANIMACIÓN CINEMÁTICA DE APERTURA (INTRODUCCIÓN)
+   ============================================================================ */
+function renderIntroCinematic() {
+  introTimer++;
+
+  // Dibujar el fondo del menú con atmósfera
+  drawCotopaxiBackground(false, 0.38);
+
+  // Posición del suelo para los dos personajes
+  const charY = isPortrait ? 510 : 370;
+
+  // Jordy: a la izquierda, saltando arriba y abajo alegremente agitando el piolet
+  const jordyX = isPortrait ? (GW * 0.36) : (GW * 0.42);
+  const jumpHeight = Math.abs(Math.sin(introTimer * 0.08)) * 26;
+  drawMountaineerSprite(ctx, "JORDY", jordyX, charY - jumpHeight, {
+    scale: isPortrait ? 1.55 : 1.5,
+    facing: 1,
+    anim: introTimer,
+    swinging: true,
+    celebrating: true
+  });
+
+  // Chugo: a la derecha, patrullando y caminando de un lado a otro a paso alegre
+  const patrolRange = isPortrait ? 38 : 55;
+  const chugoBaseX = isPortrait ? (GW * 0.62) : (GW * 0.58);
+  const chugoOffsetX = Math.sin(introTimer * 0.045) * patrolRange;
+  const chugoFacing = Math.cos(introTimer * 0.045) >= 0 ? 1 : -1;
+  drawMountaineerSprite(ctx, "CHUGO", chugoBaseX + chugoOffsetX, charY + 2, {
+    scale: isPortrait ? 1.55 : 1.5,
+    facing: chugoFacing,
+    anim: introTimer * 1.5
+  });
+
+  // Título cinemático centrado con animación fade-in
+  ctx.save();
+  const titleAlpha = Math.min(1, introTimer / 45);
+  ctx.globalAlpha = titleAlpha;
+  ctx.textAlign = "center";
+
+  const titleCenterY = isPortrait ? 220 : 160;
+
+  // Logo central
+  drawApusLogo(ctx, GW / 2 - 40, titleCenterY - 100, 80);
+
+  // Título principal con sombra retro
+  ctx.fillStyle = "#000000";
+  ctx.font = isPortrait ? "20px 'Press Start 2P'" : "26px 'Press Start 2P'";
+  ctx.fillText("APUS' GUARDIANS", GW / 2 + 3, titleCenterY + 3);
+  ctx.fillStyle = "#f7931e";
+  ctx.fillText("APUS' GUARDIANS", GW / 2, titleCenterY);
+
+  // Subtítulo
+  ctx.fillStyle = "#000000";
+  ctx.font = isPortrait ? "11px 'Press Start 2P'" : "14px 'Press Start 2P'";
+  ctx.fillText("RETO ILINIZA SUR (5248 MSNM)", GW / 2 + 2, titleCenterY + 36);
+  ctx.fillStyle = "#63b3ed";
+  ctx.fillText("RETO ILINIZA SUR (5248 MSNM)", GW / 2, titleCenterY + 34);
+
+  // Botón discreto de salto abajo
+  ctx.font = isPortrait ? "9px 'Press Start 2P'" : "10px 'Press Start 2P'";
+  const blink = Math.floor(Date.now() / 450) % 2 === 0;
+  ctx.fillStyle = blink ? "#facc15" : "#94a3b8";
+  ctx.fillText("[ TOCAR PARA SALTAR AL MENÚ ]", GW / 2, isPortrait ? (GH - 60) : (GH - 40));
+  ctx.restore();
+
+  // Al cumplir los segundos de intro, abrir el menú automáticamente
+  if (introTimer >= INTRO_DURATION_FRAMES) {
+    finishIntroAndOpenMenu();
+  }
+}
+
+/* ============================================================================
+   15. INICIALIZACIÓN Y BUCLE PRINCIPAL (60 FPS)
    ============================================================================ */
 function initPreviews() {
   const logoCtx = document.getElementById("logoCanvas").getContext("2d");
@@ -3553,7 +3590,9 @@ function initPreviews() {
 function gameLoop() {
   ctx.clearRect(0, 0, GW, GH);
 
-  if (gameState === "MENU" || gameState === "PAUSED") {
+  if (introActive) {
+    renderIntroCinematic();
+  } else if (gameState === "MENU" || gameState === "PAUSED") {
     drawCotopaxiBackground(false, 0.35);
     const charY = isPortrait ? 460 : 330;
     const jX = isPortrait ? GW * 0.72 : 730;
@@ -3572,6 +3611,10 @@ function gameLoop() {
 }
 
 canvas.addEventListener("pointerdown", () => {
+  if (introActive) {
+    finishIntroAndOpenMenu();
+    return;
+  }
   if (gameState === "MINIGAME" && vsWinner && vsEndAnimTimer <= 0) {
     requestRematch();
   }
@@ -3581,6 +3624,7 @@ updateCanvasOrientation();
 loadSavedSession();
 initPreviews();
 updateDiffLabel();
+sound.playBGM("bgm_menu");
 requestAnimationFrame(gameLoop);
 </script>
 </body>
