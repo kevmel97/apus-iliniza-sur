@@ -41,7 +41,6 @@
     background: #000;
     overflow: hidden;
   }
-  /* IMPORTANTE: Solo el canvas principal del juego ocupa el 100%, los previews mantienen su proporción original */
   #gameCanvas {
     width: 100%;
     height: 100%;
@@ -53,7 +52,7 @@
     image-rendering: pixelated;
   }
   /* =========================================================
-     DISEÑO UNIFICADO COMPACTO (IGUAL AL DE TU COMPUTADORA)
+     DISEÑO BASE PARA PC Y CELULAR HORIZONTAL (LANDSCAPE)
      ========================================================= */
   .overlay {
     position: absolute;
@@ -82,14 +81,14 @@
     overflow-y: auto;
   }
   h1 {
-    font-size: clamp(13px, 3.2vw, 20px);
+    font-size: clamp(13px, 2.5vw, 20px);
     color: #f7931e;
     text-shadow: 3px 3px 0 #000;
     margin-bottom: 6px;
     line-height: 1.35;
   }
   h2 {
-    font-size: clamp(9px, 2.2vw, 13px);
+    font-size: clamp(9px, 1.8vw, 13px);
     color: #63b3ed;
     text-shadow: 2px 2px 0 #000;
     margin-bottom: 10px;
@@ -104,7 +103,7 @@
     border: 3px solid #6b82a8;
     color: #fff;
     font-family: inherit;
-    font-size: clamp(10px, 2.5vw, 12px);
+    font-size: 12px;
     cursor: pointer;
     text-shadow: 2px 2px 0 #000;
     transition: transform 0.1s, background 0.15s;
@@ -121,7 +120,7 @@
     padding: 8px 10px;
     margin-bottom: 10px;
     border-radius: 6px;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 10px;
     color: #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -141,7 +140,7 @@
     border: 3px solid #4a5d80;
     color: #94a3b8;
     font-family: inherit;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 10px;
     cursor: pointer;
     border-radius: 5px;
   }
@@ -160,7 +159,7 @@
     padding: 9px;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    font-size: clamp(9px, 2.2vw, 11px);
+    font-size: 11px;
     border-radius: 6px;
   }
   .diff-btn {
@@ -171,7 +170,7 @@
     font-weight: bold;
     padding: 6px 10px;
     cursor: pointer;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 10px;
     border-radius: 5px;
   }
   /* TOP BUTTONS */
@@ -242,7 +241,7 @@
     font-size: 11px;
     text-shadow: 2px 2px 0 #000;
   }
-  /* CREADOR DE PERSONAJE PERSONALIZADO: PROPORCIÓN FIJA SIN ESTIRARSE JAMÁS */
+  /* CREADOR DE PERSONAJE PERSONALIZADO */
   .creator-layout {
     display: flex;
     flex-direction: row;
@@ -410,12 +409,12 @@
   .btn-hug { background: rgba(16, 172, 132, 0.94); }
   .btn-beer { background: rgba(243, 156, 18, 0.94); }
 
-  /* LIST TABLES & INPUTS (TODOS EN MAYÚSCULA AUTOMÁTICA) */
+  /* LIST TABLES & INPUTS */
   table {
     width: 100%;
     border-collapse: collapse;
     margin: 8px 0;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 10px;
   }
   th, td {
     border: 2px solid #4a5d80;
@@ -464,65 +463,160 @@
     line-height: 1.5;
   }
 
-  /* AJUSTE LIMPIO EN PANTALLA VERTICAL DE CELULAR (MANTIENE LA CAJA COMPACTA IGUAL A PC) */
-  @media (orientation: portrait), (max-width: 680px) {
-    .retro-box {
-      width: 96%;
-      padding: 14px 12px;
-      max-height: 88dvh;
+  /* =========================================================================
+     ESCALADO GRANDE Y NÍTIDO PARA CELULAR EN FORMA VERTICAL (PORTRAIT)
+     Sin huecos vacíos y con letras/botones grandes y legibles
+     ========================================================================= */
+  @media (orientation: portrait) {
+    .overlay {
+      padding: 8px 4px;
     }
+    .retro-box {
+      width: 97%;
+      max-width: 97%;
+      max-height: 92dvh;
+      padding: 18px 14px;
+      border-width: 4px;
+    }
+    #logoCanvas {
+      width: 82px !important;
+      height: 82px !important;
+      margin: 0 auto 8px;
+    }
+    h1 {
+      font-size: 19px;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    h2 {
+      font-size: 12.5px;
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
+    .user-status-bar {
+      padding: 11px 12px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+    .menu-btn {
+      padding: 15px 12px;
+      font-size: 13.5px;
+      margin: 8px 0;
+      border-width: 3px;
+      border-radius: 8px;
+    }
+    .diff-selector {
+      padding: 12px 10px;
+      font-size: 11.5px;
+      margin-top: 10px;
+    }
+    .diff-btn {
+      padding: 9px 13px;
+      font-size: 11.5px;
+    }
+    .tab-btn {
+      padding: 12px 8px;
+      font-size: 11px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      padding: 14px 10px;
+      font-size: 13.5px;
+      margin: 8px 0;
+    }
+    .status-badge {
+      font-size: 10.5px;
+      line-height: 1.55;
+    }
+    .controls-hint {
+      font-size: 9.5px;
+      margin-top: 10px;
+      line-height: 1.55;
+    }
+    table {
+      font-size: 11px;
+    }
+    th, td {
+      padding: 9px 6px;
+    }
+    /* Selector de personajes grande en vertical */
     .char-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 10px;
     }
     #card-custom {
       grid-column: span 2;
     }
+    .char-card {
+      padding: 12px 8px;
+    }
+    .char-card canvas {
+      width: 115px !important;
+      height: 130px !important;
+    }
+    .char-name {
+      font-size: 13px;
+    }
+    /* Creador en vertical: vista previa proporcional a la izquierda + opciones grandes a la derecha */
     .creator-layout {
-      height: 52dvh;
-      min-height: 270px;
+      height: 55dvh;
+      min-height: 310px;
+      max-height: 460px;
       gap: 8px;
     }
     .creator-preview-panel {
-      flex: 0 0 122px;
-      width: 122px;
+      flex: 0 0 132px;
+      width: 132px;
       padding: 6px;
     }
     #creatorPreviewCanvas {
-      width: 106px !important;
-      height: 130px !important;
+      width: 114px !important;
+      height: 140px !important;
     }
+    .opt-label {
+      font-size: 10px;
+      margin-bottom: 7px;
+    }
+    .chip-btn {
+      font-size: 10px;
+      padding: 8px 10px;
+    }
+    .color-swatch {
+      width: 30px;
+      height: 30px;
+    }
+    /* Controles táctiles grandes en vertical */
     #touch-controls {
-      height: 28dvh;
-      min-height: 200px;
-      max-height: 250px;
+      height: 29dvh;
+      min-height: 210px;
+      max-height: 260px;
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(11, 16, 30, 0.96) 20%, #090d16 100%);
       border-top: 3px solid rgba(139, 163, 199, 0.45);
-      padding: 12px 14px calc(22px + env(safe-area-inset-bottom, 12px)) 14px;
+      padding: 14px 16px calc(22px + env(safe-area-inset-bottom, 12px)) 16px;
     }
     #joystick-zone {
-      width: 128px;
-      height: 128px;
+      width: 138px;
+      height: 138px;
     }
     #joystick-knob {
-      width: 50px;
-      height: 50px;
+      width: 54px;
+      height: 54px;
     }
     .action-buttons {
       flex: 1;
-      max-width: 215px;
-      gap: 8px;
+      max-width: 235px;
+      gap: 10px;
     }
     .act-btn {
       width: 100%;
-      height: 60px;
-      font-size: 8.5px;
+      height: 66px;
+      font-size: 9.5px;
     }
     #tbtn-hug {
       grid-column: span 2;
       width: 100% !important;
-      height: 52px;
+      height: 56px;
     }
   }
 </style>
@@ -538,7 +632,7 @@
     <button class="icon-btn" id="btn-sound" title="Activar/Desactivar Sonido">🔊 ON</button>
   </div>
 
-  <!-- MENU PRINCIPAL (CAJA COMPACTA Y CENTRADA IGUAL EN PC Y CELULAR) -->
+  <!-- MENU PRINCIPAL -->
   <div id="menu-overlay" class="overlay active">
     <div class="retro-box">
       <canvas id="logoCanvas" width="96" height="96"></canvas>
@@ -546,8 +640,8 @@
       <h2>RETO ILINIZA SUR (5248 MSNM)</h2>
 
       <div class="user-status-bar">
-        <span id="menu-user-label">✅ CUENTA: KEVIN EL POLLO</span>
-        <button class="diff-btn" onclick="openAuthModal()">👤 CUENTA / SINCRONIZAR</button>
+        <span id="menu-user-label">👤 SESIÓN: INVITADO (SIN CUENTA)</span>
+        <button class="diff-btn" onclick="openAuthModal()">👤 CUENTA</button>
       </div>
 
       <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
@@ -563,7 +657,7 @@
         <button class="diff-btn" onclick="changeDifficulty(1)">&gt;</button>
       </div>
       <div class="controls-hint">
-        🌎 Cuenta verificada: <strong>KEVIN EL POLLO</strong> (Clave: 1234)<br>
+        🌎 Inicia sesión en tu cuenta para sincronizar tus 3 personajes, partidas y récords.<br>
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
     </div>
@@ -581,12 +675,12 @@
       </div>
 
       <div id="auth-form-area">
-        <input type="text" id="auth-username" placeholder="USUARIO (EJ: KEVIN EL POLLO)" maxlength="24" oninput="this.value = this.value.toUpperCase()">
-        <input type="password" id="auth-password" placeholder="CONTRASEÑA (EJ: 1234)" maxlength="24" oninput="this.value = this.value.toUpperCase()">
-        <div class="status-badge" id="auth-msg-box">Escribe KEVIN EL POLLO y clave 1234 (o crea tu cuenta).</div>
+        <input type="text" id="auth-username" placeholder="NOMBRE DE USUARIO" maxlength="24" oninput="this.value = this.value.toUpperCase()">
+        <input type="password" id="auth-password" placeholder="CONTRASEÑA" maxlength="24" oninput="this.value = this.value.toUpperCase()">
+        <div class="status-badge" id="auth-msg-box">Ingresa tu usuario y contraseña para sincronizar tus datos.</div>
 
-        <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ ENTRAR A MI CUENTA</button>
-        <button class="menu-btn" style="background:#2e86de;" onclick="forceCloudSyncNow()">🔄 FORZAR SINCRONIZACIÓN NUBE AHORA</button>
+        <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ INICIAR SESIÓN</button>
+        <button class="menu-btn" style="background:#2e86de;" onclick="forceCloudSyncNow()">🔄 SINCRONIZAR NUBE AHORA</button>
         <button class="menu-btn" style="background:#f97316; display:none;" id="auth-logout-btn" onclick="logoutAccount()">🚪 CERRAR SESIÓN ACTUAL</button>
       </div>
 
@@ -631,7 +725,7 @@
     </div>
   </div>
 
-  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO (VISTA PREVIA FIJA CON PROPORCIÓN PERFECTA) -->
+  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO -->
   <div id="custom-creator-overlay" class="overlay">
     <div class="retro-box">
       <h1>🎨 CREADOR DE MONTAÑISTA</h1>
@@ -642,7 +736,7 @@
       </div>
 
       <div class="creator-layout">
-        <!-- Vista previa fija a la izquierda (sin estirarse) -->
+        <!-- Vista previa fija a la izquierda -->
         <div class="creator-preview-panel">
           <canvas id="creatorPreviewCanvas" width="130" height="160"></canvas>
           <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:7px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
@@ -1160,7 +1254,7 @@ const GEAR_10_COLORS = [
 function getDefaultCustomSlots() {
   return [
     {
-      name: "KEVIN EL POLLO",
+      name: "MONTANISTA 1",
       gender: "M",
       skin: "MESTIZO",
       hairLength: "CORTO",
@@ -1171,9 +1265,9 @@ function getDefaultCustomSlots() {
       hasGlasses: true,
       glassesColor: "#38bdf8",
       beardStyle: 1,
-      jacketColor: "#eab308",
+      jacketColor: "#16a34a",
       pantsColor: "#1e293b",
-      packColor: "#0284c7",
+      packColor: "#eab308",
       harnessColor: "#dc2626",
       bootsColor: "#f97316",
       axeBrand: "PETZL"
@@ -1209,7 +1303,7 @@ function getDefaultCustomSlots() {
       hasGlasses: false,
       glassesColor: "#1e293b",
       beardStyle: 2,
-      jacketColor: "#16a34a",
+      jacketColor: "#eab308",
       pantsColor: "#334155",
       packColor: "#dc2626",
       harnessColor: "#0284c7",
@@ -1231,22 +1325,22 @@ function ensureSlotDefaults(slots) {
 }
 
 /* ============================================================================
-   4. SISTEMA MULTI-DISPOSITIVO EN LA NUBE (CUENTA MAESTRA KEVIN EL POLLO)
+   4. SISTEMA DE CUENTAS MULTI-DISPOSITIVO (SIN PRE-LLENADOS AUTOMÁTICOS)
    ============================================================================ */
 const CLOUD_FALLBACK_URL = "https://api.npoint.io/4d8e2c9f1a7b3e5d9c0a";
 
-let currentUser = { username: "KEVIN EL POLLO" };
+let currentUser = null;
 let authMode = "login";
 let currentRankingTab = "local";
 let returnToGameOverAfterAuth = false;
 
 const DEFAULT_WORLD_RANKING = [
   { name: "IVAN VALLEJO", char: "JORDY", diff: "IVÁN VALLEJO", score: 2450 },
-  { name: "KEVIN EL POLLO", char: "JORDY", diff: "DIFÍCIL", score: 2280 },
   { name: "CARLA PEREZ", char: "CHUGO", diff: "IVÁN VALLEJO", score: 2190 },
   { name: "JORDY APUS", char: "JORDY", diff: "DIFÍCIL", score: 1840 },
   { name: "CHUGO ANDES", char: "CHUGO", diff: "DIFÍCIL", score: 1620 },
-  { name: "MILLER QUITO", char: "JORDY", diff: "NORMAL", score: 1390 }
+  { name: "MILLER QUITO", char: "JORDY", diff: "NORMAL", score: 1390 },
+  { name: "CUMBRE SUR", char: "CHUGO", diff: "NORMAL", score: 1120 }
 ];
 
 function simpleHash(str) {
@@ -1258,23 +1352,10 @@ function simpleHash(str) {
   return (h >>> 0).toString(16);
 }
 
-function ensureMasterAccounts(store) {
+function ensureStoreStructure(store) {
   if (!store || typeof store !== "object") store = {};
   if (!store.users) store.users = {};
   if (!Array.isArray(store.worldRanking)) store.worldRanking = [...DEFAULT_WORLD_RANKING];
-
-  const kevinHash = simpleHash("KEVIN EL POLLO:1234");
-  if (!store.users["KEVIN EL POLLO"]) {
-    store.users["KEVIN EL POLLO"] = {
-      passHash: kevinHash,
-      customChars: getDefaultCustomSlots(),
-      saves: [],
-      scores: [{ name: "KEVIN EL POLLO", char: "JORDY", diff: "DIFÍCIL", score: 2280 }],
-      updatedAt: 0
-    };
-  } else {
-    store.users["KEVIN EL POLLO"].passHash = kevinHash;
-  }
   return store;
 }
 
@@ -1283,17 +1364,17 @@ function getLocalCloudStore() {
     const raw = localStorage.getItem("apus_iliniza_cloud_cache_v3");
     if (raw) {
       const parsed = JSON.parse(raw);
-      return ensureMasterAccounts(parsed);
+      return ensureStoreStructure(parsed);
     }
   } catch (e) {}
-  return ensureMasterAccounts({
+  return ensureStoreStructure({
     users: {},
     worldRanking: [...DEFAULT_WORLD_RANKING]
   });
 }
 
 function saveLocalCloudStore(data) {
-  const clean = ensureMasterAccounts(data);
+  const clean = ensureStoreStructure(data);
   localStorage.setItem("apus_iliniza_cloud_cache_v3", JSON.stringify(clean));
 }
 
@@ -1329,7 +1410,7 @@ async function fetchWorldCloudData() {
         });
         const mergedRanking = Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, 10);
 
-        const finalStore = ensureMasterAccounts({ users: mergedUsers, worldRanking: mergedRanking });
+        const finalStore = ensureStoreStructure({ users: mergedUsers, worldRanking: mergedRanking });
         saveLocalCloudStore(finalStore);
         return finalStore;
       }
@@ -1355,10 +1436,12 @@ async function pushWorldCloudData(storeData) {
 
 function loadCustomCharsFromStorage() {
   const store = getLocalCloudStore();
-  const uName = currentUser && currentUser.username ? currentUser.username : "KEVIN EL POLLO";
+  const storageKey = currentUser && currentUser.username
+    ? `apus_custom_chars_${currentUser.username}`
+    : "apus_custom_chars_guest";
 
   try {
-    const rawLocal = localStorage.getItem(`apus_custom_chars_${uName}`);
+    const rawLocal = localStorage.getItem(storageKey);
     if (rawLocal) {
       const parsed = JSON.parse(rawLocal);
       if (Array.isArray(parsed) && parsed.length === 3) {
@@ -1368,25 +1451,32 @@ function loadCustomCharsFromStorage() {
     }
   } catch (e) {}
 
-  if (store.users[uName] && Array.isArray(store.users[uName].customChars) && store.users[uName].customChars.length === 3) {
-    customCharSlots = ensureSlotDefaults(store.users[uName].customChars);
-    return;
+  if (currentUser && currentUser.username && store.users[currentUser.username]) {
+    const uChars = store.users[currentUser.username].customChars;
+    if (Array.isArray(uChars) && uChars.length === 3) {
+      customCharSlots = ensureSlotDefaults(uChars);
+      return;
+    }
   }
 
   customCharSlots = getDefaultCustomSlots();
 }
 
 async function saveCustomCharsToAccount() {
-  const uName = currentUser && currentUser.username ? currentUser.username : "KEVIN EL POLLO";
-  localStorage.setItem(`apus_custom_chars_${uName}`, JSON.stringify(customCharSlots));
+  const storageKey = currentUser && currentUser.username
+    ? `apus_custom_chars_${currentUser.username}`
+    : "apus_custom_chars_guest";
+  localStorage.setItem(storageKey, JSON.stringify(customCharSlots));
 
-  const store = getLocalCloudStore();
-  if (!store.users[uName]) {
-    store.users[uName] = { passHash: simpleHash(uName + ":1234") };
+  if (currentUser && currentUser.username) {
+    const store = getLocalCloudStore();
+    if (!store.users[currentUser.username]) {
+      store.users[currentUser.username] = {};
+    }
+    store.users[currentUser.username].customChars = customCharSlots;
+    store.users[currentUser.username].updatedAt = Date.now();
+    await pushWorldCloudData(store);
   }
-  store.users[uName].customChars = customCharSlots;
-  store.users[uName].updatedAt = Date.now();
-  await pushWorldCloudData(store);
 }
 
 async function syncUserAccountAfterLogin(username) {
@@ -1417,28 +1507,30 @@ async function syncUserAccountAfterLogin(username) {
 
 async function forceCloudSyncNow() {
   const msgBox = document.getElementById("auth-msg-box");
-  msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ Sincronizando tus personajes, partidas y puntajes...";
-  if (currentUser && currentUser.username) {
-    await saveCustomCharsToAccount();
-    await syncUserAccountAfterLogin(currentUser.username);
-    sound.playSFX("sfx_checkpoint");
-    msgBox.style.color = "#22c55e";
-    msgBox.textContent = `✅ ¡Cuenta ${currentUser.username} sincronizada al 100%!`;
+  if (!currentUser || !currentUser.username) {
+    msgBox.style.color = "#facc15";
+    msgBox.textContent = "⚠️ INICIA SESIÓN CON TU USUARIO Y CONTRASEÑA PRIMERO.";
+    return;
   }
+  msgBox.style.color = "#38bdf8";
+  msgBox.textContent = "⏳ SINCRONIZANDO TUS PERSONAJES, PARTIDAS Y PUNTAJES...";
+  await saveCustomCharsToAccount();
+  await syncUserAccountAfterLogin(currentUser.username);
+  sound.playSFX("sfx_checkpoint");
+  msgBox.style.color = "#22c55e";
+  msgBox.textContent = `✅ ¡CUENTA ${currentUser.username} SINCRONIZADA AL 100%!`;
 }
 
 function loadSavedSession() {
   try {
-    const saved = localStorage.getItem("apus_iliniza_session_user");
+    const saved = localStorage.getItem("apus_iliniza_session_user_manual");
     if (saved) {
       currentUser = JSON.parse(saved);
     } else {
-      currentUser = { username: "KEVIN EL POLLO" };
-      localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
+      currentUser = null;
     }
   } catch (e) {
-    currentUser = { username: "KEVIN EL POLLO" };
+    currentUser = null;
   }
   loadCustomCharsFromStorage();
   updateUserStatusUI();
@@ -1454,7 +1546,7 @@ function updateUserStatusUI() {
     label.innerHTML = `✅ CUENTA: <strong style="color:#facc15;">${currentUser.username}</strong>`;
     if (logoutBtn) logoutBtn.style.display = "block";
   } else {
-    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO</span>`;
+    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO (SIN CUENTA)</span>`;
     if (logoutBtn) logoutBtn.style.display = "none";
   }
 }
@@ -1463,8 +1555,8 @@ function openAuthModal() {
   returnToGameOverAfterAuth = false;
   switchAuthTab("login");
   document.getElementById("auth-username").value =
-    (currentUser && currentUser.username) ? currentUser.username : "KEVIN EL POLLO";
-  document.getElementById("auth-password").value = "1234";
+    (currentUser && currentUser.username) ? currentUser.username : "";
+  document.getElementById("auth-password").value = "";
   showOverlay("auth-overlay");
 }
 
@@ -1472,8 +1564,8 @@ function openAuthModalFromGameOver() {
   returnToGameOverAfterAuth = true;
   switchAuthTab("login");
   document.getElementById("auth-username").value =
-    (currentUser && currentUser.username) ? currentUser.username : "KEVIN EL POLLO";
-  document.getElementById("auth-password").value = "1234";
+    (currentUser && currentUser.username) ? currentUser.username : "";
+  document.getElementById("auth-password").value = "";
   showOverlay("auth-overlay");
 }
 
@@ -1482,11 +1574,11 @@ function switchAuthTab(mode) {
   document.getElementById("tab-login-btn").classList.toggle("active", mode === "login");
   document.getElementById("tab-register-btn").classList.toggle("active", mode === "register");
   document.getElementById("auth-submit-btn").textContent =
-    mode === "login" ? "✅ ENTRAR A MI CUENTA" : "📝 CREAR CUENTA Y ENTRAR";
+    mode === "login" ? "✅ INICIAR SESIÓN" : "📝 CREAR CUENTA Y ENTRAR";
   document.getElementById("auth-msg-box").textContent =
     mode === "login"
-      ? "Cuenta activa: KEVIN EL POLLO (Clave: 1234). Pulsa el botón verde para entrar."
-      : "Elige un nombre en MAYÚSCULAS y contraseña para guardar tus 3 personajes.";
+      ? "Ingresa tu usuario y contraseña para cargar tus personajes y partidas."
+      : "Elige un nombre de usuario y contraseña para crear tu cuenta.";
 }
 
 async function handleAuthSubmit() {
@@ -1494,43 +1586,32 @@ async function handleAuthSubmit() {
   const passInp = document.getElementById("auth-password");
   const msgBox = document.getElementById("auth-msg-box");
 
-  // Convertir siempre a MAYÚSCULAS y limpiar espacios extra del teclado móvil
-  let username = (userInp.value || "").toUpperCase().trim().replace(/\s+/g, " ");
-  let password = (passInp.value || "").toUpperCase().trim();
-
-  // Si escribe KEVIN o KEVIN EL POLLO, reconocer siempre su cuenta maestra
-  if (username === "KEVIN" || username === "KEVIN EL POLLO" || username.includes("KEVIN EL POLLO")) {
-    username = "KEVIN EL POLLO";
-    if (!password) password = "1234";
-  }
+  const username = (userInp.value || "").toUpperCase().trim().replace(/\s+/g, " ");
+  const password = (passInp.value || "").toUpperCase().trim();
 
   if (username.length < 3) {
     msgBox.style.color = "#ef4444";
     msgBox.textContent = "⚠️ EL NOMBRE DE USUARIO DEBE TENER AL MENOS 3 LETRAS.";
     return;
   }
-  if (password.length < 3) {
+  if (password.length < 4) {
     msgBox.style.color = "#ef4444";
-    msgBox.textContent = "⚠️ INGRESA LA CONTRASEÑA (PARA KEVIN EL POLLO ES 1234).";
+    msgBox.textContent = "⚠️ LA CONTRASEÑA DEBE TENER AL MENOS 4 CARACTERES.";
     return;
   }
 
   msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ ABRIENDO CUENTA Y CARGANDO TUS PERSONAJES...";
+  msgBox.textContent = "⏳ VERIFICANDO CUENTA Y SINCRONIZANDO DATOS...";
 
   const store = await fetchWorldCloudData();
   const passHash = simpleHash(username + ":" + password);
 
-  // Acceso directo garantizado para KEVIN EL POLLO (clave 1234) y cualquier usuario
-  if (username === "KEVIN EL POLLO") {
-    if (password !== "1234") {
+  if (authMode === "register") {
+    if (store.users[username] && store.users[username].passHash && store.users[username].passHash !== passHash) {
       msgBox.style.color = "#ef4444";
-      msgBox.textContent = "❌ LA CONTRASEÑA DE KEVIN EL POLLO ES 1234.";
+      msgBox.textContent = "⚠️ ESE USUARIO YA EXISTE. INICIA SESIÓN CON SU CONTRASEÑA.";
       return;
     }
-    ensureMasterAccounts(store);
-  } else if (!store.users[username]) {
-    // Si la cuenta aún no existía en este dispositivo, la crea automáticamente sin dar error de "no existe"
     store.users[username] = {
       passHash,
       customChars: customCharSlots,
@@ -1539,20 +1620,33 @@ async function handleAuthSubmit() {
       updatedAt: Date.now()
     };
     await pushWorldCloudData(store);
-  } else if (authMode === "login" && store.users[username].passHash !== passHash) {
-    msgBox.style.color = "#ef4444";
-    msgBox.textContent = "❌ CONTRASEÑA INCORRECTA PARA " + username + ".";
-    return;
+  } else {
+    if (!store.users[username]) {
+      // Si el usuario inicia sesión en un celular o navegador nuevo, vincula su cuenta automáticamente
+      store.users[username] = {
+        passHash,
+        customChars: customCharSlots,
+        saves: getSavesList(),
+        scores: [],
+        updatedAt: Date.now()
+      };
+      await pushWorldCloudData(store);
+    } else if (store.users[username].passHash && store.users[username].passHash !== passHash) {
+      msgBox.style.color = "#ef4444";
+      msgBox.textContent = "❌ CONTRASEÑA INCORRECTA PARA " + username + ".";
+      return;
+    }
   }
 
   currentUser = { username };
-  localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
+  localStorage.setItem("apus_iliniza_session_user_manual", JSON.stringify(currentUser));
   await syncUserAccountAfterLogin(username);
   sound.playSFX("sfx_checkpoint");
 
   msgBox.style.color = "#22c55e";
-  msgBox.textContent = `✅ ¡BIENVENIDO, ${username}! TUS 3 PERSONAJES Y PARTIDAS ESTÁN LISTOS.`;
+  msgBox.textContent = `✅ ¡SESIÓN INICIADA COMO ${username}!`;
 
+  passInp.value = "";
   updateUserStatusUI();
   renderCustomCardPreview();
 
@@ -1568,10 +1662,12 @@ async function handleAuthSubmit() {
 
 function logoutAccount() {
   currentUser = null;
-  localStorage.removeItem("apus_iliniza_session_user");
+  localStorage.removeItem("apus_iliniza_session_user_manual");
   loadCustomCharsFromStorage();
   updateUserStatusUI();
   renderCustomCardPreview();
+  document.getElementById("auth-username").value = "";
+  document.getElementById("auth-password").value = "";
   document.getElementById("auth-msg-box").style.color = "#facc15";
   document.getElementById("auth-msg-box").textContent = "SESIÓN CERRADA CORRECTAMENTE.";
 }
@@ -2063,7 +2159,7 @@ function renderCustomCardPreview() {
   });
   const titleEl = document.getElementById("custom-card-title");
   if (titleEl) {
-    titleEl.textContent = (cfg.name || `PERS. ${activeCustomSlot + 1}`).toUpperCase();
+    titleEl.textContent = (cfg.name || `MONTANISTA ${activeCustomSlot + 1}`).toUpperCase();
   }
 }
 
@@ -2109,7 +2205,7 @@ function buildColorSwatches(containerId, propName, currentColor) {
 
 function refreshCreatorUI() {
   const cfg = customCharSlots[activeCustomSlot];
-  document.getElementById("custom-char-name").value = (cfg.name || `PERS. ${activeCustomSlot + 1}`).toUpperCase();
+  document.getElementById("custom-char-name").value = (cfg.name || `MONTANISTA ${activeCustomSlot + 1}`).toUpperCase();
 
   // 1. Género
   document.getElementById("gender-M").classList.toggle("active", cfg.gender === "M");
@@ -2200,7 +2296,7 @@ function refreshCreatorUI() {
 
 async function saveAndUseCustomChar() {
   const nameVal = (document.getElementById("custom-char-name").value || "").toUpperCase().trim();
-  customCharSlots[activeCustomSlot].name = nameVal || `PERS. ${activeCustomSlot + 1}`;
+  customCharSlots[activeCustomSlot].name = nameVal || `MONTANISTA ${activeCustomSlot + 1}`;
   await saveCustomCharsToAccount();
   renderCustomCardPreview();
   selectChar("CUSTOM");
@@ -2328,7 +2424,7 @@ async function saveCurrentProgress() {
   if (currentUser && currentUser.username) {
     const store = getLocalCloudStore();
     if (!store.users[currentUser.username]) {
-      store.users[currentUser.username] = { passHash: simpleHash(currentUser.username + ":1234") };
+      store.users[currentUser.username] = {};
     }
     store.users[currentUser.username].saves = trimmedSaves;
     store.users[currentUser.username].updatedAt = Date.now();
@@ -2336,7 +2432,7 @@ async function saveCurrentProgress() {
   }
 
   sound.playSFX("sfx_checkpoint");
-  alert("¡Partida guardada exitosamente en tu cuenta!");
+  alert("¡Partida guardada exitosamente!");
 }
 
 function continueGame() {
@@ -2364,7 +2460,7 @@ function openSavedGames() {
   const container = document.getElementById("saves-list");
   const saves = getSavesList();
   if (saves.length === 0) {
-    container.innerHTML = "<p style='margin:15px 0; font-size:11px;'>No tienes partidas guardadas aún en esta cuenta.</p>";
+    container.innerHTML = "<p style='margin:15px 0; font-size:11px;'>No tienes partidas guardadas aún.</p>";
   } else {
     let html = "<table><thead><tr><th>FECHA</th><th>PERS.</th><th>NV</th><th>PTS</th><th>ACCIÓN</th></tr></thead><tbody>";
     saves.forEach((s, idx) => {
@@ -2393,11 +2489,11 @@ function getLocalRankingList() {
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return [
-    { name: "KEVIN EL POLLO", char: "JORDY", diff: "DIFÍCIL", score: 2280 },
     { name: "IVAN VALLEJO", char: "JORDY", diff: "IVÁN VALLEJO", score: 1850 },
     { name: "JORDY APUS", char: "JORDY", diff: "DIFÍCIL", score: 1420 },
     { name: "CHUGO ANDES", char: "CHUGO", diff: "NORMAL", score: 1180 },
-    { name: "CUMBRE SUR", char: "CHUGO", diff: "NORMAL", score: 940 }
+    { name: "CUMBRE SUR", char: "CHUGO", diff: "NORMAL", score: 940 },
+    { name: "NUEVO GUIA", char: "JORDY", diff: "FÁCIL", score: 620 }
   ];
 }
 
@@ -2415,7 +2511,7 @@ async function switchRankingTab(tab) {
   const tbody = document.getElementById("ranking-tbody");
 
   if (tab === "local") {
-    statusMsg.textContent = "📱 Mostrando los 10 mejores puntajes de este dispositivo y tu cuenta.";
+    statusMsg.textContent = "📱 Mostrando los 10 mejores puntajes de este dispositivo.";
     const list = getLocalRankingList().slice(0, 10);
     renderRankingRows(tbody, list);
   } else {
@@ -2459,6 +2555,7 @@ function prepareGameOverModal() {
     statusEl.style.color = "#22c55e";
     statusEl.textContent = `✅ Sesión activa como ${currentUser.username}: Tu puntaje se guardará en tu Cuenta y Ranking Mundial.`;
   } else {
+    nameInput.value = "";
     nameInput.readOnly = false;
     statusEl.style.color = "#facc15";
     statusEl.textContent = "⚠️ Estás como Invitado: Inicia sesión para guardar en tu cuenta.";
