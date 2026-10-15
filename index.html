@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" id="vp-meta" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>APUS' GUARDIANS - RETO ILINIZA SUR</title>
+<link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -51,8 +52,9 @@
   canvas {
     image-rendering: pixelated;
   }
+
   /* =========================================================
-     CSS ORIGINAL DEL INICIO (EL QUE SE VEÍA PERFECTO EN CELULAR Y PC)
+     ESTRUCTURA DE VENTANAS EXACTA A LAS CAPTURAS
      ========================================================= */
   .overlay {
     position: absolute;
@@ -61,9 +63,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(10, 15, 30, 0.84);
+    background: rgba(10, 15, 30, 0.86);
     z-index: 20;
-    padding: 12px;
+    padding: 10px;
     text-align: center;
   }
   .overlay.active {
@@ -72,38 +74,38 @@
   .retro-box {
     background: rgba(25, 34, 54, 0.96);
     border: 4px solid #8ba3c7;
-    box-shadow: 0 0 0 4px #111827, 0 8px 24px rgba(0,0,0,0.8);
-    padding: 16px;
-    border-radius: 6px;
-    max-width: 640px;
-    width: 94%;
-    max-height: 88dvh;
+    box-shadow: 0 0 0 4px #111827, 0 10px 24px rgba(0,0,0,0.85);
+    padding: 16px 14px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90dvh;
     overflow-y: auto;
   }
   h1 {
-    font-size: clamp(15px, 4vw, 24px);
+    font-size: 16px;
     color: #f7931e;
     text-shadow: 3px 3px 0 #000;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     line-height: 1.35;
   }
   h2 {
-    font-size: clamp(11px, 2.8vw, 15px);
+    font-size: 10px;
     color: #63b3ed;
     text-shadow: 2px 2px 0 #000;
-    margin-bottom: 14px;
-    line-height: 1.3;
+    margin-bottom: 12px;
+    line-height: 1.35;
   }
   .menu-btn {
     display: block;
     width: 100%;
-    padding: 13px 10px;
-    margin: 7px 0;
+    padding: 13px 8px;
+    margin: 6px 0;
     background: #2b3954;
     border: 3px solid #6b82a8;
     color: #fff;
     font-family: inherit;
-    font-size: clamp(11px, 3vw, 14px);
+    font-size: 11px;
     cursor: pointer;
     text-shadow: 2px 2px 0 #000;
     transition: transform 0.1s, background 0.15s;
@@ -112,15 +114,15 @@
   .menu-btn:hover, .menu-btn:active {
     background: #f7931e;
     border-color: #fff;
-    transform: scale(1.02);
+    transform: scale(1.01);
   }
   .user-status-bar {
     background: #141c2b;
     border: 2px solid #38bdf8;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 9px 10px;
+    margin-bottom: 12px;
     border-radius: 4px;
-    font-size: clamp(9px, 2.4vw, 11px);
+    font-size: 9.5px;
     color: #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -135,13 +137,14 @@
   }
   .tab-btn {
     flex: 1;
-    padding: 10px 6px;
+    padding: 10px 4px;
     background: #141c2b;
     border: 3px solid #4a5d80;
     color: #94a3b8;
     font-family: inherit;
-    font-size: clamp(9px, 2.4vw, 11px);
+    font-size: 9px;
     cursor: pointer;
+    border-radius: 4px;
   }
   .tab-btn.active {
     background: #f7931e;
@@ -158,7 +161,8 @@
     padding: 10px;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    font-size: clamp(10px, 2.6vw, 12px);
+    font-size: 10px;
+    border-radius: 4px;
   }
   .diff-btn {
     background: #f7931e;
@@ -166,11 +170,11 @@
     color: #000;
     font-family: inherit;
     font-weight: bold;
-    padding: 7px 11px;
+    padding: 6px 10px;
     cursor: pointer;
-    font-size: clamp(9px, 2.4vw, 11px);
+    font-size: 10px;
+    border-radius: 4px;
   }
-  /* TOP BUTTONS */
   #top-bar {
     position: absolute;
     top: 10px;
@@ -197,80 +201,85 @@
     transform: translateY(2px);
     box-shadow: 0 1px 0 #0f172a;
   }
+
   /* CHARACTER SELECTION */
   .char-grid {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: stretch;
     gap: 10px;
-    margin: 12px 0;
+    margin: 10px 0;
     flex-wrap: wrap;
   }
   .char-card {
     flex: 1;
-    min-width: 135px;
+    min-width: 130px;
     background: #1b263b;
     border: 4px solid #5a729a;
-    padding: 10px;
+    padding: 10px 6px;
     cursor: pointer;
     border-radius: 8px;
     position: relative;
     transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
   }
   .char-card canvas {
-    width: 110px !important;
-    height: 125px !important;
+    width: 100px !important;
+    height: 115px !important;
     display: block;
     margin: 0 auto;
   }
   .char-card.selected {
     border-color: #f7931e;
-    box-shadow: 0 0 18px rgba(247, 147, 30, 0.7);
+    box-shadow: 0 0 16px rgba(247, 147, 30, 0.75);
     background: #253452;
   }
   .char-name {
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 11px;
     text-shadow: 2px 2px 0 #000;
   }
-  /* CREADOR DE PERSONAJE PERSONALIZADO: FIJO AL LADO SIN DEFORMARSE */
-  .creator-layout {
+
+  /* =========================================================
+     CREADOR DE PERSONAJE: PERSONAJE ARRIBA FIJO + SCROLL ABAJO
+     ========================================================= */
+  .creator-vertical-container {
     display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: stretch;
-    margin: 8px 0;
-    text-align: left;
-    height: 46dvh;
-    min-height: 250px;
-    max-height: 360px;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-height: 86dvh;
   }
-  .creator-preview-panel {
-    flex: 0 0 130px;
-    width: 130px;
+  .creator-fixed-top {
+    flex-shrink: 0;
     background: #141c2b;
     border: 3px solid #63b3ed;
     border-radius: 8px;
-    padding: 6px;
+    padding: 8px;
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
   }
   #creatorPreviewCanvas {
-    width: 112px !important;
-    height: 138px !important;
+    width: 125px !important;
+    height: 145px !important;
     display: block;
     margin: 0 auto;
   }
-  .creator-options-panel {
+  .creator-scrollable-options {
     flex: 1;
-    height: 100%;
     overflow-y: auto;
     background: #141c2b;
     border: 2px solid #4a5d80;
     border-radius: 6px;
     padding: 10px;
+    max-height: 38dvh;
+    text-align: left;
   }
   .opt-row {
     margin-bottom: 10px;
@@ -278,7 +287,7 @@
     border-bottom: 1px dashed #334155;
   }
   .opt-label {
-    font-size: 9px;
+    font-size: 8.5px;
     color: #facc15;
     margin-bottom: 6px;
     display: block;
@@ -294,7 +303,7 @@
     border: 2px solid #64748b;
     color: #fff;
     font-family: inherit;
-    font-size: 9px;
+    font-size: 8px;
     padding: 6px 8px;
     cursor: pointer;
     border-radius: 4px;
@@ -317,13 +326,14 @@
     box-shadow: 0 0 8px #facc15;
     transform: scale(1.12);
   }
-  /* TOUCH CONTROLS ORIGINALES */
+
+  /* TOUCH CONTROLS */
   #touch-controls {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 12px 16px calc(22px + env(safe-area-inset-bottom, 12px)) 16px;
+    padding: 12px 16px calc(20px + env(safe-area-inset-bottom, 10px)) 16px;
     pointer-events: none;
     z-index: 25;
     display: none;
@@ -334,8 +344,8 @@
     display: flex;
   }
   #joystick-zone {
-    width: 128px;
-    height: 128px;
+    width: 124px;
+    height: 124px;
     background: rgba(255, 255, 255, 0.16);
     border: 3px solid rgba(255, 255, 255, 0.55);
     border-radius: 50%;
@@ -346,8 +356,8 @@
     box-shadow: 0 4px 14px rgba(0,0,0,0.6);
   }
   #joystick-knob {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     background: rgba(247, 147, 30, 0.95);
     border: 3px solid #fff;
     border-radius: 50%;
@@ -366,12 +376,12 @@
   }
   .act-btn {
     width: 86px;
-    height: 58px;
+    height: 56px;
     border-radius: 12px;
     border: 3px solid #fff;
     color: #fff;
     font-family: inherit;
-    font-size: 8.5px;
+    font-size: 8px;
     line-height: 1.25;
     text-shadow: 1px 1px 0 #000;
     display: flex;
@@ -404,19 +414,6 @@
       padding: 14px 16px calc(26px + env(safe-area-inset-bottom, 16px)) 16px;
       align-items: center;
     }
-    #joystick-zone {
-      width: 122px;
-      height: 122px;
-    }
-    #joystick-knob {
-      width: 48px;
-      height: 48px;
-    }
-    .act-btn {
-      width: 84px;
-      height: 56px;
-      font-size: 8.5px;
-    }
     #tbtn-hug {
       width: 176px !important;
       height: 48px;
@@ -427,8 +424,8 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
-    font-size: clamp(9px, 2.2vw, 11px);
+    margin: 8px 0;
+    font-size: 9px;
   }
   th, td {
     border: 2px solid #4a5d80;
@@ -440,40 +437,41 @@
     width: 100%;
     padding: 11px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11px;
     background: #0f172a;
     border: 3px solid #63b3ed;
     color: #fff;
     margin: 7px 0;
     text-align: center;
+    border-radius: 4px;
     text-transform: uppercase;
   }
   .room-code-box {
     background: #0f172a;
     border: 3px dashed #facc15;
-    padding: 12px;
-    margin: 10px 0;
+    padding: 10px;
+    margin: 8px 0;
     font-size: 18px;
     color: #facc15;
     letter-spacing: 3px;
   }
   .status-badge {
-    font-size: 9.5px;
+    font-size: 8.5px;
     color: #38bdf8;
-    margin: 8px 0;
+    margin: 6px 0;
     line-height: 1.5;
   }
   .logo-badge {
-    width: 76px !important;
-    height: 76px !important;
-    margin: 0 auto 8px;
+    width: 72px !important;
+    height: 72px !important;
+    margin: 0 auto 6px;
     display: block;
   }
   .controls-hint {
-    font-size: 9px;
+    font-size: 8px;
     color: #a0aec0;
-    margin-top: 10px;
-    line-height: 1.6;
+    margin-top: 8px;
+    line-height: 1.5;
   }
 </style>
 </head>
@@ -482,13 +480,12 @@
 <div id="game-container">
   <canvas id="gameCanvas" width="960" height="540"></canvas>
 
-  <!-- Botones Superiores Derecha -->
   <div id="top-bar">
     <button class="icon-btn" id="btn-settings" title="Configuración">⚙️ CONFIG</button>
-    <button class="icon-btn" id="btn-sound" title="Activar/Desactivar Sonido">🔊 ON</button>
+    <button class="icon-btn" id="btn-sound" title="Sonido">🔊 ON</button>
   </div>
 
-  <!-- MENU PRINCIPAL ORIGINAL RESTAURADO -->
+  <!-- MENU PRINCIPAL -->
   <div id="menu-overlay" class="overlay active">
     <div class="retro-box">
       <canvas id="logoCanvas" class="logo-badge" width="96" height="96"></canvas>
@@ -503,7 +500,7 @@
       <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
       <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
-      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (TOP 10)</button>
+      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (LOCAL Y MUNDIAL)</button>
       <button class="menu-btn" onclick="openCharSelect('minigame')">🥊 MINI JUEGO CHUGO VS JORDY</button>
       <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
@@ -518,11 +515,11 @@
     </div>
   </div>
 
-  <!-- MODAL DE CUENTA: INICIAR SESIÓN / CREAR CUENTA -->
+  <!-- MODAL DE CUENTA -->
   <div id="auth-overlay" class="overlay">
     <div class="retro-box">
       <h1>👤 CUENTA DE MONTAÑISTA</h1>
-      <h2>GUARDA TUS 3 PERSONAJES, PARTIDAS Y PUNTAJES 🌎</h2>
+      <h2>GUARDA TUS 3 PERSONAJES Y RANKING 🌎</h2>
 
       <div class="tab-bar">
         <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">🔑 INICIAR SESIÓN</button>
@@ -560,7 +557,6 @@
           <div class="char-name" style="color:#63b3ed;">CHUGO</div>
           <p style="font-size:8px; color:#cbd5e1; margin-top:4px;">Casco Naranja • Chaqueta Azul</p>
         </div>
-        <!-- Tarjeta de Personaje Personalizado -->
         <div class="char-card" id="card-custom" style="display:none;" onclick="selectChar('CUSTOM')">
           <canvas id="preview-custom-card" width="120" height="140"></canvas>
           <div class="char-name" id="custom-card-title" style="color:#c084fc;">PERSONALIZADO</div>
@@ -580,28 +576,27 @@
     </div>
   </div>
 
-  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO -->
+  <!-- CREADOR DE PERSONAJE: PERSONAJE ARRIBA FIJO + OPCIONES CON SCROLL ABAJO -->
   <div id="custom-creator-overlay" class="overlay">
-    <div class="retro-box">
-      <h1>🎨 CREADOR DE MONTAÑISTA</h1>
-      <div class="tab-bar">
-        <button class="tab-btn active" id="creator-slot-0" onclick="switchCreatorSlot(0)">👤 RANURA 1</button>
-        <button class="tab-btn" id="creator-slot-1" onclick="switchCreatorSlot(1)">👤 RANURA 2</button>
-        <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
-      </div>
-
-      <div class="creator-layout">
-        <!-- Vista previa fija a la izquierda -->
-        <div class="creator-preview-panel">
-          <canvas id="creatorPreviewCanvas" width="130" height="160"></canvas>
-          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:6px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
-          <div class="status-badge" id="creator-save-status">Vista en vivo</div>
+    <div class="retro-box" style="padding:12px;">
+      <div class="creator-vertical-container">
+        <div class="tab-bar">
+          <button class="tab-btn active" id="creator-slot-0" onclick="switchCreatorSlot(0)">👤 RANURA 1</button>
+          <button class="tab-btn" id="creator-slot-1" onclick="switchCreatorSlot(1)">👤 RANURA 2</button>
+          <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
         </div>
 
-        <!-- Opciones con scroll propio a la derecha -->
-        <div class="creator-options-panel">
+        <!-- PERSONAJE FIJO ARRIBA (NO SE MUEVE AL HACER SCROLL) -->
+        <div class="creator-fixed-top">
+          <canvas id="creatorPreviewCanvas" width="130" height="155"></canvas>
+          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:6px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
+          <div class="status-badge" id="creator-save-status">Se guarda en tu cuenta activa.</div>
+        </div>
+
+        <!-- OPCIONES ABAJO CON SCROLL INDEPENDIENTE -->
+        <div class="creator-scrollable-options">
           <div class="opt-row">
-            <span class="opt-label">1. GÉNERO:</span>
+            <span class="opt-label">1. GÉNERO DEL PERSONAJE:</span>
             <div class="opt-buttons">
               <button class="chip-btn" id="gender-M" onclick="updateCreatorConfig('gender', 'M')">♂️ MASCULINO</button>
               <button class="chip-btn" id="gender-F" onclick="updateCreatorConfig('gender', 'F')">♀️ FEMENINO</button>
@@ -618,7 +613,7 @@
           </div>
 
           <div class="opt-row">
-            <span class="opt-label">3. CABELLO (CORTO, MEDIO, LARGO):</span>
+            <span class="opt-label">3. TIPO Y COLOR DE CABELLO:</span>
             <div class="opt-buttons" style="margin-bottom:6px;">
               <button class="chip-btn" id="hlen-CORTO" onclick="updateCreatorConfig('hairLength', 'CORTO')">✂️ CORTO</button>
               <button class="chip-btn" id="hlen-MEDIO" onclick="updateCreatorConfig('hairLength', 'MEDIO')">🧑 MEDIO</button>
@@ -628,7 +623,7 @@
           </div>
 
           <div class="opt-row">
-            <span class="opt-label">4. TIPO DE MIRADA:</span>
+            <span class="opt-label">4. TIPO DE MIRADA / EXPRESIÓN:</span>
             <div class="opt-buttons">
               <button class="chip-btn" id="expr-FELIZ" onclick="updateCreatorConfig('expression', 'FELIZ')">😄 FELIZ</button>
               <button class="chip-btn" id="expr-ENOJADA" onclick="updateCreatorConfig('expression', 'ENOJADA')">😠 ENOJADA</button>
@@ -698,16 +693,16 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="menu-btn" style="background:#10ac84;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR</button>
-        <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button class="menu-btn" style="background:#10ac84; padding:10px;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR</button>
+          <button class="menu-btn" style="background:#ee5253; padding:10px;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- SELECTOR DE MODO DEL MINI JUEGO: VS CPU O MULTIJUGADOR ONLINE -->
+  <!-- SELECTOR DE MODO DEL MINI JUEGO -->
   <div id="minigame-mode-overlay" class="overlay">
     <div class="retro-box">
       <h1>🥊 MINI JUEGO CHUGO VS JORDY</h1>
@@ -743,7 +738,7 @@
     </div>
   </div>
 
-  <!-- RANKING DUAL: LOCAL Y MUNDIAL -->
+  <!-- RANKING -->
   <div id="ranking-overlay" class="overlay">
     <div class="retro-box">
       <h1>🏆 RANKING CUMBRE ILINIZA SUR</h1>
@@ -799,7 +794,7 @@
     <div class="action-buttons" id="story-buttons">
       <button class="act-btn btn-jump" id="tbtn-jump">⬆️<br>SALTAR</button>
       <button class="act-btn btn-axe" id="tbtn-axe">⛏️<br>PIOLET</button>
-      <button class="act-btn btn-hug" id="tbtn-hug" style="grid-column: span 2; width: 172px;">🛡️ PEGARSE A MONTAÑA<br>(ESQUIVAR ROCAS)</button>
+      <button class="act-btn btn-hug" id="tbtn-hug" style="grid-column: span 2; width: 176px;">🛡️ PEGARSE A MONTAÑA<br>(ESQUIVAR ROCAS)</button>
     </div>
     <div class="action-buttons" id="fight-buttons" style="display:none;">
       <button class="act-btn btn-jump" id="fbtn-defend">🛡️<br>DEFENDER</button>
@@ -812,37 +807,8 @@
 
 <script>
 /* ============================================================================
-   0. LIMPIEZA DE CACHÉ Y SEGURO CONTRA "SITIO DE ESCRITORIO" EN CELULAR
+   1. CONTROL DE PANTALLA Y CANVAS
    ============================================================================ */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistrations().then((regs) => {
-    for (let reg of regs) reg.unregister();
-  }).catch(() => {});
-}
-if ("caches" in window) {
-  caches.keys().then((names) => {
-    for (let name of names) caches.delete(name);
-  }).catch(() => {});
-}
-
-// Si el navegador del celular fuerza un viewport falso de 980px ("Sitio para computadoras"),
-// este seguro aplica zoom automático al contenedor para que siempre se vea del tamaño original móvil.
-function fixMobileViewport() {
-  const realScreenW = Math.min(window.screen.width || window.innerWidth, window.innerWidth);
-  const vpW = window.innerWidth;
-  const isVertical = window.innerHeight > window.innerWidth;
-
-  document.querySelectorAll(".retro-box").forEach((box) => {
-    if (isVertical && vpW >= 750 && realScreenW < 550) {
-      // El usuario tiene activado "Sitio para computadoras" en Chrome móvil
-      const ratio = (vpW * 0.92) / 520;
-      box.style.zoom = ratio;
-    } else {
-      box.style.zoom = 1;
-    }
-  });
-}
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -864,7 +830,6 @@ function updateCanvasOrientation() {
   }
   canvas.width = GW;
   canvas.height = GH;
-  fixMobileViewport();
 }
 
 function getGroundY(inFlatSection = false) {
@@ -893,20 +858,11 @@ window.addEventListener("resize", () => {
 });
 
 /* ============================================================================
-   2. CONFIGURACIÓN DE SONIDOS (ENLACES DE GOOGLE DRIVE + SINTETIZADOR MIDI ÉPICO)
+   2. CONFIGURACIÓN DE SONIDOS
    ============================================================================ */
 const DRIVE_AUDIO_LINKS = {
-  bgm_menu: "",
-  bgm_climb: "",
-  bgm_storm: "",
-  bgm_summit: "",
-  bgm_versus: "",
-  sfx_jump: "",
-  sfx_axe: "",
-  sfx_hit: "",
-  sfx_beer: "",
-  sfx_kick: "",
-  sfx_checkpoint: ""
+  bgm_menu: "", bgm_climb: "", bgm_storm: "", bgm_summit: "", bgm_versus: "",
+  sfx_jump: "", sfx_axe: "", sfx_hit: "", sfx_beer: "", sfx_kick: "", sfx_checkpoint: ""
 };
 
 class SoundSystem {
@@ -970,24 +926,18 @@ class SoundSystem {
       return;
     }
     switch (name) {
-      case "sfx_jump":
-        this.playTone(220, 0.18, "square", 0.12, 540);
-        break;
+      case "sfx_jump": this.playTone(220, 0.18, "square", 0.12, 540); break;
       case "sfx_axe":
         this.playTone(580, 0.09, "sawtooth", 0.15, 190);
         setTimeout(() => this.playTone(920, 0.07, "triangle", 0.12, 420), 45);
         break;
-      case "sfx_hit":
-        this.playTone(150, 0.28, "sawtooth", 0.2, 55);
-        break;
+      case "sfx_hit": this.playTone(150, 0.28, "sawtooth", 0.2, 55); break;
       case "sfx_beer":
         [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
           setTimeout(() => this.playTone(f, 0.12, "triangle", 0.15), idx * 70);
         });
         break;
-      case "sfx_kick":
-        this.playTone(300, 0.14, "sawtooth", 0.18, 90);
-        break;
+      case "sfx_kick": this.playTone(300, 0.14, "sawtooth", 0.18, 90); break;
       case "sfx_checkpoint":
         [440, 554.37, 659.25, 880].forEach((f, idx) => {
           setTimeout(() => this.playTone(f, 0.18, "square", 0.15), idx * 110);
@@ -1067,13 +1017,9 @@ class SoundSystem {
 const sound = new SoundSystem();
 
 /* ============================================================================
-   3. CATÁLOGOS DE COLORES Y OPCIONES DEL CREADOR DE PERSONAJES (3 RANURAS)
+   3. CATÁLOGOS DE COLORES Y OPCIONES DEL CREADOR
    ============================================================================ */
-const SKIN_TONES = {
-  BLANCO: "#fde2c4",
-  MESTIZO: "#d99b66",
-  NEGRO: "#6f4124"
-};
+const SKIN_TONES = { BLANCO: "#fde2c4", MESTIZO: "#d99b66", NEGRO: "#6f4124" };
 
 const HAIR_COLORS = [
   { id: "AMARILLO", name: "AMARILLO", hex: "#facc15" },
@@ -1109,76 +1055,29 @@ const GLASSES_COLORS = [
 ];
 
 const GEAR_10_COLORS = [
-  "#f97316", // 1. Naranja Cumbre
-  "#0284c7", // 2. Azul Glaciar
-  "#dc2626", // 3. Rojo Expedición
-  "#16a34a", // 4. Verde Pino
-  "#eab308", // 5. Amarillo Sol
-  "#1e293b", // 6. Negro Roca
-  "#f8fafc", // 7. Blanco Nieve
-  "#9333ea", // 8. Morado Andino
-  "#ec4899", // 9. Rosa Boreal
-  "#78350f"  // 10. Café Tierra
+  "#f97316", "#0284c7", "#dc2626", "#16a34a", "#eab308",
+  "#1e293b", "#f8fafc", "#9333ea", "#ec4899", "#78350f"
 ];
 
 function getDefaultCustomSlots() {
   return [
     {
-      name: "MONTANISTA 1",
-      gender: "M",
-      skin: "MESTIZO",
-      hairLength: "CORTO",
-      hairColor: "#18181b",
-      expression: "FELIZ",
-      helmetBrand: "PETZL",
-      helmetColor: "#f97316",
-      hasGlasses: true,
-      glassesColor: "#38bdf8",
-      beardStyle: 1,
-      jacketColor: "#16a34a",
-      pantsColor: "#1e293b",
-      packColor: "#eab308",
-      harnessColor: "#dc2626",
-      bootsColor: "#f97316",
-      axeBrand: "PETZL"
+      name: "MONTANISTA 1", gender: "M", skin: "MESTIZO", hairLength: "CORTO", hairColor: "#18181b",
+      expression: "FELIZ", helmetBrand: "PETZL", helmetColor: "#f97316", hasGlasses: true, glassesColor: "#38bdf8",
+      beardStyle: 1, jacketColor: "#16a34a", pantsColor: "#1e293b", packColor: "#eab308", harnessColor: "#dc2626",
+      bootsColor: "#f97316", axeBrand: "PETZL"
     },
     {
-      name: "MONTANISTA 2",
-      gender: "F",
-      skin: "BLANCO",
-      hairLength: "LARGO",
-      hairColor: "#5c3419",
-      expression: "FELIZ",
-      helmetBrand: "BD",
-      helmetColor: "#ec4899",
-      hasGlasses: true,
-      glassesColor: "#f97316",
-      beardStyle: 0,
-      jacketColor: "#9333ea",
-      pantsColor: "#1e293b",
-      packColor: "#0284c7",
-      harnessColor: "#f8fafc",
-      bootsColor: "#eab308",
-      axeBrand: "BD"
+      name: "MONTANISTA 2", gender: "F", skin: "BLANCO", hairLength: "LARGO", hairColor: "#5c3419",
+      expression: "FELIZ", helmetBrand: "BD", helmetColor: "#ec4899", hasGlasses: true, glassesColor: "#f97316",
+      beardStyle: 0, jacketColor: "#9333ea", pantsColor: "#1e293b", packColor: "#0284c7", harnessColor: "#f8fafc",
+      bootsColor: "#eab308", axeBrand: "BD"
     },
     {
-      name: "MONTANISTA 3",
-      gender: "M",
-      skin: "NEGRO",
-      hairLength: "MEDIO",
-      hairColor: "#18181b",
-      expression: "SERIA",
-      helmetBrand: "BD",
-      helmetColor: "#dc2626",
-      hasGlasses: false,
-      glassesColor: "#1e293b",
-      beardStyle: 2,
-      jacketColor: "#eab308",
-      pantsColor: "#334155",
-      packColor: "#dc2626",
-      harnessColor: "#0284c7",
-      bootsColor: "#78350f",
-      axeBrand: "PETZL"
+      name: "MONTANISTA 3", gender: "M", skin: "NEGRO", hairLength: "MEDIO", hairColor: "#18181b",
+      expression: "SERIA", helmetBrand: "BD", helmetColor: "#dc2626", hasGlasses: false, glassesColor: "#1e293b",
+      beardStyle: 2, jacketColor: "#eab308", pantsColor: "#334155", packColor: "#dc2626", harnessColor: "#0284c7",
+      bootsColor: "#78350f", axeBrand: "PETZL"
     }
   ];
 }
@@ -1188,14 +1087,11 @@ let activeCustomSlot = 0;
 
 function ensureSlotDefaults(slots) {
   const defaults = getDefaultCustomSlots();
-  return slots.map((s, idx) => ({
-    ...defaults[idx],
-    ...s
-  }));
+  return slots.map((s, idx) => ({ ...defaults[idx], ...s }));
 }
 
 /* ============================================================================
-   4. SISTEMA DE CUENTAS MULTI-DISPOSITIVO (SIN PRE-LLENADOS AUTOMÁTICOS)
+   4. SISTEMA DE CUENTAS MULTI-DISPOSITIVO LIMPIO
    ============================================================================ */
 const CLOUD_FALLBACK_URL = "https://api.npoint.io/4d8e2c9f1a7b3e5d9c0a";
 
@@ -1231,28 +1127,21 @@ function ensureStoreStructure(store) {
 
 function getLocalCloudStore() {
   try {
-    const raw = localStorage.getItem("apus_iliniza_cloud_cache_v3");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return ensureStoreStructure(parsed);
-    }
+    const raw = localStorage.getItem("apus_iliniza_cloud_clean");
+    if (raw) return ensureStoreStructure(JSON.parse(raw));
   } catch (e) {}
-  return ensureStoreStructure({
-    users: {},
-    worldRanking: [...DEFAULT_WORLD_RANKING]
-  });
+  return ensureStoreStructure({ users: {}, worldRanking: [...DEFAULT_WORLD_RANKING] });
 }
 
 function saveLocalCloudStore(data) {
-  const clean = ensureStoreStructure(data);
-  localStorage.setItem("apus_iliniza_cloud_cache_v3", JSON.stringify(clean));
+  localStorage.setItem("apus_iliniza_cloud_clean", JSON.stringify(ensureStoreStructure(data)));
 }
 
 async function fetchWorldCloudData() {
   const localStore = getLocalCloudStore();
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3000);
+    const timer = setTimeout(() => controller.abort(), 2800);
     const resp = await fetch(CLOUD_FALLBACK_URL, {
       method: "GET",
       headers: { "Accept": "application/json" },
@@ -1263,15 +1152,7 @@ async function fetchWorldCloudData() {
     if (resp && resp.ok) {
       const remote = await resp.json();
       if (remote && typeof remote === "object") {
-        const mergedUsers = { ...localStore.users };
-        if (remote.users) {
-          for (const [uName, rUser] of Object.entries(remote.users)) {
-            const lUser = mergedUsers[uName];
-            if (!lUser || (rUser.updatedAt || 0) > (lUser.updatedAt || 0)) {
-              mergedUsers[uName] = rUser;
-            }
-          }
-        }
+        const mergedUsers = { ...localStore.users, ...(remote.users || {}) };
         const combinedRank = [...(localStore.worldRanking || []), ...(remote.worldRanking || [])];
         const map = new Map();
         combinedRank.forEach((r) => {
@@ -1293,7 +1174,7 @@ async function pushWorldCloudData(storeData) {
   saveLocalCloudStore(storeData);
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3000);
+    const timer = setTimeout(() => controller.abort(), 2800);
     await fetch(CLOUD_FALLBACK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1383,7 +1264,7 @@ async function forceCloudSyncNow() {
     return;
   }
   msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ SINCRONIZANDO TUS PERSONAJES, PARTIDAS Y PUNTAJES...";
+  msgBox.textContent = "⏳ SINCRONIZANDO TUS DATOS CON LA NUBE...";
   await saveCustomCharsToAccount();
   await syncUserAccountAfterLogin(currentUser.username);
   sound.playSFX("sfx_checkpoint");
@@ -1392,14 +1273,9 @@ async function forceCloudSyncNow() {
 }
 
 function loadSavedSession() {
-  localStorage.removeItem("apus_iliniza_session_user");
   try {
-    const saved = localStorage.getItem("apus_iliniza_session_user_manual");
-    if (saved) {
-      currentUser = JSON.parse(saved);
-    } else {
-      currentUser = null;
-    }
+    const saved = localStorage.getItem("apus_iliniza_active_session");
+    currentUser = saved ? JSON.parse(saved) : null;
   } catch (e) {
     currentUser = null;
   }
@@ -1448,7 +1324,7 @@ function switchAuthTab(mode) {
     mode === "login" ? "✅ INICIAR SESIÓN" : "📝 CREAR CUENTA Y ENTRAR";
   document.getElementById("auth-msg-box").textContent =
     mode === "login"
-      ? "Ingresa tu usuario y contraseña para cargar tus personajes y partidas."
+      ? "Ingresa tu usuario y contraseña para cargar tus datos."
       : "Elige un nombre de usuario y contraseña para crear tu cuenta.";
 }
 
@@ -1472,7 +1348,7 @@ async function handleAuthSubmit() {
   }
 
   msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ VERIFICANDO CUENTA Y SINCRONIZANDO DATOS...";
+  msgBox.textContent = "⏳ VERIFICANDO CUENTA...";
 
   const store = await fetchWorldCloudData();
   const passHash = simpleHash(username + ":" + password);
@@ -1509,7 +1385,7 @@ async function handleAuthSubmit() {
   }
 
   currentUser = { username };
-  localStorage.setItem("apus_iliniza_session_user_manual", JSON.stringify(currentUser));
+  localStorage.setItem("apus_iliniza_active_session", JSON.stringify(currentUser));
   await syncUserAccountAfterLogin(username);
   sound.playSFX("sfx_checkpoint");
 
@@ -1527,12 +1403,12 @@ async function handleAuthSubmit() {
     } else {
       showOverlay("menu-overlay");
     }
-  }, 650);
+  }, 600);
 }
 
 function logoutAccount() {
   currentUser = null;
-  localStorage.removeItem("apus_iliniza_session_user_manual");
+  localStorage.removeItem("apus_iliniza_active_session");
   loadCustomCharsFromStorage();
   updateUserStatusUI();
   renderCustomCardPreview();
@@ -1543,7 +1419,7 @@ function logoutAccount() {
 }
 
 /* ============================================================================
-   5. ESTADO GLOBAL DEL JUEGO Y NIVELES (ILINIZA SUR)
+   5. NIVELES Y JUEGO
    ============================================================================ */
 const DIFFICULTIES = [
   { id: "FACIL", name: "FÁCIL", hearts: 10, beerQuota: 7 },
@@ -1553,81 +1429,11 @@ const DIFFICULTIES = [
 ];
 
 const LEVELS = [
-  {
-    level: 1,
-    durationFastSec: 120,
-    totalDistance: 21600,
-    flatTutorialDist: 3200,
-    startAlt: 4650,
-    endAlt: 4800,
-    checkpointText: "KM 1 - ASCENSO ILINIZA SUR 4800 MSNM",
-    night: false,
-    storm: false,
-    frozenPlayer: false,
-    snowRate: 0.015,
-    rockRate: 0.010,
-    iceBlockGap: 430
-  },
-  {
-    level: 2,
-    durationFastSec: 120,
-    totalDistance: 21600,
-    flatTutorialDist: 0,
-    startAlt: 4800,
-    endAlt: 4900,
-    checkpointText: "KM 2 - 4900 MSNM",
-    night: false,
-    storm: false,
-    frozenPlayer: false,
-    snowRate: 0.024,
-    rockRate: 0.018,
-    iceBlockGap: 320
-  },
-  {
-    level: 3,
-    durationFastSec: 120,
-    totalDistance: 21600,
-    flatTutorialDist: 0,
-    startAlt: 4900,
-    endAlt: 5000,
-    checkpointText: "KM 3 - 5000 MSNM",
-    night: false,
-    storm: false,
-    frozenPlayer: false,
-    snowRate: 0.032,
-    rockRate: 0.026,
-    iceBlockGap: 250
-  },
-  {
-    level: 4,
-    durationFastSec: 120,
-    totalDistance: 21600,
-    flatTutorialDist: 0,
-    startAlt: 5000,
-    endAlt: 5100,
-    checkpointText: "DESCANSO - 5100 MSNM",
-    night: true,
-    storm: true,
-    frozenPlayer: false,
-    snowRate: 0.038,
-    rockRate: 0.030,
-    iceBlockGap: 220
-  },
-  {
-    level: 5,
-    durationFastSec: 180,
-    totalDistance: 32400,
-    flatTutorialDist: 0,
-    startAlt: 5100,
-    endAlt: 5248,
-    checkpointText: "FELICIDADES LLEGASTE A 5248 MSNM",
-    night: true,
-    storm: true,
-    frozenPlayer: true,
-    snowRate: 0.046,
-    rockRate: 0.038,
-    iceBlockGap: 200
-  }
+  { level: 1, durationFastSec: 120, totalDistance: 21600, flatTutorialDist: 3200, startAlt: 4650, endAlt: 4800, checkpointText: "KM 1 - ASCENSO ILINIZA SUR 4800 MSNM", night: false, storm: false, frozenPlayer: false, snowRate: 0.015, rockRate: 0.010, iceBlockGap: 430 },
+  { level: 2, durationFastSec: 120, totalDistance: 21600, flatTutorialDist: 0, startAlt: 4800, endAlt: 4900, checkpointText: "KM 2 - 4900 MSNM", night: false, storm: false, frozenPlayer: false, snowRate: 0.024, rockRate: 0.018, iceBlockGap: 320 },
+  { level: 3, durationFastSec: 120, totalDistance: 21600, flatTutorialDist: 0, startAlt: 4900, endAlt: 5000, checkpointText: "KM 3 - 5000 MSNM", night: false, storm: false, frozenPlayer: false, snowRate: 0.032, rockRate: 0.026, iceBlockGap: 250 },
+  { level: 4, durationFastSec: 120, totalDistance: 21600, flatTutorialDist: 0, startAlt: 5000, endAlt: 5100, checkpointText: "DESCANSO - 5100 MSNM", night: true, storm: true, frozenPlayer: false, snowRate: 0.038, rockRate: 0.030, iceBlockGap: 220 },
+  { level: 5, durationFastSec: 180, totalDistance: 32400, flatTutorialDist: 0, startAlt: 5100, endAlt: 5248, checkpointText: "FELICIDADES LLEGASTE A 5248 MSNM", night: true, storm: true, frozenPlayer: true, snowRate: 0.046, rockRate: 0.038, iceBlockGap: 200 }
 ];
 
 let diffIndex = 1;
@@ -1637,34 +1443,15 @@ let gameState = "MENU";
 let forceTouchUI = true;
 
 let storyData = {
-  levelIdx: 0,
-  score: 0,
-  levelScore: 0,
-  maxHearts: 5,
-  hearts: 5,
-  distance: 0,
-  elapsedSec: 0,
-  beersSpawnedThisLevel: 0,
-  nextIceDist: 600,
-  checkpointTimer: 0,
-  summitSunriseProgress: 0
+  levelIdx: 0, score: 0, levelScore: 0, maxHearts: 5, hearts: 5,
+  distance: 0, elapsedSec: 0, beersSpawnedThisLevel: 0, nextIceDist: 600,
+  checkpointTimer: 0, summitSunriseProgress: 0
 };
 
 let player = {
-  x: 140,
-  y: 380,
-  vx: 0,
-  vy: 0,
-  width: 48,
-  height: 68,
-  onGround: true,
-  crouching: false,
-  huggingWall: false,
-  swingTimer: 0,
-  invulnTimer: 0,
-  facing: 1,
-  animFrame: 0,
-  celebrating: false
+  x: 140, y: 380, vx: 0, vy: 0, width: 48, height: 68,
+  onGround: true, crouching: false, huggingWall: false,
+  swingTimer: 0, invulnTimer: 0, facing: 1, animFrame: 0, celebrating: false
 };
 
 let obstacles = [];
@@ -1682,7 +1469,7 @@ let isOnlineHost = false;
 let currentRoomCode = "";
 
 /* ============================================================================
-   6. DIBUJO PIXEL ART: LOGO, JORDY, CHUGO Y MOTOR DE PERSONAJE PERSONALIZADO
+   6. SPRITES PIXEL ART
    ============================================================================ */
 function drawApusLogo(ctx, x, y, size) {
   ctx.save();
@@ -1727,18 +1514,9 @@ function drawApusLogo(ctx, x, y, size) {
 
 function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   const {
-    scale = 1,
-    facing = 1,
-    anim = 0,
-    swinging = false,
-    crouching = false,
-    hugging = false,
-    kicking = false,
-    frozen = false,
-    celebrating = false,
-    crying = false,
-    hurt = false,
-    customConfig = null
+    scale = 1, facing = 1, anim = 0, swinging = false, crouching = false,
+    hugging = false, kicking = false, frozen = false, celebrating = false,
+    crying = false, hurt = false, customConfig = null
   } = opts;
 
   ctx.save();
@@ -1774,18 +1552,15 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   const walkCycle = celebrating ? (Date.now() * 0.018) : (anim * 0.35);
   const stepBounce = crying ? 0 : Math.sin(walkCycle) * 3.5;
 
-  // Sombra en el suelo
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.fillRect(-18, 30, 36, 6);
 
-  // Mochila de expedición
   ctx.fillStyle = packColor;
   ctx.fillRect(-21, -16 + yOffset, 12, 26);
   ctx.strokeStyle = "#0f172a";
   ctx.lineWidth = 2;
   ctx.strokeRect(-21, -16 + yOffset, 12, 26);
 
-  // Piernas y Pantalón
   const leg1Y = stepBounce;
   const leg2Y = -stepBounce;
   ctx.fillStyle = pantsColor;
@@ -1803,7 +1578,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(2, 22 + leg2Y * 0.5, 12, 7);
   }
 
-  // Torso / Chaqueta
   ctx.fillStyle = jacketColor;
   if (gender === "F") {
     ctx.fillRect(-10, -16 + yOffset, 20, 26);
@@ -1811,7 +1585,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(-11, -16 + yOffset, 22, 26);
   }
 
-  // Arnés de escalada
   ctx.fillStyle = harnessColor;
   ctx.fillRect(-11, 4 + yOffset, 22, 4);
   ctx.fillRect(-11, -6 + yOffset, 22, 3);
@@ -1820,7 +1593,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   ctx.fillStyle = "#cbd5e1";
   ctx.fillRect(-6, 5 + yOffset, 4, 6);
 
-  // Cabello trasero/lateral
   ctx.fillStyle = hairColor;
   if (hairLength === "LARGO") {
     ctx.fillRect(-16, -34 + yOffset, 7, 22);
@@ -1831,18 +1603,15 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(8, -33 + yOffset, 3, 9);
   }
 
-  // Cabeza y Color de Piel
   ctx.fillStyle = skinColor;
   ctx.fillRect(-10, -36 + yOffset, 20, 19);
 
-  // Patillas / flequillo bajo el casco
   ctx.fillStyle = hairColor;
   ctx.fillRect(-11, -34 + yOffset, 3, 7);
   if (hairLength !== "CORTO") {
     ctx.fillRect(-11, -30 + yOffset, 3, 7);
   }
 
-  // Ojos y Cejas
   if (crying) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-6, -28 + yOffset, 5, 2);
@@ -1870,7 +1639,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     }
   }
 
-  // Barba
   ctx.fillStyle = hairColor === "#f8fafc" || hairColor === "#94a3b8" ? hairColor : "#27272a";
   if (beardStyle === 1) {
     ctx.fillRect(-10, -24 + yOffset, 20, 8);
@@ -1880,7 +1648,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(-6, -24 + yOffset, 13, 3);
   }
 
-  // Boca
   if (crying) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-4, -21 + yOffset, 8, 2);
@@ -1902,7 +1669,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(-3, -22 + yOffset, 7, 2);
   }
 
-  // Gafas
   if (hasGlasses) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-9, -31 + yOffset, 19, 7);
@@ -1916,7 +1682,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     }
   }
 
-  // Lágrimas cayendo
   if (crying) {
     const tearFall1 = (Date.now() * 0.04) % 16;
     const tearFall2 = ((Date.now() * 0.04) + 8) % 16;
@@ -1928,7 +1693,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(5, -26 + yOffset + tearFall2, 1.5, 2);
   }
 
-  // Casco Técnico
   ctx.fillStyle = helmetColor;
   ctx.fillRect(-12, -43 + yOffset, 24, 11);
   ctx.strokeStyle = "#0f172a";
@@ -1948,7 +1712,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(4, -39 + yOffset, 4, 4);
   }
 
-  // Brazo y Piolet
   ctx.save();
   if (celebrating) {
     const pumpLift = Math.abs(Math.sin(Date.now() * 0.015)) * 9;
@@ -2004,7 +1767,7 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
 }
 
 /* ============================================================================
-   7. LÓGICA INTERACTIVA DEL TALLER DE CREACIÓN DE PERSONAJES
+   7. CREADOR DE PERSONAJES
    ============================================================================ */
 function selectCustomSlot(slotIdx) {
   activeCustomSlot = slotIdx;
@@ -2022,10 +1785,8 @@ function renderCustomCardPreview() {
   const cCtx = cardCanvas.getContext("2d");
   cCtx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
   const cfg = customCharSlots[activeCustomSlot];
-  drawMountaineerSprite(cCtx, "CUSTOM", 60, 95, {
-    scale: 1.65,
-    facing: 1,
-    customConfig: cfg
+  drawMountaineerSprite(cCtx, "CUSTOM", 60, 92, {
+    scale: 1.65, facing: 1, customConfig: cfg
   });
   const titleEl = document.getElementById("custom-card-title");
   if (titleEl) {
@@ -2052,7 +1813,6 @@ function switchCreatorSlot(slotIdx) {
 function updateCreatorConfig(prop, val) {
   const cfg = customCharSlots[activeCustomSlot];
   cfg[prop] = prop === "name" ? String(val).toUpperCase() : val;
-
   if (prop === "helmetBrand") {
     cfg.helmetColor = HELMET_COLORS[val][0].hex;
   }
@@ -2146,10 +1906,8 @@ function refreshCreatorUI() {
   const pCanvas = document.getElementById("creatorPreviewCanvas");
   const pCtx = pCanvas.getContext("2d");
   pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-  drawMountaineerSprite(pCtx, "CUSTOM", 65, 106, {
-    scale: 1.85,
-    facing: 1,
-    customConfig: cfg
+  drawMountaineerSprite(pCtx, "CUSTOM", 65, 102, {
+    scale: 1.85, facing: 1, customConfig: cfg
   });
 
   renderCustomCardPreview();
@@ -2166,13 +1924,12 @@ async function saveAndUseCustomChar() {
 }
 
 /* ============================================================================
-   8. GESTIÓN DE MENÚS, PARTIDAS GUARDADAS EN LA CUENTA Y RANKING DUAL
+   8. GESTIÓN DE MENÚS Y RANKINGS
    ============================================================================ */
 function showOverlay(id) {
   document.querySelectorAll(".overlay").forEach(el => el.classList.remove("active"));
   if (id) {
     document.getElementById(id).classList.add("active");
-    fixMobileViewport();
   }
 }
 
@@ -2191,19 +1948,15 @@ function changeDifficulty(dir) {
 function openCharSelect(mode) {
   pendingMode = mode;
   document.getElementById("mode-subtitle").textContent =
-    mode === "story"
-      ? "MODO ASCENSO AL ILINIZA SUR (5 NIVELES)"
-      : "MINI JUEGO CHUGO VS JORDY (ELIGE O CREA TU PERSONAJE)";
+    mode === "story" ? "MODO ASCENSO AL ILINIZA SUR (5 NIVELES)" : "MINI JUEGO CHUGO VS JORDY";
 
   const customCard = document.getElementById("card-custom");
   if (mode === "minigame") {
-    customCard.style.display = "block";
+    customCard.style.display = "flex";
     renderCustomCardPreview();
   } else {
     customCard.style.display = "none";
-    if (selectedCharacter === "CUSTOM") {
-      selectChar("JORDY");
-    }
+    if (selectedCharacter === "CUSTOM") selectChar("JORDY");
   }
 
   showOverlay("char-overlay");
@@ -2215,9 +1968,7 @@ function selectChar(name) {
   document.getElementById("card-jordy").classList.toggle("selected", name === "JORDY");
   document.getElementById("card-chugo").classList.toggle("selected", name === "CHUGO");
   const customCard = document.getElementById("card-custom");
-  if (customCard) {
-    customCard.classList.toggle("selected", name === "CUSTOM");
-  }
+  if (customCard) customCard.classList.toggle("selected", name === "CUSTOM");
   sound.playSFX("sfx_jump");
 }
 
@@ -2252,8 +2003,7 @@ function cancelOnlineAndBack() {
 
 function getSavesKey() {
   return currentUser && currentUser.username
-    ? `apus_iliniza_saves_${currentUser.username}`
-    : "apus_iliniza_saves";
+    ? `apus_iliniza_saves_${currentUser.username}` : "apus_iliniza_saves";
 }
 
 function getSavesList() {
@@ -2280,15 +2030,13 @@ async function saveCurrentProgress() {
     maxHearts: storyData.maxHearts
   };
   saves.unshift(newSave);
-  const trimmedSaves = saves.slice(0, 8);
-  localStorage.setItem(getSavesKey(), JSON.stringify(trimmedSaves));
+  const trimmed = saves.slice(0, 8);
+  localStorage.setItem(getSavesKey(), JSON.stringify(trimmed));
 
   if (currentUser && currentUser.username) {
     const store = getLocalCloudStore();
-    if (!store.users[currentUser.username]) {
-      store.users[currentUser.username] = {};
-    }
-    store.users[currentUser.username].saves = trimmedSaves;
+    if (!store.users[currentUser.username]) store.users[currentUser.username] = {};
+    store.users[currentUser.username].saves = trimmed;
     store.users[currentUser.username].updatedAt = Date.now();
     await pushWorldCloudData(store);
   }
@@ -2429,10 +2177,7 @@ async function submitScore() {
   const name = (currentUser ? currentUser.username : (input.value || "MONTANISTA")).toUpperCase().trim();
   const totalScore = storyData.score;
   const entry = {
-    name,
-    char: selectedCharacter,
-    diff: DIFFICULTIES[diffIndex].name,
-    score: totalScore
+    name, char: selectedCharacter, diff: DIFFICULTIES[diffIndex].name, score: totalScore
   };
 
   const localList = getLocalRankingList();
@@ -2534,7 +2279,7 @@ function returnToMainMenu() {
 }
 
 /* ============================================================================
-   9. SISTEMA MULTIJUGADOR ONLINE P2P (CON SINCRONIZACIÓN DE CUENTAS Y VELOCIDAD EQUILIBRADA)
+   9. SISTEMA MULTIJUGADOR ONLINE P2P
    ============================================================================ */
 function cleanupPeerConnection() {
   if (peerConn) {
@@ -2756,26 +2501,16 @@ function sendMyStateToPeer() {
 }
 
 /* ============================================================================
-   10. CONTROLES: JOYSTICK VIRTUAL EN PANTALLA + TECLADO PC
+   10. CONTROLES JOYSTICK Y TECLADO
    ============================================================================ */
 const keys = {
-  left: false,
-  right: false,
-  up: false,
-  down: false,
-  jump: false,
-  axe: false,
-  hug: false,
-  kick: false,
-  beer: false,
-  defend: false
+  left: false, right: false, up: false, down: false,
+  jump: false, axe: false, hug: false, kick: false, beer: false, defend: false
 };
-
 const joyState = { active: false, dx: 0, dy: 0 };
 
 window.addEventListener("keydown", (e) => {
   if (document.activeElement && document.activeElement.tagName === "INPUT") return;
-
   const code = e.code;
   if (code === "ArrowLeft" || code === "KeyA") keys.left = true;
   if (code === "ArrowRight" || code === "KeyD") keys.right = true;
@@ -2787,9 +2522,7 @@ window.addEventListener("keydown", (e) => {
     keys.down = true;
     if (gameState === "MINIGAME") keys.defend = true;
   }
-  if (code === "ShiftLeft" || code === "ShiftRight") {
-    keys.defend = true;
-  }
+  if (code === "ShiftLeft" || code === "ShiftRight") keys.defend = true;
   if (code === "Space") {
     keys.jump = true;
     if (gameState === "MINIGAME") {
@@ -2801,8 +2534,7 @@ window.addEventListener("keydown", (e) => {
   }
   if (code === "KeyZ" || code === "KeyJ") { keys.axe = true; triggerAxe(); }
   if (code === "KeyX" || code === "KeyK") {
-    keys.hug = true;
-    keys.kick = true;
+    keys.hug = true; keys.kick = true;
     if (gameState === "MINIGAME") triggerKick();
   }
   if (code === "KeyC" || code === "KeyL") {
@@ -2816,15 +2548,9 @@ window.addEventListener("keyup", (e) => {
   if (code === "ArrowLeft" || code === "KeyA") keys.left = false;
   if (code === "ArrowRight" || code === "KeyD") keys.right = false;
   if (code === "ArrowUp" || code === "KeyW") keys.up = false;
-  if (code === "ArrowDown" || code === "KeyS") {
-    keys.down = false;
-    keys.defend = false;
-  }
+  if (code === "ArrowDown" || code === "KeyS") { keys.down = false; keys.defend = false; }
   if (code === "ShiftLeft" || code === "ShiftRight") keys.defend = false;
-  if (code === "Space") {
-    keys.jump = false;
-    keys.defend = false;
-  }
+  if (code === "Space") { keys.jump = false; keys.defend = false; }
   if (code === "KeyZ" || code === "KeyJ") keys.axe = false;
   if (code === "KeyX" || code === "KeyK") { keys.hug = false; keys.kick = false; }
   if (code === "KeyC" || code === "KeyL") keys.beer = false;
@@ -2850,11 +2576,8 @@ function handleJoystickMove(clientX, clientY) {
   joyState.dy = dy / maxR;
 
   if (joyState.dy < -0.55) {
-    if (gameState === "STORY" && player.onGround) {
-      triggerJump();
-    } else if (gameState === "MINIGAME" && !vsWinner) {
-      triggerFighterJump();
-    }
+    if (gameState === "STORY" && player.onGround) triggerJump();
+    else if (gameState === "MINIGAME" && !vsWinner) triggerFighterJump();
   }
 }
 
@@ -2913,7 +2636,7 @@ bindTouchButton("fbtn-kick", () => { triggerKick(); }, null);
 bindTouchButton("fbtn-beer", () => { triggerBeerThrow(); }, null);
 
 /* ============================================================================
-   11. LÓGICA DEL MODO HISTORIA (5 NIVELES ILINIZA SUR)
+   11. ASCENSO ILINIZA SUR
    ============================================================================ */
 function startNewStoryGame() {
   const diff = DIFFICULTIES[diffIndex];
@@ -2933,22 +2656,16 @@ function initStoryLevel(lvlIdx, resetHearts = false) {
   storyData.nextIceDist = 550;
   storyData.checkpointTimer = 0;
   storyData.summitSunriseProgress = 0;
-  if (resetHearts) {
-    storyData.hearts = storyData.maxHearts;
-  }
+  if (resetHearts) storyData.hearts = storyData.maxHearts;
 
   const lvl = LEVELS[lvlIdx];
   const inFlat = storyData.distance < lvl.flatTutorialDist;
   player.x = isPortrait ? 110 : 180;
   player.y = getGroundY(inFlat);
-  player.vx = 0;
-  player.vy = 0;
-  player.onGround = true;
-  player.crouching = false;
-  player.huggingWall = false;
-  player.swingTimer = 0;
-  player.invulnTimer = 0;
-  player.celebrating = false;
+  player.vx = 0; player.vy = 0;
+  player.onGround = true; player.crouching = false;
+  player.huggingWall = false; player.swingTimer = 0;
+  player.invulnTimer = 0; player.celebrating = false;
 
   obstacles = [];
   floatingTexts = [];
@@ -2956,7 +2673,6 @@ function initStoryLevel(lvlIdx, resetHearts = false) {
 
   gameState = "STORY";
   updateTouchControlsVisibility();
-
   sound.playBGM(lvl.storm ? "bgm_storm" : "bgm_climb");
 }
 
@@ -2964,11 +2680,9 @@ function initSnowParticles() {
   snowParticles = [];
   for (let i = 0; i < 85; i++) {
     snowParticles.push({
-      x: Math.random() * GW,
-      y: Math.random() * GH,
+      x: Math.random() * GW, y: Math.random() * GH,
       r: Math.random() * 3 + 1,
-      vx: -Math.random() * 2 - 0.5,
-      vy: Math.random() * 2.5 + 1.5
+      vx: -Math.random() * 2 - 0.5, vy: Math.random() * 2.5 + 1.5
     });
   }
 }
@@ -2991,7 +2705,6 @@ function triggerAxe() {
   if (gameState === "STORY") {
     player.swingTimer = 16;
     sound.playSFX("sfx_axe");
-
     obstacles.forEach((ob) => {
       if (ob.dead) return;
       const dist = Math.hypot((ob.x) - (player.x + player.facing * 32), (ob.y) - (player.y - 10));
@@ -3001,10 +2714,7 @@ function triggerAxe() {
           storyData.levelScore += 10;
           addFloatingScore(ob.x, ob.y - 20, "+10", "#facc15");
           sound.playSFX("sfx_axe");
-
-          if (ob.type === "ICEBLOCK") {
-            maybeSpawnPilsener(ob.x, ob.y);
-          }
+          if (ob.type === "ICEBLOCK") maybeSpawnPilsener(ob.x, ob.y);
         }
       }
     });
@@ -3016,23 +2726,12 @@ function triggerAxe() {
 function maybeSpawnPilsener(x, y) {
   const diff = DIFFICULTIES[diffIndex];
   if (storyData.beersSpawnedThisLevel >= diff.beerQuota) return;
-
   const lvl = LEVELS[storyData.levelIdx];
   const progress = storyData.distance / lvl.totalDistance;
   const chance = diff.id === "FACIL" ? 0.45 : diff.id === "NORMAL" ? 0.25 : diff.id === "DIFICIL" ? 0.18 : 0.12;
-  const forceSpawn = (progress > 0.72 && storyData.beersSpawnedThisLevel === 0);
-
-  if (Math.random() < chance || forceSpawn) {
+  if (Math.random() < chance || (progress > 0.72 && storyData.beersSpawnedThisLevel === 0)) {
     storyData.beersSpawnedThisLevel++;
-    obstacles.push({
-      type: "PILSENER",
-      x: x,
-      y: y - 10,
-      vx: 0,
-      vy: 0,
-      r: 20,
-      dead: false
-    });
+    obstacles.push({ type: "PILSENER", x: x, y: y - 10, vx: 0, vy: 0, r: 20, dead: false });
   }
 }
 
@@ -3064,8 +2763,7 @@ function updateStoryMode() {
   const inFlatSection = storyData.distance < lvl.flatTutorialDist;
   const groundY = getGroundY(inFlatSection);
 
-  let moveX = 0;
-  let moveY = 0;
+  let moveX = 0, moveY = 0;
   if (keys.right || joyState.dx > 0.25) moveX = 1;
   else if (keys.left || joyState.dx < -0.25) moveX = -1;
 
@@ -3118,43 +2816,28 @@ function updateStoryMode() {
 
   if (storyData.distance >= storyData.nextIceDist && storyData.distance < lvl.totalDistance - 600) {
     storyData.nextIceDist = storyData.distance + lvl.iceBlockGap + Math.random() * 140;
-    obstacles.push({
-      type: "ICEBLOCK",
-      x: GW + 30,
-      y: groundY - 12,
-      r: 28,
-      dead: false
-    });
+    obstacles.push({ type: "ICEBLOCK", x: GW + 30, y: groundY - 12, r: 28, dead: false });
   }
 
   if (!inFlatSection) {
     if (Math.random() < lvl.snowRate) {
       obstacles.push({
-        type: "SNOWBALL",
-        x: (isPortrait ? 100 : 220) + Math.random() * (GW - 120),
-        y: isPortrait ? 75 : -30,
-        vx: -1.8 - Math.random() * 1.6,
-        vy: 2.8 + Math.random() * 2.2,
-        r: 20,
-        dead: false
+        type: "SNOWBALL", x: (isPortrait ? 100 : 220) + Math.random() * (GW - 120),
+        y: isPortrait ? 75 : -30, vx: -1.8 - Math.random() * 1.6, vy: 2.8 + Math.random() * 2.2,
+        r: 20, dead: false
       });
     }
     if (Math.random() < lvl.rockRate) {
       obstacles.push({
-        type: "ROCK",
-        x: (isPortrait ? 70 : 150) + Math.random() * (GW - 110),
-        y: isPortrait ? 75 : -35,
-        vx: -1.3 - Math.random() * 1.4,
-        vy: 4.0 + Math.random() * 2.8,
-        r: 22,
-        dead: false
+        type: "ROCK", x: (isPortrait ? 70 : 150) + Math.random() * (GW - 110),
+        y: isPortrait ? 75 : -35, vx: -1.3 - Math.random() * 1.4, vy: 4.0 + Math.random() * 2.8,
+        r: 22, dead: false
       });
     }
   }
 
   obstacles.forEach((ob) => {
     if (ob.dead) return;
-
     if (ob.type === "ICEBLOCK" || ob.type === "PILSENER") {
       ob.x -= advanceSpeed * 1.15;
       ob.y = groundY - 12;
@@ -3164,7 +2847,6 @@ function updateStoryMode() {
     }
 
     const distToPlayer = Math.hypot(ob.x - player.x, ob.y - (player.y - 18));
-
     if (ob.type === "PILSENER" && distToPlayer < 42) {
       ob.dead = true;
       storyData.hearts = Math.min(storyData.maxHearts, storyData.hearts + 0.5);
@@ -3185,16 +2867,11 @@ function updateStoryMode() {
         damagePlayer(0.5);
       }
     }
-
     if (ob.x < -80 || ob.y > groundY + 45) ob.dead = true;
   });
 
   obstacles = obstacles.filter((o) => !o.dead);
-
-  floatingTexts.forEach((ft) => {
-    ft.y -= 1.2;
-    ft.life--;
-  });
+  floatingTexts.forEach((ft) => { ft.y -= 1.2; ft.life--; });
   floatingTexts = floatingTexts.filter((ft) => ft.life > 0);
 
   const windMultiplier = lvl.storm ? 3.4 : 1.0;
@@ -3223,7 +2900,7 @@ function updateStoryMode() {
 }
 
 /* ============================================================================
-   12. MINI JUEGO CHUGO VS JORDY (ARENA UNIFICADA Y VELOCIDAD IDÉNTICA PARA AMBOS)
+   12. MINI JUEGO CHUGO VS JORDY
    ============================================================================ */
 let lastRemoteFighterInfo = null;
 
@@ -3239,7 +2916,6 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   const groundY = isPortrait ? 535 : 390;
 
   keys.defend = false;
-
   const p1StartX = (!onlineMode || isOnlineHost) ? 260 : 700;
   const p2StartX = (!onlineMode || isOnlineHost) ? 700 : 260;
 
@@ -3255,42 +2931,16 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
 
   fighters = [
     {
-      char: myInfo.char,
-      displayName: myInfo.displayName,
-      customConfig: myInfo.customConfig,
-      isAI: false,
-      x: p1StartX,
-      y: groundY,
-      vx: 0,
-      vy: 0,
-      hp: 350,
-      maxHp: 350,
-      facing: p1StartX < p2StartX ? 1 : -1,
-      onGround: true,
-      blocking: false,
-      action: null,
-      actionTimer: 0,
-      cooldown: 0,
-      anim: 0
+      char: myInfo.char, displayName: myInfo.displayName, customConfig: myInfo.customConfig,
+      isAI: false, x: p1StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350,
+      facing: p1StartX < p2StartX ? 1 : -1, onGround: true, blocking: false,
+      action: null, actionTimer: 0, cooldown: 0, anim: 0
     },
     {
-      char: p2Char,
-      displayName: p2DisplayName,
-      customConfig: p2CustomConfig,
-      isAI: !onlineMode,
-      x: p2StartX,
-      y: groundY,
-      vx: 0,
-      vy: 0,
-      hp: 350,
-      maxHp: 350,
-      facing: p2StartX < p1StartX ? 1 : -1,
-      onGround: true,
-      blocking: false,
-      action: null,
-      actionTimer: 0,
-      cooldown: 0,
-      anim: 0
+      char: p2Char, displayName: p2DisplayName, customConfig: p2CustomConfig,
+      isAI: !onlineMode, x: p2StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350,
+      facing: p2StartX < p1StartX ? 1 : -1, onGround: true, blocking: false,
+      action: null, actionTimer: 0, cooldown: 0, anim: 0
     }
   ];
   projectiles = [];
@@ -3304,10 +2954,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
 function requestRematch() {
   sound.playSFX("sfx_checkpoint");
   if (vsIsOnline && peerConn && peerConn.open) {
-    peerConn.send({
-      type: "REMATCH",
-      fighterInfo: getMyFighterPayload()
-    });
+    peerConn.send({ type: "REMATCH", fighterInfo: getMyFighterPayload() });
   }
   startVersusMiniGame(vsIsOnline, lastRemoteFighterInfo);
 }
@@ -3361,11 +3008,7 @@ function triggerBeerThrow() {
   f.cooldown = 38;
   sound.playSFX("sfx_jump");
   projectiles.push({
-    owner: 0,
-    x: f.x + f.facing * 32,
-    y: f.y - 24,
-    vx: f.facing * 8.5,
-    rot: 0
+    owner: 0, x: f.x + f.facing * 32, y: f.y - 24, vx: f.facing * 8.5, rot: 0
   });
   if (vsIsOnline && peerConn && peerConn.open) {
     peerConn.send({ type: "BEER_THROW" });
@@ -3404,9 +3047,7 @@ function updateVersusMiniGame() {
   const groundY = isPortrait ? 535 : 390;
 
   if (vsWinner) {
-    if (vsEndAnimTimer > 0) {
-      vsEndAnimTimer--;
-    }
+    if (vsEndAnimTimer > 0) vsEndAnimTimer--;
     fighters.forEach((f) => {
       f.vx = 0;
       if (f.y < groundY) {
@@ -3429,7 +3070,6 @@ function updateVersusMiniGame() {
   const p2 = fighters[1];
 
   p1.blocking = keys.defend || (joyState.dy > 0.45);
-
   p1.vx *= 0.8;
   if (!p1.blocking) {
     if (keys.left || joyState.dx < -0.25) { p1.vx = -FIGHT_MOVE_SPEED; p1.anim++; }
@@ -3447,8 +3087,7 @@ function updateVersusMiniGame() {
     p1.vy = 0;
     p1.onGround = true;
   }
-  if (p1.actionTimer > 0) p1.actionTimer--;
-  else p1.action = null;
+  if (p1.actionTimer > 0) p1.actionTimer--; else p1.action = null;
   if (p1.cooldown > 0) p1.cooldown--;
 
   if (!vsIsOnline) {
@@ -3461,24 +3100,16 @@ function updateVersusMiniGame() {
       if (Math.random() < 0.012 && p2.cooldown <= 0) {
         p2.cooldown = 45;
         projectiles.push({
-          owner: 1,
-          x: p2.x + p2.facing * 32,
-          y: p2.y - 24,
-          vx: p2.facing * 8.5,
-          rot: 0
+          owner: 1, x: p2.x + p2.facing * 32, y: p2.y - 24, vx: p2.facing * 8.5, rot: 0
         });
       }
     } else if (p2.cooldown <= 0) {
       if (Math.random() < 0.5) {
-        p2.action = "AXE";
-        p2.actionTimer = 15;
-        p2.cooldown = 48;
+        p2.action = "AXE"; p2.actionTimer = 15; p2.cooldown = 48;
         sound.playSFX("sfx_axe");
         checkMeleeHit(p2, p1, 6);
       } else {
-        p2.action = "KICK";
-        p2.actionTimer = 18;
-        p2.cooldown = 54;
+        p2.action = "KICK"; p2.actionTimer = 18; p2.cooldown = 54;
         sound.playSFX("sfx_kick");
         checkMeleeHit(p2, p1, 8);
       }
@@ -3494,8 +3125,7 @@ function updateVersusMiniGame() {
       p2.vy = 0;
       p2.onGround = true;
     }
-    if (p2.actionTimer > 0) p2.actionTimer--;
-    else p2.action = null;
+    if (p2.actionTimer > 0) p2.actionTimer--; else p2.action = null;
     if (p2.cooldown > 0) p2.cooldown--;
   } else {
     if (p2.actionTimer > 0) p2.actionTimer--;
@@ -3517,8 +3147,7 @@ function updateVersusMiniGame() {
           sound.playSFX("sfx_hit");
           addFloatingScore(stageXToCanvasX(target.x), target.y - 50, "-5 🍺", "#f97316");
           if (target.hp <= 0) {
-            const winFighter = fighters[pr.owner];
-            declareVersusWinner(winFighter.displayName || winFighter.char);
+            declareVersusWinner(fighters[pr.owner].displayName || fighters[pr.owner].char);
           }
         }
       }
@@ -3532,35 +3161,26 @@ function updateVersusMiniGame() {
 }
 
 /* ============================================================================
-   13. RENDERIZADO ADAPTATIVO BALANCEADO (VERTICAL EN CELULAR / HORIZONTAL EN PC)
+   13. FONDOS Y HUD
    ============================================================================ */
 function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
   const horizonY = isPortrait ? 520 : 410;
   const grad = ctx.createLinearGradient(0, 0, 0, horizonY + 80);
   if (isNight && sunriseProgress === 0) {
-    grad.addColorStop(0, "#050811");
-    grad.addColorStop(0.6, "#111a2e");
-    grad.addColorStop(1, "#1e293b");
+    grad.addColorStop(0, "#050811"); grad.addColorStop(0.6, "#111a2e"); grad.addColorStop(1, "#1e293b");
   } else if (sunriseProgress > 0) {
-    grad.addColorStop(0, "#1e1b4b");
-    grad.addColorStop(0.45, "#9d174d");
-    grad.addColorStop(0.75, "#f97316");
-    grad.addColorStop(1, "#fde047");
+    grad.addColorStop(0, "#1e1b4b"); grad.addColorStop(0.45, "#9d174d"); grad.addColorStop(0.75, "#f97316"); grad.addColorStop(1, "#fde047");
   } else {
-    grad.addColorStop(0, "#1d3557");
-    grad.addColorStop(0.5, "#457b9d");
-    grad.addColorStop(0.82, "#f4a261");
-    grad.addColorStop(1, "#e9c46a");
+    grad.addColorStop(0, "#1d3557"); grad.addColorStop(0.5, "#457b9d"); grad.addColorStop(0.82, "#f4a261"); grad.addColorStop(1, "#e9c46a");
   }
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, GW, GH);
 
-  ctx.fillStyle = isNight && sunriseProgress < 0.3 ? "rgba(51, 65, 85, 0.35)" : "rgba(255, 255, 255, 0.22)";
   const cloudY = isPortrait ? 135 : 95;
+  ctx.fillStyle = isNight && sunriseProgress < 0.3 ? "rgba(51, 65, 85, 0.35)" : "rgba(255, 255, 255, 0.22)";
   ctx.fillRect(45, cloudY, 130, 14);
   ctx.fillRect(70, cloudY - 8, 80, 8);
   ctx.fillRect(GW - 210, cloudY + 25, 150, 14);
-  ctx.fillRect(GW - 180, cloudY + 15, 95, 10);
 
   const peakX = isPortrait ? GW * 0.5 : GW * 0.45;
   const peakY = isPortrait ? 175 : 145;
@@ -3570,13 +3190,9 @@ function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
     const sunX = isPortrait ? GW * 0.76 : 760;
     const sunY = (horizonY - 70) - sunriseProgress * 150;
     ctx.fillStyle = "rgba(253, 224, 71, 0.35)";
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 85, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(sunX, sunY, 85, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#fef08a";
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 48, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(sunX, sunY, 48, 0, Math.PI * 2); ctx.fill();
   }
 
   ctx.save();
@@ -3614,9 +3230,7 @@ function drawBottlePilsener(x, y, rot = 0) {
   ctx.translate(x, y);
   ctx.rotate(rot);
   ctx.fillStyle = "rgba(250, 204, 21, 0.35)";
-  ctx.beginPath();
-  ctx.arc(0, 0, 18, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = "#78350f";
   ctx.fillRect(-7, -6, 14, 22);
   ctx.fillRect(-4, -16, 8, 10);
@@ -3636,16 +3250,12 @@ function drawHeartsHUD(x, y, hearts, maxHearts) {
     ctx.fillStyle = "#1e293b";
     ctx.fillRect(hx - 2, y - 2, 20, 18);
     if (fillAmount >= 1) {
-      ctx.fillStyle = "#ef4444";
-      ctx.fillRect(hx, y, 16, 14);
+      ctx.fillStyle = "#ef4444"; ctx.fillRect(hx, y, 16, 14);
     } else if (fillAmount >= 0.5) {
-      ctx.fillStyle = "#ef4444";
-      ctx.fillRect(hx, y, 8, 14);
-      ctx.fillStyle = "#475569";
-      ctx.fillRect(hx + 8, y, 8, 14);
+      ctx.fillStyle = "#ef4444"; ctx.fillRect(hx, y, 8, 14);
+      ctx.fillStyle = "#475569"; ctx.fillRect(hx + 8, y, 8, 14);
     } else {
-      ctx.fillStyle = "#475569";
-      ctx.fillRect(hx, y, 16, 14);
+      ctx.fillStyle = "#475569"; ctx.fillRect(hx, y, 16, 14);
     }
   }
 }
@@ -3672,12 +3282,6 @@ function renderStoryMode() {
   ctx.fillRect(0, floorTop, GW, 75);
   ctx.fillStyle = "#e2e8f0";
   ctx.fillRect(0, floorTop - 5, GW, 18);
-
-  ctx.fillStyle = "#0f172a";
-  for (let rx = 0; rx < GW; rx += 90) {
-    ctx.fillRect((rx - scrollX + GW) % GW, floorTop + 32, 46, 10);
-    ctx.fillRect((rx + 40 - scrollX + GW) % GW, floorTop + 65, 55, 12);
-  }
 
   if (!inFlatSection) {
     const wallBaseX = isPortrait ? 275 : 520;
@@ -3713,29 +3317,15 @@ function renderStoryMode() {
 
   obstacles.forEach((ob) => {
     if (ob.type === "ICEBLOCK") {
-      ctx.fillStyle = "#38bdf8";
-      ctx.fillRect(ob.x - 24, ob.y - 36, 48, 52);
-      ctx.fillStyle = "#e0f2fe";
-      ctx.fillRect(ob.x - 20, ob.y - 32, 40, 14);
-      ctx.strokeStyle = "#0284c7";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(ob.x - 24, ob.y - 36, 48, 52);
+      ctx.fillStyle = "#38bdf8"; ctx.fillRect(ob.x - 24, ob.y - 36, 48, 52);
+      ctx.fillStyle = "#e0f2fe"; ctx.fillRect(ob.x - 20, ob.y - 32, 40, 14);
+      ctx.strokeStyle = "#0284c7"; ctx.lineWidth = 3; ctx.strokeRect(ob.x - 24, ob.y - 36, 48, 52);
     } else if (ob.type === "SNOWBALL") {
-      ctx.fillStyle = "#f8fafc";
-      ctx.beginPath();
-      ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "#94a3b8";
-      ctx.lineWidth = 3;
-      ctx.stroke();
+      ctx.fillStyle = "#f8fafc"; ctx.beginPath(); ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 3; ctx.stroke();
     } else if (ob.type === "ROCK") {
-      ctx.fillStyle = "#475569";
-      ctx.beginPath();
-      ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 3;
-      ctx.stroke();
+      ctx.fillStyle = "#475569"; ctx.beginPath(); ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 3; ctx.stroke();
     } else if (ob.type === "PILSENER") {
       drawBottlePilsener(ob.x, ob.y, 0);
     }
@@ -3743,25 +3333,18 @@ function renderStoryMode() {
 
   drawMountaineerSprite(ctx, selectedCharacter, player.x, player.y, {
     scale: isPortrait ? 1.45 : 1.35,
-    facing: player.facing,
-    anim: player.animFrame,
-    swinging: player.swingTimer > 0,
-    crouching: player.crouching,
-    hugging: player.huggingWall,
-    frozen: lvl.frozenPlayer,
-    celebrating: player.celebrating,
-    hurt: player.invulnTimer > 0
+    facing: player.facing, anim: player.animFrame,
+    swinging: player.swingTimer > 0, crouching: player.crouching,
+    hugging: player.huggingWall, frozen: lvl.frozenPlayer,
+    celebrating: player.celebrating, hurt: player.invulnTimer > 0
   });
 
   ctx.fillStyle = "#ffffff";
-  snowParticles.forEach((p) => {
-    ctx.fillRect(p.x, p.y, p.r, p.r);
-  });
+  snowParticles.forEach((p) => { ctx.fillRect(p.x, p.y, p.r, p.r); });
 
   if (lvl.night && storyData.summitSunriseProgress < 0.5) {
     const darkness = ctx.createRadialGradient(
-      player.x, player.y - 20, 75,
-      player.x, player.y - 20, 320
+      player.x, player.y - 20, 75, player.x, player.y - 20, 320
     );
     darkness.addColorStop(0, "rgba(5, 8, 18, 0.1)");
     darkness.addColorStop(1, "rgba(5, 8, 18, 0.86)");
@@ -3786,16 +3369,11 @@ function renderStoryMode() {
 
   ctx.fillStyle = "#f8fafc";
   ctx.font = isPortrait ? "9px 'Press Start 2P'" : "11px 'Press Start 2P'";
-  ctx.fillText(
-    `NV ${lvl.level}/5 | ${currentAlt}m | PTS:${storyData.score + storyData.levelScore}`,
-    20, 56
-  );
+  ctx.fillText(`NV ${lvl.level}/5 | ${currentAlt}m | PTS:${storyData.score + storyData.levelScore}`, 20, 56);
 
   const barW = hudW - 18;
-  ctx.fillStyle = "#334155";
-  ctx.fillRect(20, 68, barW, 12);
-  ctx.fillStyle = "#f7931e";
-  ctx.fillRect(20, 68, barW * progress, 12);
+  ctx.fillStyle = "#334155"; ctx.fillRect(20, 68, barW, 12);
+  ctx.fillStyle = "#f7931e"; ctx.fillRect(20, 68, barW * progress, 12);
 
   if (gameState === "CHECKPOINT") {
     const cpW = isPortrait ? 490 : 660;
@@ -3820,9 +3398,7 @@ function renderStoryMode() {
     ctx.textAlign = "left";
 
     storyData.checkpointTimer--;
-    if (storyData.checkpointTimer <= 0) {
-      initStoryLevel(storyData.levelIdx + 1, false);
-    }
+    if (storyData.checkpointTimer <= 0) initStoryLevel(storyData.levelIdx + 1, false);
   }
 
   if (gameState === "SUMMIT" && player.celebrating) {
@@ -3870,7 +3446,6 @@ function renderVersusMiniGame() {
   const barW = isPortrait ? 190 : 340;
   const barY = isPortrait ? 56 : 24;
 
-  // Barra P1
   ctx.fillStyle = "#1e293b";
   ctx.fillRect(20, barY, barW, 24);
   ctx.fillStyle = "#22c55e";
@@ -3882,7 +3457,6 @@ function renderVersusMiniGame() {
   ctx.font = isPortrait ? "9px 'Press Start 2P'" : "11px 'Press Start 2P'";
   ctx.fillText(`${p1.displayName || p1.char}`, 22, barY + 42);
 
-  // VS
   ctx.textAlign = "center";
   ctx.fillStyle = "#facc15";
   ctx.font = "14px 'Press Start 2P'";
@@ -3893,7 +3467,6 @@ function renderVersusMiniGame() {
     ctx.fillText(`SALA: ${currentRoomCode}`, GW / 2, barY + 36);
   }
 
-  // Barra P2
   const p2BarX = GW - 20 - barW;
   ctx.fillStyle = "#1e293b";
   ctx.fillRect(p2BarX, barY, barW, 24);
@@ -3914,14 +3487,9 @@ function renderVersusMiniGame() {
     const drawX = stageXToCanvasX(f.x);
 
     drawMountaineerSprite(ctx, f.char, drawX, f.y, {
-      scale: isPortrait ? 1.5 : 1.55,
-      facing: f.facing,
-      anim: f.anim,
-      swinging: f.action === "AXE",
-      kicking: f.action === "KICK",
-      hugging: f.blocking,
-      celebrating: isWinFighter,
-      crying: isLoseFighter,
+      scale: isPortrait ? 1.5 : 1.55, facing: f.facing, anim: f.anim,
+      swinging: f.action === "AXE", kicking: f.action === "KICK",
+      hugging: f.blocking, celebrating: isWinFighter, crying: isLoseFighter,
       customConfig: f.customConfig
     });
 
@@ -3967,17 +3535,17 @@ function renderVersusMiniGame() {
 }
 
 /* ============================================================================
-   14. INICIALIZACIÓN Y BUCLE PRINCIPAL (60 FPS)
+   14. INICIALIZACIÓN Y BUCLE
    ============================================================================ */
 function initPreviews() {
   const logoCtx = document.getElementById("logoCanvas").getContext("2d");
   drawApusLogo(logoCtx, 4, 4, 88);
 
   const jCtx = document.getElementById("preview-jordy").getContext("2d");
-  drawMountaineerSprite(jCtx, "JORDY", 60, 95, { scale: 1.65, facing: 1 });
+  drawMountaineerSprite(jCtx, "JORDY", 60, 92, { scale: 1.65, facing: 1 });
 
   const cCtx = document.getElementById("preview-chugo").getContext("2d");
-  drawMountaineerSprite(cCtx, "CHUGO", 60, 95, { scale: 1.65, facing: 1 });
+  drawMountaineerSprite(cCtx, "CHUGO", 60, 92, { scale: 1.65, facing: 1 });
 
   renderCustomCardPreview();
 }
