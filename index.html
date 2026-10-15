@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>APUS' GUARDIANS - RETO ILINIZA SUR</title>
-<!-- Librería PeerJS para conexión Multijugador Online P2P -->
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<!-- Librería PeerJS con carga asíncrona segura -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
   * {
@@ -66,15 +66,15 @@
     background: rgba(25, 34, 54, 0.96);
     border: 4px solid #8ba3c7;
     box-shadow: 0 0 0 4px #111827, 0 8px 24px rgba(0,0,0,0.8);
-    padding: 14px;
-    border-radius: 6px;
-    max-width: 680px;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 700px;
     width: 95%;
-    max-height: 90dvh;
+    max-height: 92dvh;
     overflow-y: auto;
   }
   h1 {
-    font-size: clamp(12px, 2.8vw, 21px);
+    font-size: clamp(13px, 2.8vw, 21px);
     color: #f7931e;
     text-shadow: 3px 3px 0 #000;
     margin-bottom: 6px;
@@ -90,16 +90,17 @@
   .menu-btn {
     display: block;
     width: 100%;
-    padding: 10px 10px;
-    margin: 5px 0;
+    padding: 12px 10px;
+    margin: 6px 0;
     background: #2b3954;
     border: 3px solid #6b82a8;
     color: #fff;
     font-family: inherit;
-    font-size: clamp(8px, 1.7vw, 12px);
+    font-size: clamp(10px, 1.8vw, 13px);
     cursor: pointer;
     text-shadow: 2px 2px 0 #000;
     transition: transform 0.1s, background 0.15s;
+    border-radius: 6px;
   }
   .menu-btn:hover, .menu-btn:active {
     background: #f7931e;
@@ -109,10 +110,10 @@
   .user-status-bar {
     background: #141c2b;
     border: 2px solid #38bdf8;
-    padding: 7px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    font-size: clamp(8px, 1.5vw, 10px);
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-size: clamp(8px, 1.6vw, 10px);
     color: #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -127,13 +128,14 @@
   }
   .tab-btn {
     flex: 1;
-    padding: 8px 6px;
+    padding: 10px 6px;
     background: #141c2b;
     border: 3px solid #4a5d80;
     color: #94a3b8;
     font-family: inherit;
-    font-size: clamp(8px, 1.6vw, 10px);
+    font-size: clamp(8px, 1.7vw, 10px);
     cursor: pointer;
+    border-radius: 5px;
   }
   .tab-btn.active {
     background: #f7931e;
@@ -147,10 +149,11 @@
     align-items: center;
     gap: 10px;
     margin-top: 8px;
-    padding: 8px;
+    padding: 10px;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    font-size: clamp(8px, 1.7vw, 11px);
+    font-size: clamp(9px, 1.8vw, 11px);
+    border-radius: 6px;
   }
   .diff-btn {
     background: #f7931e;
@@ -158,9 +161,10 @@
     color: #000;
     font-family: inherit;
     font-weight: bold;
-    padding: 5px 8px;
+    padding: 7px 10px;
     cursor: pointer;
-    font-size: 9px;
+    font-size: 10px;
+    border-radius: 5px;
   }
   /* TOP BUTTONS */
   #top-bar {
@@ -168,7 +172,7 @@
     top: 10px;
     right: 10px;
     display: flex;
-    gap: 6px;
+    gap: 8px;
     z-index: 30;
   }
   .icon-btn {
@@ -176,8 +180,8 @@
     border: 3px solid #8ba3c7;
     color: #fff;
     font-family: inherit;
-    font-size: 9px;
-    padding: 7px 9px;
+    font-size: 10px;
+    padding: 9px 11px;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -192,21 +196,26 @@
   /* CHARACTER SELECTION */
   .char-grid {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: stretch;
     gap: 10px;
     margin: 10px 0;
     flex-wrap: wrap;
   }
   .char-card {
     flex: 1;
-    min-width: 130px;
+    min-width: 140px;
     background: #1b263b;
     border: 4px solid #5a729a;
-    padding: 8px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 8px;
     position: relative;
     transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
   }
   .char-card.selected {
     border-color: #f7931e;
@@ -214,63 +223,70 @@
     background: #253452;
   }
   .char-name {
-    margin-top: 4px;
-    font-size: 11px;
+    margin-top: 6px;
+    font-size: 12px;
     text-shadow: 2px 2px 0 #000;
   }
-  /* CREADOR DE PERSONAJE PERSONALIZADO */
+  /* CREADOR DE PERSONAJE PERSONALIZADO: SIEMPRE LADO A LADO (SIN PERDER DE VISTA EL PERSONAJE) */
   .creator-layout {
     display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 10px;
+    align-items: stretch;
+    flex-wrap: nowrap;
     margin: 8px 0;
     text-align: left;
+    height: 54dvh;
+    min-height: 290px;
+    max-height: 430px;
   }
   .creator-preview-panel {
-    flex: 0 0 155px;
+    flex: 0 0 150px;
     background: #141c2b;
     border: 3px solid #63b3ed;
     border-radius: 8px;
     padding: 8px;
     text-align: center;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
   .creator-options-panel {
     flex: 1;
-    min-width: 240px;
-    max-height: 48dvh;
+    height: 100%;
     overflow-y: auto;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 10px;
   }
   .opt-row {
-    margin-bottom: 10px;
-    padding-bottom: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 1px dashed #334155;
   }
   .opt-label {
-    font-size: 8px;
+    font-size: 9px;
     color: #facc15;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     display: block;
+    line-height: 1.4;
   }
   .opt-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 6px;
   }
   .chip-btn {
     background: #2b3954;
     border: 2px solid #64748b;
     color: #fff;
     font-family: inherit;
-    font-size: 8px;
-    padding: 5px 7px;
+    font-size: 9px;
+    padding: 7px 9px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 5px;
   }
   .chip-btn.active {
     background: #f7931e;
@@ -279,9 +295,9 @@
     font-weight: bold;
   }
   .color-swatch {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     border: 2px solid #64748b;
     cursor: pointer;
     transition: transform 0.1s;
@@ -289,7 +305,7 @@
   .color-swatch.active {
     border: 3px solid #ffffff;
     box-shadow: 0 0 8px #facc15;
-    transform: scale(1.15);
+    transform: scale(1.12);
   }
   /* TOUCH CONTROLS */
   #touch-controls {
@@ -297,21 +313,22 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 12px 16px calc(22px + env(safe-area-inset-bottom, 12px)) 16px;
+    padding: 12px 18px calc(22px + env(safe-area-inset-bottom, 12px)) 18px;
     pointer-events: none;
     z-index: 25;
     display: none;
     justify-content: space-between;
     align-items: center;
+    gap: 14px;
   }
   #touch-controls.active {
     display: flex;
   }
   #joystick-zone {
-    width: 126px;
-    height: 126px;
-    background: rgba(255, 255, 255, 0.16);
-    border: 3px solid rgba(255, 255, 255, 0.55);
+    width: 136px;
+    height: 136px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 3px solid rgba(255, 255, 255, 0.65);
     border-radius: 50%;
     position: relative;
     pointer-events: auto;
@@ -320,8 +337,8 @@
     box-shadow: 0 4px 14px rgba(0,0,0,0.6);
   }
   #joystick-knob {
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
     background: rgba(247, 147, 30, 0.95);
     border: 3px solid #fff;
     border-radius: 50%;
@@ -335,18 +352,18 @@
   .action-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 10px;
     pointer-events: auto;
   }
   .act-btn {
-    width: 86px;
-    height: 56px;
-    border-radius: 12px;
+    width: 102px;
+    height: 64px;
+    border-radius: 14px;
     border: 3px solid #fff;
     color: #fff;
     font-family: inherit;
-    font-size: 7.5px;
-    line-height: 1.25;
+    font-size: 9px;
+    line-height: 1.3;
     text-shadow: 1px 1px 0 #000;
     display: flex;
     flex-direction: column;
@@ -363,38 +380,101 @@
     filter: brightness(1.25);
     border-color: #fde047;
   }
-  .btn-jump { background: rgba(46, 134, 222, 0.92); }
-  .btn-axe { background: rgba(238, 82, 83, 0.92); }
-  .btn-hug { background: rgba(16, 172, 132, 0.92); }
-  .btn-beer { background: rgba(243, 156, 18, 0.92); }
+  .btn-jump { background: rgba(46, 134, 222, 0.94); }
+  .btn-axe { background: rgba(238, 82, 83, 0.94); }
+  .btn-hug { background: rgba(16, 172, 132, 0.94); }
+  .btn-beer { background: rgba(243, 156, 18, 0.94); }
 
-  /* MODO VERTICAL EN CELULAR */
-  @media (orientation: portrait) {
+  /* AJUSTES ESPECÍFICOS PARA CELULAR (VERTICAL Y PANTALLAS MÓVILES) */
+  @media (orientation: portrait), (max-width: 760px) {
+    .overlay {
+      padding: 6px;
+    }
+    .retro-box {
+      width: 98%;
+      max-height: 94dvh;
+      padding: 14px 12px;
+    }
+    h1 {
+      font-size: clamp(14px, 4.3vw, 20px);
+    }
+    h2 {
+      font-size: clamp(10px, 3vw, 13px);
+    }
+    .menu-btn {
+      padding: 14px 10px;
+      font-size: clamp(11px, 3.3vw, 14px);
+      margin: 7px 0;
+    }
+    /* En celular: Jordy y Chugo arriba (50% cada uno) y Personalizado grande abajo */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    #card-custom {
+      grid-column: span 2;
+    }
+    .char-card {
+      min-width: 0;
+      padding: 10px 8px;
+    }
+    /* Creador en móvil: Personaje fijo a la izquierda y opciones al lado derecho */
+    .creator-layout {
+      height: 58dvh;
+      min-height: 320px;
+      gap: 8px;
+    }
+    .creator-preview-panel {
+      flex: 0 0 38%;
+      max-width: 148px;
+      padding: 6px;
+    }
+    .creator-options-panel {
+      flex: 1;
+      padding: 8px;
+    }
+    .chip-btn {
+      font-size: 9px;
+      padding: 8px 9px;
+    }
+    .color-swatch {
+      width: 30px;
+      height: 30px;
+    }
+    /* Controles táctiles grandes y ergonómicos en móvil */
     #touch-controls {
-      height: 28dvh;
-      min-height: 195px;
-      max-height: 245px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(11, 16, 30, 0.95) 24%, #090d16 100%);
-      border-top: 3px solid rgba(139, 163, 199, 0.4);
-      padding: 14px 16px calc(26px + env(safe-area-inset-bottom, 16px)) 16px;
+      height: 30dvh;
+      min-height: 215px;
+      max-height: 265px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(11, 16, 30, 0.96) 20%, #090d16 100%);
+      border-top: 3px solid rgba(139, 163, 199, 0.45);
+      padding: 14px 14px calc(24px + env(safe-area-inset-bottom, 14px)) 14px;
       align-items: center;
+      gap: 12px;
     }
     #joystick-zone {
-      width: 118px;
-      height: 118px;
+      width: 140px;
+      height: 140px;
     }
     #joystick-knob {
-      width: 46px;
-      height: 46px;
+      width: 56px;
+      height: 56px;
+    }
+    .action-buttons {
+      flex: 1;
+      max-width: 235px;
+      gap: 10px;
     }
     .act-btn {
-      width: 82px;
-      height: 54px;
-      font-size: 7.2px;
+      width: 100%;
+      height: 68px;
+      font-size: 9.5px;
     }
     #tbtn-hug {
-      width: 172px !important;
-      height: 48px;
+      grid-column: span 2;
+      width: 100% !important;
+      height: 58px;
     }
   }
 
@@ -403,48 +483,49 @@
     width: 100%;
     border-collapse: collapse;
     margin: 8px 0;
-    font-size: clamp(8px, 1.5vw, 10px);
+    font-size: clamp(9px, 2vw, 11px);
   }
   th, td {
     border: 2px solid #4a5d80;
-    padding: 6px;
+    padding: 7px 6px;
     text-align: left;
   }
   th { background: #141c2b; color: #f7931e; }
   input[type="text"], input[type="password"] {
     width: 100%;
-    padding: 9px;
+    padding: 11px;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     background: #0f172a;
     border: 3px solid #63b3ed;
     color: #fff;
-    margin: 5px 0;
+    margin: 6px 0;
     text-align: center;
+    border-radius: 5px;
   }
   .room-code-box {
     background: #0f172a;
     border: 3px dashed #facc15;
-    padding: 10px;
+    padding: 12px;
     margin: 8px 0;
-    font-size: 17px;
+    font-size: 20px;
     color: #facc15;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
   }
   .status-badge {
-    font-size: 8px;
+    font-size: 9px;
     color: #38bdf8;
     margin: 6px 0;
     line-height: 1.5;
   }
   .logo-badge {
-    width: 64px;
-    height: 64px;
+    width: 68px;
+    height: 68px;
     margin: 0 auto 6px;
     display: block;
   }
   .controls-hint {
-    font-size: 8px;
+    font-size: 8.5px;
     color: #a0aec0;
     margin-top: 8px;
     line-height: 1.5;
@@ -471,7 +552,7 @@
 
       <div class="user-status-bar">
         <span id="menu-user-label">👤 SESIÓN: INVITADO (SIN CUENTA)</span>
-        <button class="diff-btn" style="font-size:8px; padding:4px 7px;" onclick="openAuthModal()">👤 CUENTA</button>
+        <button class="diff-btn" onclick="openAuthModal()">👤 CUENTA</button>
       </div>
 
       <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
@@ -487,8 +568,8 @@
         <button class="diff-btn" onclick="changeDifficulty(1)">&gt;</button>
       </div>
       <div class="controls-hint">
-        🌎 Inicia sesión para guardar hasta 3 personajes personalizados y subir al Ranking Mundial.<br>
-        📱 Celular: Joystick Arriba = Saltar | Mantén 🛡️ DEFENDER para bloquear | 🦵 CRAMPONAZO
+        🌎 Inicia sesión para guardar hasta 3 personajes personalizados.<br>
+        📱 Celular: Joystick Arriba = Saltar | Mantén 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
     </div>
   </div>
@@ -497,7 +578,7 @@
   <div id="auth-overlay" class="overlay">
     <div class="retro-box">
       <h1>👤 CUENTA DE MONTAÑISTA</h1>
-      <h2>GUARDA TUS 3 PERSONAJES Y RANKING MUNDIAL 🌎</h2>
+      <h2>GUARDA TUS 3 PERSONAJES Y RANKING 🌎</h2>
 
       <div class="tab-bar">
         <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">🔑 INICIAR SESIÓN</button>
@@ -507,7 +588,7 @@
       <div id="auth-form-area">
         <input type="text" id="auth-username" placeholder="NOMBRE DE USUARIO (MÁX 14)" maxlength="14" style="text-transform:uppercase;">
         <input type="password" id="auth-password" placeholder="CONTRASEÑA (MÍN 4 CARACTERES)" maxlength="24">
-        <div class="status-badge" id="auth-msg-box">Ingresa tus datos para sincronizar con el servidor mundial.</div>
+        <div class="status-badge" id="auth-msg-box">Ingresa tus datos para guardar tu perfil y personajes.</div>
 
         <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ INICIAR SESIÓN</button>
         <button class="menu-btn" style="background:#f97316; display:none;" id="auth-logout-btn" onclick="logoutAccount()">🚪 CERRAR SESIÓN ACTUAL</button>
@@ -524,35 +605,35 @@
       <h2 id="mode-subtitle">MODO ASCENSO AL ILINIZA SUR</h2>
       <div class="char-grid">
         <div class="char-card selected" id="card-jordy" onclick="selectChar('JORDY')">
-          <canvas id="preview-jordy" width="110" height="130"></canvas>
+          <canvas id="preview-jordy" width="120" height="135"></canvas>
           <div class="char-name" style="color:#f7931e;">JORDY</div>
-          <p style="font-size:7px; color:#cbd5e1; margin-top:4px;">Casco Blanco • Chaqueta Naranja</p>
+          <p style="font-size:8px; color:#cbd5e1; margin-top:4px;">Casco Blanco • Chaqueta Naranja</p>
         </div>
         <div class="char-card" id="card-chugo" onclick="selectChar('CHUGO')">
-          <canvas id="preview-chugo" width="110" height="130"></canvas>
+          <canvas id="preview-chugo" width="120" height="135"></canvas>
           <div class="char-name" style="color:#63b3ed;">CHUGO</div>
-          <p style="font-size:7px; color:#cbd5e1; margin-top:4px;">Casco Naranja • Chaqueta Azul</p>
+          <p style="font-size:8px; color:#cbd5e1; margin-top:4px;">Casco Naranja • Chaqueta Azul</p>
         </div>
         <!-- Tarjeta de Personaje Personalizado (Exclusiva para el Mini Juego) -->
         <div class="char-card" id="card-custom" style="display:none;" onclick="selectChar('CUSTOM')">
-          <canvas id="preview-custom-card" width="110" height="130"></canvas>
-          <div class="char-name" id="custom-card-title" style="color:#a855f7;">PERSONALIZADO</div>
-          <div style="display:flex; justify-content:center; gap:4px; margin-top:5px;" onclick="event.stopPropagation();">
-            <button class="chip-btn active" id="slot-btn-0" onclick="selectCustomSlot(0)">1</button>
-            <button class="chip-btn" id="slot-btn-1" onclick="selectCustomSlot(1)">2</button>
-            <button class="chip-btn" id="slot-btn-2" onclick="selectCustomSlot(2)">3</button>
+          <canvas id="preview-custom-card" width="120" height="135"></canvas>
+          <div class="char-name" id="custom-card-title" style="color:#c084fc;">PERSONALIZADO</div>
+          <div style="display:flex; justify-content:center; gap:6px; margin-top:6px;" onclick="event.stopPropagation();">
+            <button class="chip-btn active" id="slot-btn-0" onclick="selectCustomSlot(0)">PERS 1</button>
+            <button class="chip-btn" id="slot-btn-1" onclick="selectCustomSlot(1)">PERS 2</button>
+            <button class="chip-btn" id="slot-btn-2" onclick="selectCustomSlot(2)">PERS 3</button>
           </div>
-          <button class="diff-btn" style="margin-top:6px; width:100%; background:#a855f7; color:#fff;" onclick="event.stopPropagation(); openCustomCreator();">✏️ CREAR / EDITAR</button>
+          <button class="diff-btn" style="margin-top:8px; width:100%; padding:9px; background:#9333ea; color:#fff; font-size:10px;" onclick="event.stopPropagation(); openCustomCreator();">✏️ PERSONALIZAR MONTAÑISTA</button>
         </div>
       </div>
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:10px; margin-top:8px;">
         <button class="menu-btn" style="background:#10ac84;" onclick="confirmCharSelect()">✅ ACEPTAR</button>
         <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('menu-overlay')">🔙 ATRÁS</button>
       </div>
     </div>
   </div>
 
-  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO (HASTA 3 EN LA CUENTA) -->
+  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO (VISTA PREVIA FIJA AL LADO DE LAS OPCIONES) -->
   <div id="custom-creator-overlay" class="overlay">
     <div class="retro-box">
       <h1>🎨 CREADOR DE MONTAÑISTA</h1>
@@ -563,18 +644,18 @@
       </div>
 
       <div class="creator-layout">
-        <!-- Vista previa en vivo -->
+        <!-- Vista previa fija a la izquierda (Nunca se pierde al bajar por las opciones) -->
         <div class="creator-preview-panel">
-          <canvas id="creatorPreviewCanvas" width="130" height="155"></canvas>
-          <input type="text" id="custom-char-name" placeholder="NOMBRE (EJ: KEVIN)" maxlength="12" style="text-transform:uppercase; font-size:9px; padding:6px;" oninput="updateCreatorConfig('name', this.value)">
-          <div class="status-badge" id="creator-save-status">Se guarda en tu cuenta activa.</div>
+          <canvas id="creatorPreviewCanvas" width="130" height="160"></canvas>
+          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="12" style="text-transform:uppercase; font-size:9px; padding:7px; margin-top:6px;" oninput="updateCreatorConfig('name', this.value)">
+          <div class="status-badge" id="creator-save-status" style="font-size:7.5px;">Vista en vivo</div>
         </div>
 
-        <!-- Opciones paso a paso -->
+        <!-- Opciones con scroll propio a la derecha -->
         <div class="creator-options-panel">
           <!-- 1. Género -->
           <div class="opt-row">
-            <span class="opt-label">1. GÉNERO DEL PERSONAJE:</span>
+            <span class="opt-label">1. GÉNERO:</span>
             <div class="opt-buttons">
               <button class="chip-btn" id="gender-M" onclick="updateCreatorConfig('gender', 'M')">♂️ MASCULINO</button>
               <button class="chip-btn" id="gender-F" onclick="updateCreatorConfig('gender', 'F')">♀️ FEMENINO</button>
@@ -593,7 +674,7 @@
 
           <!-- 3. Tipo y Color de Cabello -->
           <div class="opt-row">
-            <span class="opt-label">3. TIPO Y COLOR DE CABELLO:</span>
+            <span class="opt-label">3. CABELLO (CORTO, MEDIO, LARGO):</span>
             <div class="opt-buttons" style="margin-bottom:6px;">
               <button class="chip-btn" id="hlen-CORTO" onclick="updateCreatorConfig('hairLength', 'CORTO')">✂️ CORTO</button>
               <button class="chip-btn" id="hlen-MEDIO" onclick="updateCreatorConfig('hairLength', 'MEDIO')">🧑 MEDIO</button>
@@ -604,7 +685,7 @@
 
           <!-- 4. Tipo de Mirada / Expresión -->
           <div class="opt-row">
-            <span class="opt-label">4. TIPO DE MIRADA / EXPRESIÓN:</span>
+            <span class="opt-label">4. TIPO DE MIRADA:</span>
             <div class="opt-buttons">
               <button class="chip-btn" id="expr-FELIZ" onclick="updateCreatorConfig('expression', 'FELIZ')">😄 FELIZ</button>
               <button class="chip-btn" id="expr-ENOJADA" onclick="updateCreatorConfig('expression', 'ENOJADA')">😠 ENOJADA</button>
@@ -635,7 +716,7 @@
 
           <!-- 7. Opciones de Barba -->
           <div class="opt-row">
-            <span class="opt-label">7. BARBA (3 OPCIONES O SIN BARBA):</span>
+            <span class="opt-label">7. BARBA:</span>
             <div class="opt-buttons">
               <button class="chip-btn" id="beard-0" onclick="updateCreatorConfig('beardStyle', 0)">SIN BARBA</button>
               <button class="chip-btn" id="beard-1" onclick="updateCreatorConfig('beardStyle', 1)">COMPLETA</button>
@@ -646,31 +727,31 @@
 
           <!-- 8. Chaqueta (10 Colores) -->
           <div class="opt-row">
-            <span class="opt-label">8. COLOR DE CHAQUETA (10 COLORES):</span>
+            <span class="opt-label">8. CHAQUETA (10 COLORES):</span>
             <div class="opt-buttons" id="jacket-color-swatches"></div>
           </div>
 
           <!-- 9. Pantalón (10 Colores) -->
           <div class="opt-row">
-            <span class="opt-label">9. COLOR DE PANTALÓN (10 COLORES):</span>
+            <span class="opt-label">9. PANTALÓN (10 COLORES):</span>
             <div class="opt-buttons" id="pants-color-swatches"></div>
           </div>
 
           <!-- 10. Mochila (10 Colores) -->
           <div class="opt-row">
-            <span class="opt-label">10. COLOR DE MOCHILA (10 COLORES):</span>
+            <span class="opt-label">10. MOCHILA (10 COLORES):</span>
             <div class="opt-buttons" id="pack-color-swatches"></div>
           </div>
 
           <!-- 11. Arnés (10 Colores) -->
           <div class="opt-row">
-            <span class="opt-label">11. COLOR DE ARNÉS (10 COLORES):</span>
+            <span class="opt-label">11. ARNÉS (10 COLORES):</span>
             <div class="opt-buttons" id="harness-color-swatches"></div>
           </div>
 
           <!-- 12. Botas (10 Colores) -->
           <div class="opt-row">
-            <span class="opt-label">12. COLOR DE BOTAS (10 COLORES):</span>
+            <span class="opt-label">12. BOTAS (10 COLORES):</span>
             <div class="opt-buttons" id="boots-color-swatches"></div>
           </div>
 
@@ -686,7 +767,7 @@
       </div>
 
       <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="menu-btn" style="background:#10ac84;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR PERSONAJE</button>
+        <button class="menu-btn" style="background:#10ac84;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR</button>
         <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
       </div>
     </div>
@@ -710,7 +791,7 @@
       </div>
 
       <div style="margin-top:8px; background:#141c2b; padding:10px; border:2px solid #4a5d80; border-radius:6px;">
-        <p style="font-size:8px; color:#cbd5e1;">¿TU AMIGO CREÓ UNA SALA? INGRESA SU CÓDIGO:</p>
+        <p style="font-size:9px; color:#cbd5e1;">¿TU AMIGO CREÓ UNA SALA? INGRESA SU CÓDIGO:</p>
         <input type="text" id="join-code-input" placeholder="EJ: A7K9" maxlength="6" style="text-transform:uppercase;">
         <button class="menu-btn" style="background:#f7931e;" onclick="joinOnlineRoom()">🔗 UNIRSE A SALA ONLINE</button>
         <div class="status-badge" id="join-status-text"></div>
@@ -745,7 +826,7 @@
         <tbody id="ranking-tbody"></tbody>
       </table>
       <div style="display:flex; gap:8px;">
-        <button class="menu-btn" style="background:#2e86de;" onclick="refreshWorldRanking()">🔄 SINCRONIZAR MUNDIAL</button>
+        <button class="menu-btn" style="background:#2e86de;" onclick="refreshWorldRanking()">🔄 SINCRONIZAR</button>
         <button class="menu-btn" onclick="showOverlay('menu-overlay')">🔙 VOLVER</button>
       </div>
     </div>
@@ -807,6 +888,11 @@ let GW = 960;
 let GH = 540;
 let isPortrait = false;
 
+// Escenario lógico unificado (960px) para el Mini Juego:
+// Garantiza que ambos jugadores tengan EXACTAMENTE la misma velocidad y distancia en PC y Móvil.
+const FIGHT_STAGE_W = 960;
+const FIGHT_MOVE_SPEED = 4.0;
+
 function updateCanvasOrientation() {
   isPortrait = window.innerHeight > window.innerWidth;
   if (isPortrait) {
@@ -827,7 +913,7 @@ function updateCanvasOrientation() {
 
 function getGroundY(inFlatSection = false) {
   if (isPortrait) {
-    return inFlatSection ? 545 : 530;
+    return inFlatSection ? 535 : 520;
   }
   return inFlatSection ? 390 : 370;
 }
@@ -842,11 +928,9 @@ window.addEventListener("resize", () => {
       player.y = getGroundY(inFlat);
       player.x = Math.min(player.x, isPortrait ? 210 : 420);
     } else if (gameState === "MINIGAME" && fighters.length === 2) {
-      const fGround = isPortrait ? 545 : 390;
+      const fGround = isPortrait ? 535 : 390;
       fighters[0].y = fGround;
       fighters[1].y = fGround;
-      fighters[0].x = isPortrait ? 130 : 260;
-      fighters[1].x = isPortrait ? 410 : 680;
     }
     initSnowParticles();
   }
@@ -1070,7 +1154,6 @@ const GLASSES_COLORS = [
   { id: "CAFE",    name: "CAFÉ",    hex: "#854d0e" }
 ];
 
-// Paleta de 10 colores para Chaqueta, Pantalón, Mochila, Arnés y Botas
 const GEAR_10_COLORS = [
   "#f97316", // 1. Naranja Cumbre
   "#0284c7", // 2. Azul Glaciar
@@ -1190,10 +1273,8 @@ async function saveCustomCharsToAccount() {
 }
 
 /* ============================================================================
-   4. SISTEMA DE CUENTAS (LOGIN / REGISTRO) Y RANKING MUNDIAL EN LA NUBE
+   4. SISTEMA DE CUENTAS ROBUSTO LOCAL + SINCRONIZACIÓN P2P
    ============================================================================ */
-const CLOUD_SYNC_URL = "https://bytebunk.cc/api/v1/kv/apus_iliniza_world_v1";
-
 let currentUser = null;
 let authMode = "login";
 let currentRankingTab = "local";
@@ -1238,47 +1319,11 @@ function saveLocalCloudStore(data) {
 }
 
 async function fetchWorldCloudData() {
-  const localCache = getLocalCloudStore();
-  try {
-    const resp = await fetch(CLOUD_SYNC_URL, {
-      method: "GET",
-      headers: { "Accept": "application/json" }
-    });
-    if (resp.ok) {
-      const remoteData = await resp.json();
-      const payload = remoteData.value ? JSON.parse(remoteData.value) : remoteData;
-      if (payload && Array.isArray(payload.worldRanking)) {
-        const mergedUsers = { ...(localCache.users || {}), ...(payload.users || {}) };
-        const combinedScores = [...(localCache.worldRanking || []), ...payload.worldRanking];
-        const uniqueMap = new Map();
-        combinedScores.forEach((item) => {
-          const key = `${item.name}_${item.char}_${item.diff}`;
-          if (!uniqueMap.has(key) || uniqueMap.get(key).score < item.score) {
-            uniqueMap.set(key, item);
-          }
-        });
-        const mergedRanking = Array.from(uniqueMap.values())
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10);
-
-        const updated = { users: mergedUsers, worldRanking: mergedRanking };
-        saveLocalCloudStore(updated);
-        return updated;
-      }
-    }
-  } catch (err) {}
-  return localCache;
+  return getLocalCloudStore();
 }
 
 async function pushWorldCloudData(storeData) {
   saveLocalCloudStore(storeData);
-  try {
-    await fetch(CLOUD_SYNC_URL, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(storeData)
-    });
-  } catch (err) {}
 }
 
 function loadSavedSession() {
@@ -1296,10 +1341,10 @@ function updateUserStatusUI() {
   const label = document.getElementById("menu-user-label");
   const logoutBtn = document.getElementById("auth-logout-btn");
   if (currentUser && currentUser.username) {
-    label.innerHTML = `✅ CUENTA: <strong style="color:#facc15;">${currentUser.username}</strong> (3 PERS. ACTIVOS)`;
+    label.innerHTML = `✅ CUENTA: <strong style="color:#facc15;">${currentUser.username}</strong> (3 PERS.)`;
     if (logoutBtn) logoutBtn.style.display = "block";
   } else {
-    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO (SIN CUENTA)</span>`;
+    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO</span>`;
     if (logoutBtn) logoutBtn.style.display = "none";
   }
 }
@@ -1324,8 +1369,8 @@ function switchAuthTab(mode) {
     mode === "login" ? "✅ INICIAR SESIÓN" : "📝 CREAR CUENTA Y ENTRAR";
   document.getElementById("auth-msg-box").textContent =
     mode === "login"
-      ? "Ingresa tu usuario y contraseña para recuperar tus 3 personajes y Ranking Mundial."
-      : "Elige un nombre único y contraseña para guardar tus 3 personajes en la nube.";
+      ? "Ingresa tu usuario y contraseña para recuperar tus 3 personajes."
+      : "Elige un nombre único y contraseña para guardar tus 3 personajes.";
 }
 
 async function handleAuthSubmit() {
@@ -1348,7 +1393,7 @@ async function handleAuthSubmit() {
   }
 
   msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ Conectando con el servidor mundial...";
+  msgBox.textContent = "⏳ Verificando cuenta...";
 
   const store = await fetchWorldCloudData();
   const passHash = simpleHash(username + ":" + password);
@@ -1603,12 +1648,6 @@ function drawApusLogo(ctx, x, y, size) {
   ctx.restore();
 }
 
-/**
- * Renderiza a JORDY, CHUGO o cualquier configuración de Personaje Personalizado
- * Incluye: Tipo de cabello (CORTO, MEDIO, LARGO), 8 colores de cabello,
- * 4 tipos de mirada (FELIZ, ENOJADA, SERIA, NORMAL), animación de victoria (piolet arriba en bucle + caminata en sitio)
- * y animación de derrota (agachado llorando lágrimas).
- */
 function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   const {
     scale = 1,
@@ -1655,7 +1694,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   const isDownCrouch = crouching || hugging || crying;
   const yOffset = crying ? 15 : (isDownCrouch ? 10 : 0);
 
-  // Cuando celebra, camina en su misma zona sin desplazarse
   const walkCycle = celebrating ? (Date.now() * 0.018) : (anim * 0.35);
   const stepBounce = crying ? 0 : Math.sin(walkCycle) * 3.5;
 
@@ -1670,7 +1708,7 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   ctx.lineWidth = 2;
   ctx.strokeRect(-21, -16 + yOffset, 12, 26);
 
-  // Piernas y Pantalón (caminando en el sitio si celebra)
+  // Piernas y Pantalón
   const leg1Y = stepBounce;
   const leg2Y = -stepBounce;
   ctx.fillStyle = pantsColor;
@@ -1683,7 +1721,6 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   } else {
     ctx.fillRect(-10, 8 + yOffset + leg1Y * 0.5, 9, 16 - yOffset * 0.4);
     ctx.fillRect(2, 8 + yOffset + leg2Y * 0.5, 9, 16 - yOffset * 0.4);
-    // Botas de alta montaña
     ctx.fillStyle = bootColor;
     ctx.fillRect(-11, 22 + leg1Y * 0.5, 12, 7);
     ctx.fillRect(2, 22 + leg2Y * 0.5, 12, 7);
@@ -1706,15 +1743,13 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   ctx.fillStyle = "#cbd5e1";
   ctx.fillRect(-6, 5 + yOffset, 4, 6);
 
-  // Cabello trasero/lateral (según CORTO, MEDIO o LARGO y color elegido)
+  // Cabello trasero/lateral
   ctx.fillStyle = hairColor;
   if (hairLength === "LARGO") {
-    // Cabello largo cayendo por la espalda y hombros
     ctx.fillRect(-16, -34 + yOffset, 7, 22);
     ctx.fillRect(-18, -20 + yOffset, 6, 12);
     ctx.fillRect(8, -32 + yOffset, 4, 14);
   } else if (hairLength === "MEDIO") {
-    // Cabello medio a la altura de la nuca/cuello
     ctx.fillRect(-14, -34 + yOffset, 6, 13);
     ctx.fillRect(8, -33 + yOffset, 3, 9);
   }
@@ -1723,16 +1758,15 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   ctx.fillStyle = skinColor;
   ctx.fillRect(-10, -36 + yOffset, 20, 19);
 
-  // Patillas / flequillo bajo el casco (visible en CORTO, MEDIO y LARGO)
+  // Patillas / flequillo bajo el casco
   ctx.fillStyle = hairColor;
   ctx.fillRect(-11, -34 + yOffset, 3, 7);
   if (hairLength !== "CORTO") {
     ctx.fillRect(-11, -30 + yOffset, 3, 7);
   }
 
-  // Ojos y Cejas según el Tipo de Mirada (FELIZ, ENOJADA, SERIA, NORMAL) o si está llorando
+  // Ojos y Cejas
   if (crying) {
-    // Ojos cerrados tristes llorando
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-6, -28 + yOffset, 5, 2);
     ctx.fillRect(2, -28 + yOffset, 5, 2);
@@ -1741,30 +1775,25 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(-5, -29 + yOffset, 3, 3);
     ctx.fillRect(3, -29 + yOffset, 3, 3);
 
-    // Cejas expresivas
     ctx.fillStyle = hairColor;
     if (expression === "ENOJADA") {
-      // Cejas inclinadas hacia el centro (mirada furiosa)
       ctx.fillRect(-6, -32 + yOffset, 3, 1);
       ctx.fillRect(-4, -31 + yOffset, 2, 1);
       ctx.fillRect(3, -31 + yOffset, 2, 1);
       ctx.fillRect(4, -32 + yOffset, 3, 1);
     } else if (expression === "SERIA") {
-      // Cejas rectas bajas y firmes
       ctx.fillRect(-6, -31 + yOffset, 5, 1.5);
       ctx.fillRect(2, -31 + yOffset, 5, 1.5);
     } else if (expression === "FELIZ") {
-      // Cejas arqueadas altas
       ctx.fillRect(-6, -32.5 + yOffset, 4, 1);
       ctx.fillRect(2, -32.5 + yOffset, 4, 1);
     } else {
-      // Mirada Normal
       ctx.fillRect(-5, -32 + yOffset, 4, 1);
       ctx.fillRect(2, -32 + yOffset, 4, 1);
     }
   }
 
-  // Opciones de Barba (0: Sin barba, 1: Completa, 2: Candado, 3: Bigote)
+  // Barba
   ctx.fillStyle = hairColor === "#f8fafc" || hairColor === "#94a3b8" ? hairColor : "#27272a";
   if (beardStyle === 1) {
     ctx.fillRect(-10, -24 + yOffset, 20, 8);
@@ -1774,7 +1803,7 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(-6, -24 + yOffset, 13, 3);
   }
 
-  // Boca según expresión o llanto
+  // Boca
   if (crying) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-4, -21 + yOffset, 8, 2);
@@ -1792,19 +1821,17 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-4, -21 + yOffset, 8, 1.5);
   } else {
-    // Normal
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(-3, -22 + yOffset, 7, 2);
   }
 
-  // Gafas estilo Jordy (si están activadas y no está llorando sin gafas)
+  // Gafas
   if (hasGlasses) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-9, -31 + yOffset, 19, 7);
     ctx.fillStyle = glassesColor;
     ctx.fillRect(-7, -30 + yOffset, 6, 4);
     ctx.fillRect(2, -30 + yOffset, 6, 4);
-    // Si tiene mirada enojada con gafas, mostrar ceño fruncido sobre las gafas
     if (expression === "ENOJADA" && !crying) {
       ctx.fillStyle = hairColor;
       ctx.fillRect(-6, -32.5 + yOffset, 4, 1.5);
@@ -1812,7 +1839,7 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     }
   }
 
-  // Animación de lágrimas cayendo cuando el perdedor se agacha derrotado
+  // Lágrimas cayendo
   if (crying) {
     const tearFall1 = (Date.now() * 0.04) % 16;
     const tearFall2 = ((Date.now() * 0.04) + 8) % 16;
@@ -1824,7 +1851,7 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(5, -26 + yOffset + tearFall2, 1.5, 2);
   }
 
-  // Casco Técnico (PETZL vs BLACK DIAMOND)
+  // Casco Técnico
   ctx.fillStyle = helmetColor;
   ctx.fillRect(-12, -43 + yOffset, 24, 11);
   ctx.strokeStyle = "#0f172a";
@@ -1844,7 +1871,7 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     ctx.fillRect(4, -39 + yOffset, 4, 4);
   }
 
-  // Brazo y Piolet (Al ganar levanta el piolet hacia arriba varias veces en bucle)
+  // Brazo y Piolet
   ctx.save();
   if (celebrating) {
     const pumpLift = Math.abs(Math.sin(Date.now() * 0.015)) * 9;
@@ -1918,8 +1945,8 @@ function renderCustomCardPreview() {
   const cCtx = cardCanvas.getContext("2d");
   cCtx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
   const cfg = customCharSlots[activeCustomSlot];
-  drawMountaineerSprite(cCtx, "CUSTOM", 55, 88, {
-    scale: 1.6,
+  drawMountaineerSprite(cCtx, "CUSTOM", 60, 92, {
+    scale: 1.65,
     facing: 1,
     customConfig: cfg
   });
@@ -2048,12 +2075,11 @@ function refreshCreatorUI() {
   document.getElementById("axe-PETZL").classList.toggle("active", cfg.axeBrand === "PETZL");
   document.getElementById("axe-BD").classList.toggle("active", cfg.axeBrand === "BD");
 
-  // Dibujar vista previa en el lienzo del creador
   const pCanvas = document.getElementById("creatorPreviewCanvas");
   const pCtx = pCanvas.getContext("2d");
   pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-  drawMountaineerSprite(pCtx, "CUSTOM", 65, 102, {
-    scale: 1.85,
+  drawMountaineerSprite(pCtx, "CUSTOM", 65, 106, {
+    scale: 1.9,
     facing: 1,
     customConfig: cfg
   });
@@ -2102,7 +2128,7 @@ function openCharSelect(mode) {
 
   const customCard = document.getElementById("card-custom");
   if (mode === "minigame") {
-    customCard.style.display = "block";
+    customCard.style.display = "flex";
     renderCustomCardPreview();
   } else {
     customCard.style.display = "none";
@@ -2133,7 +2159,7 @@ function confirmCharSelect() {
     startNewStoryGame();
   } else {
     const charDisplayName = selectedCharacter === "CUSTOM"
-      ? `${customCharSlots[activeCustomSlot].name} (PERSONALIZADO #${activeCustomSlot + 1})`
+      ? `${customCharSlots[activeCustomSlot].name} (PERS. #${activeCustomSlot + 1})`
       : selectedCharacter;
     document.getElementById("vs-chosen-char-label").textContent =
       `PELEADOR ELEGIDO: ${charDisplayName}`;
@@ -2264,13 +2290,12 @@ async function switchRankingTab(tab) {
     const list = getLocalRankingList().slice(0, 10);
     renderRankingRows(tbody, list);
   } else {
-    statusMsg.textContent = "🌎 Sincronizando puntajes mundiales en tiempo real...";
     const store = await fetchWorldCloudData();
     const worldList = (store.worldRanking || DEFAULT_WORLD_RANKING).slice(0, 10);
     renderRankingRows(tbody, worldList);
     statusMsg.textContent = currentUser
       ? `🌎 Ranking Mundial activo (Conectado como ${currentUser.username})`
-      : "🌎 Ranking Mundial (Inicia sesión en el menú para subir tus récords aquí)";
+      : "🌎 Ranking Mundial (Se sincroniza en salas Online y con tu cuenta)";
   }
 }
 
@@ -2414,7 +2439,7 @@ function returnToMainMenu() {
 }
 
 /* ============================================================================
-   9. SISTEMA MULTIJUGADOR ONLINE P2P (CON SINCRONIZACIÓN DE PERSONAJES PERSONALIZADOS)
+   9. SISTEMA MULTIJUGADOR ONLINE P2P (CON VELOCIDAD Y ESCALA 100% EQUILIBRADAS)
    ============================================================================ */
 function cleanupPeerConnection() {
   if (peerConn) {
@@ -2553,8 +2578,9 @@ function setupOnlineHandlers() {
       startVersusMiniGame(true, data.fighterInfo);
     } else if (data.type === "STATE" && fighters.length === 2) {
       const remote = fighters[1];
-      remote.x = data.nx * GW;
-      const groundY = isPortrait ? 545 : 390;
+      // Posición sincronizada en el escenario unificado de 960px (misma velocidad exacta en móvil y PC)
+      remote.x = data.nx * FIGHT_STAGE_W;
+      const groundY = isPortrait ? 535 : 390;
       remote.y = groundY - data.jumpOffset;
       remote.facing = data.facing;
       remote.blocking = data.blocking;
@@ -2580,7 +2606,7 @@ function setupOnlineHandlers() {
       sound.playSFX("sfx_jump");
       projectiles.push({
         owner: 1,
-        x: attacker.x + attacker.facing * 30,
+        x: attacker.x + attacker.facing * 32,
         y: attacker.y - 24,
         vx: attacker.facing * 8.5,
         rot: 0
@@ -2588,7 +2614,7 @@ function setupOnlineHandlers() {
     } else if (data.type === "WINNER") {
       if (!vsWinner) {
         vsWinner = data.winner;
-        vsEndAnimTimer = 180; // 3 segundos de animación de victoria y derrota
+        vsEndAnimTimer = 180;
       }
     } else if (data.type === "REMATCH") {
       sound.playSFX("sfx_checkpoint");
@@ -2607,10 +2633,10 @@ function setupOnlineHandlers() {
 function sendMyStateToPeer() {
   if (!vsIsOnline || !peerConn || !peerConn.open || fighters.length < 2) return;
   const p1 = fighters[0];
-  const groundY = isPortrait ? 545 : 390;
+  const groundY = isPortrait ? 535 : 390;
   peerConn.send({
     type: "STATE",
-    nx: p1.x / GW,
+    nx: p1.x / FIGHT_STAGE_W,
     jumpOffset: Math.max(0, groundY - p1.y),
     facing: p1.facing,
     blocking: p1.blocking,
@@ -2703,7 +2729,7 @@ function handleJoystickMove(clientX, clientY) {
   const rect = joyZone.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
-  const maxR = rect.width / 2 - 18;
+  const maxR = rect.width / 2 - 20;
   let dx = clientX - cx;
   let dy = clientY - cy;
   const dist = Math.hypot(dx, dy);
@@ -3089,21 +3115,26 @@ function updateStoryMode() {
 }
 
 /* ============================================================================
-   12. MINI JUEGO CHUGO VS JORDY (CON ANIMACIÓN DE 3 SEGUNDOS AL GANAR/PERDER)
+   12. MINI JUEGO CHUGO VS JORDY (ARENA UNIFICADA Y VELOCIDAD IDÉNTICA PARA AMBOS)
    ============================================================================ */
 let lastRemoteFighterInfo = null;
+
+function stageXToCanvasX(stageX) {
+  return (stageX / FIGHT_STAGE_W) * GW;
+}
 
 function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   vsIsOnline = onlineMode;
   if (remoteFighterInfo) lastRemoteFighterInfo = remoteFighterInfo;
 
   const myInfo = getMyFighterPayload();
-  const groundY = isPortrait ? 545 : 390;
+  const groundY = isPortrait ? 535 : 390;
 
   keys.defend = false;
 
-  const p1StartX = (!onlineMode || isOnlineHost) ? (isPortrait ? 130 : 260) : (isPortrait ? 410 : 680);
-  const p2StartX = (!onlineMode || isOnlineHost) ? (isPortrait ? 410 : 680) : (isPortrait ? 130 : 260);
+  // Posiciones lógicas sobre FIGHT_STAGE_W (960px) para que ambos recorran la misma distancia a igual velocidad
+  const p1StartX = (!onlineMode || isOnlineHost) ? 260 : 700;
+  const p2StartX = (!onlineMode || isOnlineHost) ? 700 : 260;
 
   let p2Char = selectedCharacter === "JORDY" ? "CHUGO" : "JORDY";
   let p2DisplayName = `${p2Char} (CPU)`;
@@ -3224,7 +3255,7 @@ function triggerBeerThrow() {
   sound.playSFX("sfx_jump");
   projectiles.push({
     owner: 0,
-    x: f.x + f.facing * 30,
+    x: f.x + f.facing * 32,
     y: f.y - 24,
     vx: f.facing * 8.5,
     rot: 0
@@ -3237,7 +3268,7 @@ function triggerBeerThrow() {
 function declareVersusWinner(winnerName) {
   if (vsWinner) return;
   vsWinner = winnerName;
-  vsEndAnimTimer = 180; // 3 segundos (180 frames a 60fps) de animación antes de mostrar el cartel
+  vsEndAnimTimer = 180; // 3 segundos de animación antes de mostrar el cartel
   sound.playSFX("sfx_checkpoint");
   if (vsIsOnline && peerConn && peerConn.open) {
     peerConn.send({ type: "WINNER", winner: vsWinner });
@@ -3245,17 +3276,17 @@ function declareVersusWinner(winnerName) {
 }
 
 function checkMeleeHit(attacker, defender, dmg) {
-  if (Math.abs(attacker.x - defender.x) < 78 && Math.abs(attacker.y - defender.y) < 60) {
+  if (Math.abs(attacker.x - defender.x) < 92 && Math.abs(attacker.y - defender.y) < 65) {
     if (defender.blocking) {
       defender.vx = attacker.facing * 2.5;
       sound.playSFX("sfx_axe");
-      addFloatingScore(defender.x, defender.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
+      addFloatingScore(stageXToCanvasX(defender.x), defender.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
       return;
     }
     defender.hp = Math.max(0, defender.hp - dmg);
     defender.vx = attacker.facing * 6;
     sound.playSFX("sfx_hit");
-    addFloatingScore(defender.x, defender.y - 50, `-${dmg} HP`, "#ef4444");
+    addFloatingScore(stageXToCanvasX(defender.x), defender.y - 50, `-${dmg} HP`, "#ef4444");
     if (defender.hp <= 0) {
       declareVersusWinner(attacker.displayName || attacker.char);
     }
@@ -3263,9 +3294,8 @@ function checkMeleeHit(attacker, defender, dmg) {
 }
 
 function updateVersusMiniGame() {
-  const groundY = isPortrait ? 545 : 390;
+  const groundY = isPortrait ? 535 : 390;
 
-  // Si ya hay un ganador, ejecutar los 3 segundos de animación de festejo y llanto en su sitio
   if (vsWinner) {
     if (vsEndAnimTimer > 0) {
       vsEndAnimTimer--;
@@ -3293,14 +3323,15 @@ function updateVersusMiniGame() {
 
   p1.blocking = keys.defend || (joyState.dy > 0.45);
 
+  // Ambos jugadores se mueven exactamente a FIGHT_MOVE_SPEED (4.0) sobre el escenario de 960px
   p1.vx *= 0.8;
   if (!p1.blocking) {
-    if (keys.left || joyState.dx < -0.25) { p1.vx = -4.2; p1.anim++; }
-    if (keys.right || joyState.dx > 0.25) { p1.vx = 4.2; p1.anim++; }
+    if (keys.left || joyState.dx < -0.25) { p1.vx = -FIGHT_MOVE_SPEED; p1.anim++; }
+    if (keys.right || joyState.dx > 0.25) { p1.vx = FIGHT_MOVE_SPEED; p1.anim++; }
   }
   p1.facing = p2.x >= p1.x ? 1 : -1;
 
-  p1.x = Math.max(55, Math.min(GW - 55, p1.x + p1.vx));
+  p1.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p1.x + p1.vx));
   p1.y += p1.vy;
   if (p1.y < groundY) {
     p1.vy += 0.65;
@@ -3315,19 +3346,20 @@ function updateVersusMiniGame() {
   if (p1.cooldown > 0) p1.cooldown--;
 
   if (!vsIsOnline) {
+    // La CPU también se mueve a la misma velocidad base (FIGHT_MOVE_SPEED) para mantener equilibrio total
     p2.vx *= 0.8;
     p2.facing = p1.x >= p2.x ? 1 : -1;
     const dist = Math.abs(p1.x - p2.x);
-    if (dist > 72) {
-      p2.vx = p2.facing * 3.1;
+    if (dist > 82) {
+      p2.vx = p2.facing * FIGHT_MOVE_SPEED;
       p2.anim++;
       if (Math.random() < 0.012 && p2.cooldown <= 0) {
         p2.cooldown = 45;
         projectiles.push({
           owner: 1,
-          x: p2.x + p2.facing * 30,
+          x: p2.x + p2.facing * 32,
           y: p2.y - 24,
-          vx: p2.facing * 7.5,
+          vx: p2.facing * 8.5,
           rot: 0
         });
       }
@@ -3335,19 +3367,19 @@ function updateVersusMiniGame() {
       if (Math.random() < 0.5) {
         p2.action = "AXE";
         p2.actionTimer = 15;
-        p2.cooldown = 52;
+        p2.cooldown = 48;
         sound.playSFX("sfx_axe");
-        checkMeleeHit(p2, p1, 5);
+        checkMeleeHit(p2, p1, 6);
       } else {
         p2.action = "KICK";
         p2.actionTimer = 18;
-        p2.cooldown = 58;
+        p2.cooldown = 54;
         sound.playSFX("sfx_kick");
-        checkMeleeHit(p2, p1, 7);
+        checkMeleeHit(p2, p1, 8);
       }
     }
 
-    p2.x = Math.max(55, Math.min(GW - 55, p2.x + p2.vx));
+    p2.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p2.x + p2.vx));
     p2.y += p2.vy;
     if (p2.y < groundY) {
       p2.vy += 0.65;
@@ -3369,16 +3401,16 @@ function updateVersusMiniGame() {
     pr.x += pr.vx;
     pr.rot += 0.25;
     const target = pr.owner === 0 ? p2 : p1;
-    if (Math.hypot(pr.x - target.x, pr.y - (target.y - 20)) < 38) {
+    if (Math.abs(pr.x - target.x) < 44 && Math.abs(pr.y - (target.y - 20)) < 44) {
       pr.dead = true;
       if (!vsIsOnline || pr.owner === 1) {
         if (target.blocking) {
           sound.playSFX("sfx_axe");
-          addFloatingScore(target.x, target.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
+          addFloatingScore(stageXToCanvasX(target.x), target.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
         } else {
           target.hp = Math.max(0, target.hp - 5);
           sound.playSFX("sfx_hit");
-          addFloatingScore(target.x, target.y - 50, "-5 🍺", "#f97316");
+          addFloatingScore(stageXToCanvasX(target.x), target.y - 50, "-5 🍺", "#f97316");
           if (target.hp <= 0) {
             const winFighter = fighters[pr.owner];
             declareVersusWinner(winFighter.displayName || winFighter.char);
@@ -3386,7 +3418,7 @@ function updateVersusMiniGame() {
         }
       }
     }
-    if (pr.x < 0 || pr.x > GW) pr.dead = true;
+    if (pr.x < 0 || pr.x > FIGHT_STAGE_W) pr.dead = true;
   });
   projectiles = projectiles.filter((p) => !p.dead);
 
@@ -3719,7 +3751,7 @@ function renderStoryMode() {
 function renderVersusMiniGame() {
   drawCotopaxiBackground(false, 0.4);
 
-  const groundY = isPortrait ? 545 : 390;
+  const groundY = isPortrait ? 535 : 390;
   const floorTop = groundY + 25;
   ctx.fillStyle = "#1e293b";
   ctx.fillRect(0, floorTop, GW, GH - floorTop);
@@ -3774,9 +3806,10 @@ function renderVersusMiniGame() {
     const fName = f.displayName || f.char;
     const isWinFighter = vsWinner && vsWinner === fName;
     const isLoseFighter = vsWinner && vsWinner !== fName;
+    const drawX = stageXToCanvasX(f.x);
 
-    drawMountaineerSprite(ctx, f.char, f.x, f.y, {
-      scale: isPortrait ? 1.45 : 1.55,
+    drawMountaineerSprite(ctx, f.char, drawX, f.y, {
+      scale: isPortrait ? 1.5 : 1.55,
       facing: f.facing,
       anim: f.anim,
       swinging: f.action === "AXE",
@@ -3791,13 +3824,13 @@ function renderVersusMiniGame() {
       ctx.fillStyle = "#38bdf8";
       ctx.font = "10px 'Press Start 2P'";
       ctx.textAlign = "center";
-      ctx.fillText("🛡️ GUARDIA", f.x, f.y - 75);
+      ctx.fillText("🛡️ GUARDIA", drawX, f.y - 75);
       ctx.textAlign = "left";
     }
   });
 
   projectiles.forEach((pr) => {
-    drawBottlePilsener(pr.x, pr.y, pr.rot);
+    drawBottlePilsener(stageXToCanvasX(pr.x), pr.y, pr.rot);
   });
 
   floatingTexts.forEach((ft) => {
@@ -3806,7 +3839,6 @@ function renderVersusMiniGame() {
     ctx.fillText(ft.text, ft.x - 25, ft.y);
   });
 
-  // Mostrar el aviso de ganador exactamente después de los 3 segundos de animación (vsEndAnimTimer <= 0)
   if (vsWinner && vsEndAnimTimer <= 0) {
     const boxW = isPortrait ? 480 : 520;
     const boxX = (GW - boxW) / 2;
@@ -3837,10 +3869,10 @@ function initPreviews() {
   drawApusLogo(logoCtx, 4, 4, 88);
 
   const jCtx = document.getElementById("preview-jordy").getContext("2d");
-  drawMountaineerSprite(jCtx, "JORDY", 55, 88, { scale: 1.6, facing: 1 });
+  drawMountaineerSprite(jCtx, "JORDY", 60, 92, { scale: 1.65, facing: 1 });
 
   const cCtx = document.getElementById("preview-chugo").getContext("2d");
-  drawMountaineerSprite(cCtx, "CHUGO", 55, 88, { scale: 1.6, facing: 1 });
+  drawMountaineerSprite(cCtx, "CHUGO", 60, 92, { scale: 1.65, facing: 1 });
 
   renderCustomCardPreview();
 }
@@ -3875,7 +3907,6 @@ canvas.addEventListener("pointerdown", () => {
 loadSavedSession();
 initPreviews();
 updateDiffLabel();
-fetchWorldCloudData();
 requestAnimationFrame(gameLoop);
 </script>
 </body>
