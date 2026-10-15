@@ -4,12 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>APUS' GUARDIANS - RETO ILINIZA SUR</title>
+<!-- Librería PeerJS para conexión Multijugador Online P2P -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
   * {
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-touch-callout: none;
     margin: 0;
     padding: 0;
   }
@@ -51,9 +54,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(10, 15, 30, 0.84);
+    background: rgba(10, 15, 30, 0.86);
     z-index: 20;
-    padding: 12px;
+    padding: 10px;
     text-align: center;
   }
   .overlay.active {
@@ -63,37 +66,37 @@
     background: rgba(25, 34, 54, 0.96);
     border: 4px solid #8ba3c7;
     box-shadow: 0 0 0 4px #111827, 0 8px 24px rgba(0,0,0,0.8);
-    padding: 16px;
+    padding: 14px;
     border-radius: 6px;
-    max-width: 640px;
-    width: 94%;
-    max-height: 86dvh;
+    max-width: 680px;
+    width: 95%;
+    max-height: 90dvh;
     overflow-y: auto;
   }
   h1 {
-    font-size: clamp(13px, 3vw, 24px);
+    font-size: clamp(12px, 2.8vw, 21px);
     color: #f7931e;
     text-shadow: 3px 3px 0 #000;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     line-height: 1.35;
   }
   h2 {
-    font-size: clamp(10px, 2.1vw, 15px);
+    font-size: clamp(9px, 1.9vw, 13px);
     color: #63b3ed;
     text-shadow: 2px 2px 0 #000;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     line-height: 1.3;
   }
   .menu-btn {
     display: block;
     width: 100%;
-    padding: 11px 10px;
-    margin: 6px 0;
+    padding: 10px 10px;
+    margin: 5px 0;
     background: #2b3954;
     border: 3px solid #6b82a8;
     color: #fff;
     font-family: inherit;
-    font-size: clamp(9px, 1.8vw, 13px);
+    font-size: clamp(8px, 1.7vw, 12px);
     cursor: pointer;
     text-shadow: 2px 2px 0 #000;
     transition: transform 0.1s, background 0.15s;
@@ -101,18 +104,53 @@
   .menu-btn:hover, .menu-btn:active {
     background: #f7931e;
     border-color: #fff;
-    transform: scale(1.02);
+    transform: scale(1.01);
+  }
+  .user-status-bar {
+    background: #141c2b;
+    border: 2px solid #38bdf8;
+    padding: 7px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-size: clamp(8px, 1.5vw, 10px);
+    color: #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tab-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 6px;
+    background: #141c2b;
+    border: 3px solid #4a5d80;
+    color: #94a3b8;
+    font-family: inherit;
+    font-size: clamp(8px, 1.6vw, 10px);
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: #f7931e;
+    color: #000;
+    border-color: #fff;
+    font-weight: bold;
   }
   .diff-selector {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-top: 10px;
-    padding: 9px;
+    margin-top: 8px;
+    padding: 8px;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    font-size: clamp(8px, 1.8vw, 12px);
+    font-size: clamp(8px, 1.7vw, 11px);
   }
   .diff-btn {
     background: #f7931e;
@@ -120,8 +158,9 @@
     color: #000;
     font-family: inherit;
     font-weight: bold;
-    padding: 5px 9px;
+    padding: 5px 8px;
     cursor: pointer;
+    font-size: 9px;
   }
   /* TOP BUTTONS */
   #top-bar {
@@ -154,16 +193,16 @@
   .char-grid {
     display: flex;
     justify-content: space-around;
-    gap: 12px;
-    margin: 12px 0;
+    gap: 10px;
+    margin: 10px 0;
     flex-wrap: wrap;
   }
   .char-card {
     flex: 1;
-    min-width: 135px;
+    min-width: 130px;
     background: #1b263b;
     border: 4px solid #5a729a;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
     border-radius: 8px;
     position: relative;
@@ -171,15 +210,88 @@
   }
   .char-card.selected {
     border-color: #f7931e;
-    box-shadow: 0 0 18px rgba(247, 147, 30, 0.7);
+    box-shadow: 0 0 16px rgba(247, 147, 30, 0.75);
     background: #253452;
   }
   .char-name {
-    margin-top: 6px;
-    font-size: 13px;
+    margin-top: 4px;
+    font-size: 11px;
     text-shadow: 2px 2px 0 #000;
   }
-  /* TOUCH CONTROLS (PANEL INFERIOR DEDICADO EN VERTICAL Y FLOTANTE EN HORIZONTAL) */
+  /* CREADOR DE PERSONAJE PERSONALIZADO */
+  .creator-layout {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 8px 0;
+    text-align: left;
+  }
+  .creator-preview-panel {
+    flex: 0 0 155px;
+    background: #141c2b;
+    border: 3px solid #63b3ed;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .creator-options-panel {
+    flex: 1;
+    min-width: 240px;
+    max-height: 48dvh;
+    overflow-y: auto;
+    background: #141c2b;
+    border: 2px solid #4a5d80;
+    border-radius: 6px;
+    padding: 10px;
+  }
+  .opt-row {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #334155;
+  }
+  .opt-label {
+    font-size: 8px;
+    color: #facc15;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .opt-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .chip-btn {
+    background: #2b3954;
+    border: 2px solid #64748b;
+    color: #fff;
+    font-family: inherit;
+    font-size: 8px;
+    padding: 5px 7px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .chip-btn.active {
+    background: #f7931e;
+    color: #000;
+    border-color: #fff;
+    font-weight: bold;
+  }
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 2px solid #64748b;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .color-swatch.active {
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 8px #facc15;
+    transform: scale(1.15);
+  }
+  /* TOUCH CONTROLS */
   #touch-controls {
     position: absolute;
     bottom: 0;
@@ -227,13 +339,13 @@
     pointer-events: auto;
   }
   .act-btn {
-    width: 82px;
+    width: 86px;
     height: 56px;
     border-radius: 12px;
     border: 3px solid #fff;
     color: #fff;
     font-family: inherit;
-    font-size: 8px;
+    font-size: 7.5px;
     line-height: 1.25;
     text-shadow: 1px 1px 0 #000;
     display: flex;
@@ -243,18 +355,20 @@
     cursor: pointer;
     box-shadow: 0 4px 0 rgba(0,0,0,0.65);
     user-select: none;
+    touch-action: none;
   }
   .act-btn:active, .act-btn.pressed {
     transform: translateY(3px);
     box-shadow: 0 1px 0 rgba(0,0,0,0.65);
-    filter: brightness(1.2);
+    filter: brightness(1.25);
+    border-color: #fde047;
   }
   .btn-jump { background: rgba(46, 134, 222, 0.92); }
   .btn-axe { background: rgba(238, 82, 83, 0.92); }
   .btn-hug { background: rgba(16, 172, 132, 0.92); }
   .btn-beer { background: rgba(243, 156, 18, 0.92); }
 
-  /* MODO VERTICAL EN CELULAR: PANEL DE CONTROL ELEVADO Y VISIBLE */
+  /* MODO VERTICAL EN CELULAR */
   @media (orientation: portrait) {
     #touch-controls {
       height: 28dvh;
@@ -274,22 +388,22 @@
       height: 46px;
     }
     .act-btn {
-      width: 78px;
+      width: 82px;
       height: 54px;
-      font-size: 8px;
+      font-size: 7.2px;
     }
     #tbtn-hug {
-      width: 164px !important;
+      width: 172px !important;
       height: 48px;
     }
   }
 
-  /* LIST TABLES */
+  /* LIST TABLES & INPUTS */
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
-    font-size: clamp(8px, 1.6vw, 11px);
+    margin: 8px 0;
+    font-size: clamp(8px, 1.5vw, 10px);
   }
   th, td {
     border: 2px solid #4a5d80;
@@ -297,28 +411,43 @@
     text-align: left;
   }
   th { background: #141c2b; color: #f7931e; }
-  input[type="text"] {
+  input[type="text"], input[type="password"] {
     width: 100%;
-    padding: 10px;
+    padding: 9px;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 10px;
     background: #0f172a;
     border: 3px solid #63b3ed;
     color: #fff;
-    margin: 10px 0;
+    margin: 5px 0;
     text-align: center;
   }
+  .room-code-box {
+    background: #0f172a;
+    border: 3px dashed #facc15;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 17px;
+    color: #facc15;
+    letter-spacing: 3px;
+  }
+  .status-badge {
+    font-size: 8px;
+    color: #38bdf8;
+    margin: 6px 0;
+    line-height: 1.5;
+  }
   .logo-badge {
-    width: 76px;
-    height: 76px;
-    margin: 0 auto 8px;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 6px;
     display: block;
   }
   .controls-hint {
     font-size: 8px;
     color: #a0aec0;
-    margin-top: 10px;
-    line-height: 1.6;
+    margin-top: 8px;
+    line-height: 1.5;
   }
 </style>
 </head>
@@ -340,10 +469,15 @@
       <h1>APUS' GUARDIANS</h1>
       <h2>RETO ILINIZA SUR (5248 MSNM)</h2>
 
+      <div class="user-status-bar">
+        <span id="menu-user-label">👤 SESIÓN: INVITADO (SIN CUENTA)</span>
+        <button class="diff-btn" style="font-size:8px; padding:4px 7px;" onclick="openAuthModal()">👤 CUENTA</button>
+      </div>
+
       <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
       <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
-      <button class="menu-btn" onclick="openRanking()">🏆 RANKING (TOP 10)</button>
+      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (LOCAL Y MUNDIAL)</button>
       <button class="menu-btn" onclick="openCharSelect('minigame')">🥊 MINI JUEGO CHUGO VS JORDY</button>
       <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
@@ -353,9 +487,33 @@
         <button class="diff-btn" onclick="changeDifficulty(1)">&gt;</button>
       </div>
       <div class="controls-hint">
-        📱 Celular: Modo Vertical con Panel de Control Inferior<br>
-        💻 PC: Flechas/WASD = Mover/Saltar | ESPACIO/Shift = Defender | Z/J = Piolet | X/K = Roca/Patada | C/L = Pilsener
+        🌎 Inicia sesión para guardar hasta 3 personajes personalizados y subir al Ranking Mundial.<br>
+        📱 Celular: Joystick Arriba = Saltar | Mantén 🛡️ DEFENDER para bloquear | 🦵 CRAMPONAZO
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CUENTA: INICIAR SESIÓN / CREAR CUENTA -->
+  <div id="auth-overlay" class="overlay">
+    <div class="retro-box">
+      <h1>👤 CUENTA DE MONTAÑISTA</h1>
+      <h2>GUARDA TUS 3 PERSONAJES Y RANKING MUNDIAL 🌎</h2>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">🔑 INICIAR SESIÓN</button>
+        <button class="tab-btn" id="tab-register-btn" onclick="switchAuthTab('register')">📝 CREAR CUENTA</button>
+      </div>
+
+      <div id="auth-form-area">
+        <input type="text" id="auth-username" placeholder="NOMBRE DE USUARIO (MÁX 14)" maxlength="14" style="text-transform:uppercase;">
+        <input type="password" id="auth-password" placeholder="CONTRASEÑA (MÍN 4 CARACTERES)" maxlength="24">
+        <div class="status-badge" id="auth-msg-box">Ingresa tus datos para sincronizar con el servidor mundial.</div>
+
+        <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ INICIAR SESIÓN</button>
+        <button class="menu-btn" style="background:#f97316; display:none;" id="auth-logout-btn" onclick="logoutAccount()">🚪 CERRAR SESIÓN ACTUAL</button>
+      </div>
+
+      <button class="menu-btn" style="background:#ee5253; margin-top:8px;" onclick="showOverlay('menu-overlay')">🔙 VOLVER AL MENÚ</button>
     </div>
   </div>
 
@@ -366,20 +524,199 @@
       <h2 id="mode-subtitle">MODO ASCENSO AL ILINIZA SUR</h2>
       <div class="char-grid">
         <div class="char-card selected" id="card-jordy" onclick="selectChar('JORDY')">
-          <canvas id="preview-jordy" width="120" height="140"></canvas>
+          <canvas id="preview-jordy" width="110" height="130"></canvas>
           <div class="char-name" style="color:#f7931e;">JORDY</div>
-          <p style="font-size:8px; color:#cbd5e1; margin-top:6px;">Casco Blanco • Chaqueta Naranja</p>
+          <p style="font-size:7px; color:#cbd5e1; margin-top:4px;">Casco Blanco • Chaqueta Naranja</p>
         </div>
         <div class="char-card" id="card-chugo" onclick="selectChar('CHUGO')">
-          <canvas id="preview-chugo" width="120" height="140"></canvas>
+          <canvas id="preview-chugo" width="110" height="130"></canvas>
           <div class="char-name" style="color:#63b3ed;">CHUGO</div>
-          <p style="font-size:8px; color:#cbd5e1; margin-top:6px;">Casco Naranja • Chaqueta Azul</p>
+          <p style="font-size:7px; color:#cbd5e1; margin-top:4px;">Casco Naranja • Chaqueta Azul</p>
+        </div>
+        <!-- Tarjeta de Personaje Personalizado (Exclusiva para el Mini Juego) -->
+        <div class="char-card" id="card-custom" style="display:none;" onclick="selectChar('CUSTOM')">
+          <canvas id="preview-custom-card" width="110" height="130"></canvas>
+          <div class="char-name" id="custom-card-title" style="color:#a855f7;">PERSONALIZADO</div>
+          <div style="display:flex; justify-content:center; gap:4px; margin-top:5px;" onclick="event.stopPropagation();">
+            <button class="chip-btn active" id="slot-btn-0" onclick="selectCustomSlot(0)">1</button>
+            <button class="chip-btn" id="slot-btn-1" onclick="selectCustomSlot(1)">2</button>
+            <button class="chip-btn" id="slot-btn-2" onclick="selectCustomSlot(2)">3</button>
+          </div>
+          <button class="diff-btn" style="margin-top:6px; width:100%; background:#a855f7; color:#fff;" onclick="event.stopPropagation(); openCustomCreator();">✏️ CREAR / EDITAR</button>
         </div>
       </div>
       <div style="display:flex; gap:10px;">
         <button class="menu-btn" style="background:#10ac84;" onclick="confirmCharSelect()">✅ ACEPTAR</button>
         <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('menu-overlay')">🔙 ATRÁS</button>
       </div>
+    </div>
+  </div>
+
+  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO (HASTA 3 EN LA CUENTA) -->
+  <div id="custom-creator-overlay" class="overlay">
+    <div class="retro-box">
+      <h1>🎨 CREADOR DE MONTAÑISTA</h1>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="creator-slot-0" onclick="switchCreatorSlot(0)">👤 RANURA 1</button>
+        <button class="tab-btn" id="creator-slot-1" onclick="switchCreatorSlot(1)">👤 RANURA 2</button>
+        <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
+      </div>
+
+      <div class="creator-layout">
+        <!-- Vista previa en vivo -->
+        <div class="creator-preview-panel">
+          <canvas id="creatorPreviewCanvas" width="130" height="155"></canvas>
+          <input type="text" id="custom-char-name" placeholder="NOMBRE (EJ: KEVIN)" maxlength="12" style="text-transform:uppercase; font-size:9px; padding:6px;" oninput="updateCreatorConfig('name', this.value)">
+          <div class="status-badge" id="creator-save-status">Se guarda en tu cuenta activa.</div>
+        </div>
+
+        <!-- Opciones paso a paso -->
+        <div class="creator-options-panel">
+          <!-- 1. Género -->
+          <div class="opt-row">
+            <span class="opt-label">1. GÉNERO DEL PERSONAJE:</span>
+            <div class="opt-buttons">
+              <button class="chip-btn" id="gender-M" onclick="updateCreatorConfig('gender', 'M')">♂️ MASCULINO</button>
+              <button class="chip-btn" id="gender-F" onclick="updateCreatorConfig('gender', 'F')">♀️ FEMENINO</button>
+            </div>
+          </div>
+
+          <!-- 2. Color de Piel -->
+          <div class="opt-row">
+            <span class="opt-label">2. COLOR DE PIEL:</span>
+            <div class="opt-buttons">
+              <button class="chip-btn" id="skin-BLANCO" onclick="updateCreatorConfig('skin', 'BLANCO')">🏻 BLANCO</button>
+              <button class="chip-btn" id="skin-MESTIZO" onclick="updateCreatorConfig('skin', 'MESTIZO')">🏽 MESTIZO</button>
+              <button class="chip-btn" id="skin-NEGRO" onclick="updateCreatorConfig('skin', 'NEGRO')">🏿 NEGRO</button>
+            </div>
+          </div>
+
+          <!-- 3. Tipo y Color de Cabello -->
+          <div class="opt-row">
+            <span class="opt-label">3. TIPO Y COLOR DE CABELLO:</span>
+            <div class="opt-buttons" style="margin-bottom:6px;">
+              <button class="chip-btn" id="hlen-CORTO" onclick="updateCreatorConfig('hairLength', 'CORTO')">✂️ CORTO</button>
+              <button class="chip-btn" id="hlen-MEDIO" onclick="updateCreatorConfig('hairLength', 'MEDIO')">🧑 MEDIO</button>
+              <button class="chip-btn" id="hlen-LARGO" onclick="updateCreatorConfig('hairLength', 'LARGO')">👩 LARGO</button>
+            </div>
+            <div class="opt-buttons" id="hair-color-options"></div>
+          </div>
+
+          <!-- 4. Tipo de Mirada / Expresión -->
+          <div class="opt-row">
+            <span class="opt-label">4. TIPO DE MIRADA / EXPRESIÓN:</span>
+            <div class="opt-buttons">
+              <button class="chip-btn" id="expr-FELIZ" onclick="updateCreatorConfig('expression', 'FELIZ')">😄 FELIZ</button>
+              <button class="chip-btn" id="expr-ENOJADA" onclick="updateCreatorConfig('expression', 'ENOJADA')">😠 ENOJADA</button>
+              <button class="chip-btn" id="expr-SERIA" onclick="updateCreatorConfig('expression', 'SERIA')">😐 SERIA</button>
+              <button class="chip-btn" id="expr-NORMAL" onclick="updateCreatorConfig('expression', 'NORMAL')">🙂 NORMAL</button>
+            </div>
+          </div>
+
+          <!-- 5. Marca y Color de Casco -->
+          <div class="opt-row">
+            <span class="opt-label">5. CASCO (PETZL O BLACK DIAMOND):</span>
+            <div class="opt-buttons" style="margin-bottom:6px;">
+              <button class="chip-btn" id="hbrand-PETZL" onclick="updateCreatorConfig('helmetBrand', 'PETZL')">⛏️ PETZL</button>
+              <button class="chip-btn" id="hbrand-BD" onclick="updateCreatorConfig('helmetBrand', 'BD')">💎 BLACK DIAMOND</button>
+            </div>
+            <div class="opt-buttons" id="helmet-color-options"></div>
+          </div>
+
+          <!-- 6. Gafas de Glaciar -->
+          <div class="opt-row">
+            <span class="opt-label">6. GAFAS DE ALTA MONTAÑA:</span>
+            <div class="opt-buttons" style="margin-bottom:6px;">
+              <button class="chip-btn" id="glasses-ON" onclick="updateCreatorConfig('hasGlasses', true)">🕶️ CON GAFAS</button>
+              <button class="chip-btn" id="glasses-OFF" onclick="updateCreatorConfig('hasGlasses', false)">👀 SIN GAFAS</button>
+            </div>
+            <div class="opt-buttons" id="glasses-color-options"></div>
+          </div>
+
+          <!-- 7. Opciones de Barba -->
+          <div class="opt-row">
+            <span class="opt-label">7. BARBA (3 OPCIONES O SIN BARBA):</span>
+            <div class="opt-buttons">
+              <button class="chip-btn" id="beard-0" onclick="updateCreatorConfig('beardStyle', 0)">SIN BARBA</button>
+              <button class="chip-btn" id="beard-1" onclick="updateCreatorConfig('beardStyle', 1)">COMPLETA</button>
+              <button class="chip-btn" id="beard-2" onclick="updateCreatorConfig('beardStyle', 2)">CANDADO</button>
+              <button class="chip-btn" id="beard-3" onclick="updateCreatorConfig('beardStyle', 3)">BIGOTE</button>
+            </div>
+          </div>
+
+          <!-- 8. Chaqueta (10 Colores) -->
+          <div class="opt-row">
+            <span class="opt-label">8. COLOR DE CHAQUETA (10 COLORES):</span>
+            <div class="opt-buttons" id="jacket-color-swatches"></div>
+          </div>
+
+          <!-- 9. Pantalón (10 Colores) -->
+          <div class="opt-row">
+            <span class="opt-label">9. COLOR DE PANTALÓN (10 COLORES):</span>
+            <div class="opt-buttons" id="pants-color-swatches"></div>
+          </div>
+
+          <!-- 10. Mochila (10 Colores) -->
+          <div class="opt-row">
+            <span class="opt-label">10. COLOR DE MOCHILA (10 COLORES):</span>
+            <div class="opt-buttons" id="pack-color-swatches"></div>
+          </div>
+
+          <!-- 11. Arnés (10 Colores) -->
+          <div class="opt-row">
+            <span class="opt-label">11. COLOR DE ARNÉS (10 COLORES):</span>
+            <div class="opt-buttons" id="harness-color-swatches"></div>
+          </div>
+
+          <!-- 12. Botas (10 Colores) -->
+          <div class="opt-row">
+            <span class="opt-label">12. COLOR DE BOTAS (10 COLORES):</span>
+            <div class="opt-buttons" id="boots-color-swatches"></div>
+          </div>
+
+          <!-- 13. Piolet Técnico -->
+          <div class="opt-row" style="border-bottom:none;">
+            <span class="opt-label">13. PIOLET TÉCNICO:</span>
+            <div class="opt-buttons">
+              <button class="chip-btn" id="axe-PETZL" onclick="updateCreatorConfig('axeBrand', 'PETZL')">🟧 PETZL (NARANJA)</button>
+              <button class="chip-btn" id="axe-BD" onclick="updateCreatorConfig('axeBrand', 'BD')">⬜ BLACK DIAMOND (GRIS)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="menu-btn" style="background:#10ac84;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR PERSONAJE</button>
+        <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELECTOR DE MODO DEL MINI JUEGO: VS CPU O MULTIJUGADOR ONLINE -->
+  <div id="minigame-mode-overlay" class="overlay">
+    <div class="retro-box">
+      <h1>🥊 MINI JUEGO CHUGO VS JORDY</h1>
+      <h2 id="vs-chosen-char-label">PELEADOR: JORDY</h2>
+
+      <button class="menu-btn" style="background:#10ac84;" onclick="startVersusCPU()">🤖 JUGAR VS CPU (OFFLINE)</button>
+
+      <hr style="border:1px solid #4a5d80; margin:10px 0;">
+      <h2>🌐 MODO ONLINE 2 JUGADORES (P2P)</h2>
+
+      <button class="menu-btn" style="background:#2e86de;" onclick="createOnlineRoom()">📡 CREAR SALA ONLINE (HOST)</button>
+      <div id="host-room-area" style="display:none;">
+        <div class="room-code-box" id="room-code-display">----</div>
+        <div class="status-badge" id="host-status-text">Comparte este código de 4 letras con tu amigo...</div>
+      </div>
+
+      <div style="margin-top:8px; background:#141c2b; padding:10px; border:2px solid #4a5d80; border-radius:6px;">
+        <p style="font-size:8px; color:#cbd5e1;">¿TU AMIGO CREÓ UNA SALA? INGRESA SU CÓDIGO:</p>
+        <input type="text" id="join-code-input" placeholder="EJ: A7K9" maxlength="6" style="text-transform:uppercase;">
+        <button class="menu-btn" style="background:#f7931e;" onclick="joinOnlineRoom()">🔗 UNIRSE A SALA ONLINE</button>
+        <div class="status-badge" id="join-status-text"></div>
+      </div>
+
+      <button class="menu-btn" style="background:#ee5253; margin-top:10px;" onclick="cancelOnlineAndBack()">🔙 VOLVER</button>
     </div>
   </div>
 
@@ -392,18 +729,25 @@
     </div>
   </div>
 
-  <!-- RANKING TOP 10 -->
+  <!-- RANKING DUAL: LOCAL Y MUNDIAL -->
   <div id="ranking-overlay" class="overlay">
     <div class="retro-box">
-      <h1>🏆 RANKING ILINIZA SUR</h1>
-      <h2>MEJORES 10 PUNTAJES</h2>
+      <h1>🏆 RANKING CUMBRE ILINIZA SUR</h1>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-rank-local" onclick="switchRankingTab('local')">📱 RANKING LOCAL</button>
+        <button class="tab-btn" id="tab-rank-world" onclick="switchRankingTab('world')">🌎 RANKING MUNDIAL</button>
+      </div>
+      <div class="status-badge" id="ranking-status-msg">Mostrando los 10 mejores puntajes de este dispositivo.</div>
       <table>
         <thead>
-          <tr><th>#</th><th>NOMBRE</th><th>PERS.</th><th>DIF.</th><th>PTS</th></tr>
+          <tr><th>#</th><th>JUGADOR</th><th>PERS.</th><th>DIF.</th><th>PTS</th></tr>
         </thead>
         <tbody id="ranking-tbody"></tbody>
       </table>
-      <button class="menu-btn" onclick="showOverlay('menu-overlay')">🔙 VOLVER AL MENÚ</button>
+      <div style="display:flex; gap:8px;">
+        <button class="menu-btn" style="background:#2e86de;" onclick="refreshWorldRanking()">🔄 SINCRONIZAR MUNDIAL</button>
+        <button class="menu-btn" onclick="showOverlay('menu-overlay')">🔙 VOLVER</button>
+      </div>
     </div>
   </div>
 
@@ -416,10 +760,6 @@
       <button class="menu-btn" onclick="saveCurrentProgress()">💾 GUARDAR PARTIDA ACTUAL</button>
       <button class="menu-btn" onclick="resumeFromSettings()">▶️ VOLVER AL JUEGO</button>
       <button class="menu-btn" style="background:#ee5253;" onclick="returnToMainMenu()">🏠 SALIR AL MENÚ PRINCIPAL</button>
-      <div class="controls-hint" style="text-align:left; margin-top:12px;">
-        <strong>NOTA DE AUDIO GOOGLE DRIVE:</strong><br>
-        En el código fuente encontrarás el bloque <code>DRIVE_AUDIO_LINKS</code> donde puedes pegar los enlaces directos de Google Drive para reemplazar los sonidos MIDI por tus propios archivos de audio.
-      </div>
     </div>
   </div>
 
@@ -428,9 +768,11 @@
     <div class="retro-box">
       <h1 id="end-title">¡CUMBRE ALCANZADA!</h1>
       <h2 id="end-subtitle">FELICIDADES LLEGASTE A 5248 MSNM</h2>
-      <p id="end-score-text" style="font-size:13px; color:#facc15; margin:12px 0;">PUNTAJE TOTAL: 0</p>
-      <input type="text" id="player-name-input" placeholder="INGRESA TU NOMBRE" maxlength="14">
-      <button class="menu-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING</button>
+      <p id="end-score-text" style="font-size:13px; color:#facc15; margin:10px 0;">PUNTAJE TOTAL: 0</p>
+      <div class="status-badge" id="end-account-status"></div>
+      <input type="text" id="player-name-input" placeholder="INGRESA TU NOMBRE" maxlength="14" style="text-transform:uppercase;">
+      <button class="menu-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING (LOCAL + MUNDIAL)</button>
+      <button class="menu-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING MUNDIAL</button>
       <button class="menu-btn" onclick="returnToMainMenu()">🏠 MENÚ PRINCIPAL</button>
     </div>
   </div>
@@ -448,7 +790,7 @@
     <div class="action-buttons" id="fight-buttons" style="display:none;">
       <button class="act-btn btn-jump" id="fbtn-defend">🛡️<br>DEFENDER</button>
       <button class="act-btn btn-axe" id="fbtn-axe">⛏️<br>PIOLET</button>
-      <button class="act-btn btn-hug" id="fbtn-kick">🦵<br>PATADA</button>
+      <button class="act-btn btn-hug" id="fbtn-kick">🦵<br>CRAMPONAZO</button>
       <button class="act-btn btn-beer" id="fbtn-beer">🍺<br>PILSENER</button>
     </div>
   </div>
@@ -468,11 +810,9 @@ let isPortrait = false;
 function updateCanvasOrientation() {
   isPortrait = window.innerHeight > window.innerWidth;
   if (isPortrait) {
-    // Celular Vertical (Proporción balanceada para que la acción quede centrada y los controles abajo)
     GW = 540;
     GH = 900;
   } else {
-    // Computador Horizontal (16:9)
     GW = 960;
     GH = 540;
   }
@@ -485,12 +825,6 @@ function updateCanvasOrientation() {
   }
 }
 
-/**
- * En modo vertical (GH=900):
- * - Los primeros ~110px arriba son del HUD y botones de configuración/sonido.
- * - La zona de acción y montaña va desde Y=110 hasta Y=570 (centrada en la vista).
- * - Los últimos ~300px abajo corresponden al panel de controles táctiles para que nunca se corten.
- */
 function getGroundY(inFlatSection = false) {
   if (isPortrait) {
     return inFlatSection ? 545 : 530;
@@ -524,17 +858,17 @@ updateCanvasOrientation();
    2. CONFIGURACIÓN DE SONIDOS (ENLACES DE GOOGLE DRIVE + SINTETIZADOR MIDI ÉPICO)
    ============================================================================ */
 const DRIVE_AUDIO_LINKS = {
-  bgm_menu: "",      // Ej: "https://drive.google.com/uc?export=download&id=1abc..."
-  bgm_climb: "",     // Música épica de ascenso niveles 1-3
-  bgm_storm: "",     // Música épica nocturna tormenta niveles 4-5
-  bgm_summit: "",    // Música de victoria en la cumbre 5248m
-  bgm_versus: "",    // Música estilo Tekken para el Mini Juego
-  sfx_jump: "",      // Sonido de salto
-  sfx_axe: "",       // Golpe de piolet en hielo/bola de nieve
-  sfx_hit: "",       // Daño recibido por roca o nieve
-  sfx_beer: "",      // Recarga de medio corazón con Pilsener
-  sfx_kick: "",      // Patada en modo versus
-  sfx_checkpoint: "" // Llegada al letrero de control
+  bgm_menu: "",
+  bgm_climb: "",
+  bgm_storm: "",
+  bgm_summit: "",
+  bgm_versus: "",
+  sfx_jump: "",
+  sfx_axe: "",
+  sfx_hit: "",
+  sfx_beer: "",
+  sfx_kick: "",
+  sfx_checkpoint: ""
 };
 
 class SoundSystem {
@@ -695,7 +1029,399 @@ class SoundSystem {
 const sound = new SoundSystem();
 
 /* ============================================================================
-   3. ESTADO GLOBAL DEL JUEGO Y NIVELES (ILINIZA SUR)
+   3. CATÁLOGOS DE COLORES Y OPCIONES DEL CREADOR DE PERSONAJES (3 RANURAS)
+   ============================================================================ */
+const SKIN_TONES = {
+  BLANCO: "#fde2c4",
+  MESTIZO: "#d99b66",
+  NEGRO: "#6f4124"
+};
+
+const HAIR_COLORS = [
+  { id: "AMARILLO", name: "AMARILLO", hex: "#facc15" },
+  { id: "NARANJA",  name: "NARANJA",  hex: "#f97316" },
+  { id: "ROJO",     name: "ROJO",     hex: "#dc2626" },
+  { id: "AZUL",     name: "AZUL",     hex: "#0284c7" },
+  { id: "NEGRO",    name: "NEGRO",    hex: "#18181b" },
+  { id: "GRIS",     name: "GRIS",     hex: "#94a3b8" },
+  { id: "CAFE",     name: "CAFÉ",     hex: "#5c3419" },
+  { id: "BLANCO",   name: "BLANCO",   hex: "#f8fafc" }
+];
+
+const HELMET_COLORS = {
+  PETZL: [
+    { id: "NARANJA", name: "NARANJA", hex: "#f97316" },
+    { id: "BLANCO",  name: "BLANCO",  hex: "#f8fafc" },
+    { id: "AZUL",    name: "AZUL",    hex: "#0284c7" },
+    { id: "GRIS",    name: "GRIS",    hex: "#94a3b8" }
+  ],
+  BD: [
+    { id: "ROJO",  name: "ROJO",  hex: "#dc2626" },
+    { id: "VERDE", name: "VERDE", hex: "#16a34a" },
+    { id: "NEGRO", name: "NEGRO", hex: "#1e293b" },
+    { id: "ROSA",  name: "ROSA",  hex: "#ec4899" }
+  ]
+};
+
+const GLASSES_COLORS = [
+  { id: "NEGRO",   name: "NEGRO",   hex: "#1e293b" },
+  { id: "AZUL",    name: "AZUL",    hex: "#38bdf8" },
+  { id: "NARANJA", name: "NARANJA", hex: "#f97316" },
+  { id: "CAFE",    name: "CAFÉ",    hex: "#854d0e" }
+];
+
+// Paleta de 10 colores para Chaqueta, Pantalón, Mochila, Arnés y Botas
+const GEAR_10_COLORS = [
+  "#f97316", // 1. Naranja Cumbre
+  "#0284c7", // 2. Azul Glaciar
+  "#dc2626", // 3. Rojo Expedición
+  "#16a34a", // 4. Verde Pino
+  "#eab308", // 5. Amarillo Sol
+  "#1e293b", // 6. Negro Roca
+  "#f8fafc", // 7. Blanco Nieve
+  "#9333ea", // 8. Morado Andino
+  "#ec4899", // 9. Rosa Boreal
+  "#78350f"  // 10. Café Tierra
+];
+
+function getDefaultCustomSlots() {
+  return [
+    {
+      name: "MONTANISTA 1",
+      gender: "M",
+      skin: "MESTIZO",
+      hairLength: "CORTO",
+      hairColor: "#18181b",
+      expression: "FELIZ",
+      helmetBrand: "PETZL",
+      helmetColor: "#f97316",
+      hasGlasses: true,
+      glassesColor: "#38bdf8",
+      beardStyle: 1,
+      jacketColor: "#16a34a",
+      pantsColor: "#1e293b",
+      packColor: "#eab308",
+      harnessColor: "#dc2626",
+      bootsColor: "#f97316",
+      axeBrand: "PETZL"
+    },
+    {
+      name: "MONTANISTA 2",
+      gender: "F",
+      skin: "BLANCO",
+      hairLength: "LARGO",
+      hairColor: "#5c3419",
+      expression: "FELIZ",
+      helmetBrand: "BD",
+      helmetColor: "#ec4899",
+      hasGlasses: true,
+      glassesColor: "#f97316",
+      beardStyle: 0,
+      jacketColor: "#9333ea",
+      pantsColor: "#1e293b",
+      packColor: "#0284c7",
+      harnessColor: "#f8fafc",
+      bootsColor: "#eab308",
+      axeBrand: "BD"
+    },
+    {
+      name: "MONTANISTA 3",
+      gender: "M",
+      skin: "NEGRO",
+      hairLength: "MEDIO",
+      hairColor: "#18181b",
+      expression: "SERIA",
+      helmetBrand: "BD",
+      helmetColor: "#dc2626",
+      hasGlasses: false,
+      glassesColor: "#1e293b",
+      beardStyle: 2,
+      jacketColor: "#eab308",
+      pantsColor: "#334155",
+      packColor: "#dc2626",
+      harnessColor: "#0284c7",
+      bootsColor: "#78350f",
+      axeBrand: "PETZL"
+    }
+  ];
+}
+
+let customCharSlots = getDefaultCustomSlots();
+let activeCustomSlot = 0;
+
+function ensureSlotDefaults(slots) {
+  const defaults = getDefaultCustomSlots();
+  return slots.map((s, idx) => ({
+    ...defaults[idx],
+    ...s
+  }));
+}
+
+function loadCustomCharsFromStorage() {
+  try {
+    const key = currentUser && currentUser.username
+      ? `apus_custom_chars_${currentUser.username}`
+      : "apus_custom_chars_guest";
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length === 3) {
+        customCharSlots = ensureSlotDefaults(parsed);
+        return;
+      }
+    }
+  } catch (e) {}
+  customCharSlots = getDefaultCustomSlots();
+}
+
+async function saveCustomCharsToAccount() {
+  const key = currentUser && currentUser.username
+    ? `apus_custom_chars_${currentUser.username}`
+    : "apus_custom_chars_guest";
+  localStorage.setItem(key, JSON.stringify(customCharSlots));
+
+  if (currentUser && currentUser.username) {
+    const store = await fetchWorldCloudData();
+    if (store.users && store.users[currentUser.username]) {
+      store.users[currentUser.username].customChars = customCharSlots;
+      await pushWorldCloudData(store);
+    }
+  }
+}
+
+/* ============================================================================
+   4. SISTEMA DE CUENTAS (LOGIN / REGISTRO) Y RANKING MUNDIAL EN LA NUBE
+   ============================================================================ */
+const CLOUD_SYNC_URL = "https://bytebunk.cc/api/v1/kv/apus_iliniza_world_v1";
+
+let currentUser = null;
+let authMode = "login";
+let currentRankingTab = "local";
+let returnToGameOverAfterAuth = false;
+
+const DEFAULT_WORLD_RANKING = [
+  { name: "IVAN VALLEJO", char: "JORDY", diff: "IVÁN VALLEJO", score: 2450 },
+  { name: "CARLA PEREZ", char: "CHUGO", diff: "IVÁN VALLEJO", score: 2190 },
+  { name: "JORDY APUS", char: "JORDY", diff: "DIFÍCIL", score: 1840 },
+  { name: "CHUGO ANDES", char: "CHUGO", diff: "DIFÍCIL", score: 1620 },
+  { name: "MILLER QUITO", char: "JORDY", diff: "NORMAL", score: 1390 },
+  { name: "CUMBRE SUR", char: "CHUGO", diff: "NORMAL", score: 1120 }
+];
+
+function simpleHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+  }
+  return (h >>> 0).toString(16);
+}
+
+function getLocalCloudStore() {
+  try {
+    const raw = localStorage.getItem("apus_iliniza_cloud_cache");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.worldRanking) && parsed.users) {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  return {
+    users: {},
+    worldRanking: [...DEFAULT_WORLD_RANKING]
+  };
+}
+
+function saveLocalCloudStore(data) {
+  localStorage.setItem("apus_iliniza_cloud_cache", JSON.stringify(data));
+}
+
+async function fetchWorldCloudData() {
+  const localCache = getLocalCloudStore();
+  try {
+    const resp = await fetch(CLOUD_SYNC_URL, {
+      method: "GET",
+      headers: { "Accept": "application/json" }
+    });
+    if (resp.ok) {
+      const remoteData = await resp.json();
+      const payload = remoteData.value ? JSON.parse(remoteData.value) : remoteData;
+      if (payload && Array.isArray(payload.worldRanking)) {
+        const mergedUsers = { ...(localCache.users || {}), ...(payload.users || {}) };
+        const combinedScores = [...(localCache.worldRanking || []), ...payload.worldRanking];
+        const uniqueMap = new Map();
+        combinedScores.forEach((item) => {
+          const key = `${item.name}_${item.char}_${item.diff}`;
+          if (!uniqueMap.has(key) || uniqueMap.get(key).score < item.score) {
+            uniqueMap.set(key, item);
+          }
+        });
+        const mergedRanking = Array.from(uniqueMap.values())
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 10);
+
+        const updated = { users: mergedUsers, worldRanking: mergedRanking };
+        saveLocalCloudStore(updated);
+        return updated;
+      }
+    }
+  } catch (err) {}
+  return localCache;
+}
+
+async function pushWorldCloudData(storeData) {
+  saveLocalCloudStore(storeData);
+  try {
+    await fetch(CLOUD_SYNC_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(storeData)
+    });
+  } catch (err) {}
+}
+
+function loadSavedSession() {
+  try {
+    const saved = localStorage.getItem("apus_iliniza_session_user");
+    if (saved) {
+      currentUser = JSON.parse(saved);
+    }
+  } catch (e) {}
+  loadCustomCharsFromStorage();
+  updateUserStatusUI();
+}
+
+function updateUserStatusUI() {
+  const label = document.getElementById("menu-user-label");
+  const logoutBtn = document.getElementById("auth-logout-btn");
+  if (currentUser && currentUser.username) {
+    label.innerHTML = `✅ CUENTA: <strong style="color:#facc15;">${currentUser.username}</strong> (3 PERS. ACTIVOS)`;
+    if (logoutBtn) logoutBtn.style.display = "block";
+  } else {
+    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO (SIN CUENTA)</span>`;
+    if (logoutBtn) logoutBtn.style.display = "none";
+  }
+}
+
+function openAuthModal() {
+  returnToGameOverAfterAuth = false;
+  switchAuthTab("login");
+  showOverlay("auth-overlay");
+}
+
+function openAuthModalFromGameOver() {
+  returnToGameOverAfterAuth = true;
+  switchAuthTab("login");
+  showOverlay("auth-overlay");
+}
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById("tab-login-btn").classList.toggle("active", mode === "login");
+  document.getElementById("tab-register-btn").classList.toggle("active", mode === "register");
+  document.getElementById("auth-submit-btn").textContent =
+    mode === "login" ? "✅ INICIAR SESIÓN" : "📝 CREAR CUENTA Y ENTRAR";
+  document.getElementById("auth-msg-box").textContent =
+    mode === "login"
+      ? "Ingresa tu usuario y contraseña para recuperar tus 3 personajes y Ranking Mundial."
+      : "Elige un nombre único y contraseña para guardar tus 3 personajes en la nube.";
+}
+
+async function handleAuthSubmit() {
+  const userInp = document.getElementById("auth-username");
+  const passInp = document.getElementById("auth-password");
+  const msgBox = document.getElementById("auth-msg-box");
+
+  const username = (userInp.value || "").trim().toUpperCase();
+  const password = (passInp.value || "").trim();
+
+  if (username.length < 3) {
+    msgBox.style.color = "#ef4444";
+    msgBox.textContent = "⚠️ El nombre de usuario debe tener al menos 3 letras.";
+    return;
+  }
+  if (password.length < 4) {
+    msgBox.style.color = "#ef4444";
+    msgBox.textContent = "⚠️ La contraseña debe tener al menos 4 caracteres.";
+    return;
+  }
+
+  msgBox.style.color = "#38bdf8";
+  msgBox.textContent = "⏳ Conectando con el servidor mundial...";
+
+  const store = await fetchWorldCloudData();
+  const passHash = simpleHash(username + ":" + password);
+
+  if (authMode === "register") {
+    if (store.users[username]) {
+      msgBox.style.color = "#ef4444";
+      msgBox.textContent = "⚠️ Ese nombre de usuario ya existe. Elige otro o inicia sesión.";
+      return;
+    }
+    store.users[username] = {
+      passHash,
+      customChars: customCharSlots,
+      createdAt: new Date().toISOString()
+    };
+    await pushWorldCloudData(store);
+    currentUser = { username };
+    localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
+    localStorage.setItem(`apus_custom_chars_${username}`, JSON.stringify(customCharSlots));
+    sound.playSFX("sfx_checkpoint");
+    msgBox.style.color = "#22c55e";
+    msgBox.textContent = `🎉 ¡Cuenta ${username} creada con éxito!`;
+  } else {
+    const existing = store.users[username];
+    if (!existing) {
+      msgBox.style.color = "#ef4444";
+      msgBox.textContent = "⚠️ Usuario no encontrado. Toca 'CREAR CUENTA' primero.";
+      return;
+    }
+    if (existing.passHash !== passHash) {
+      msgBox.style.color = "#ef4444";
+      msgBox.textContent = "❌ Contraseña incorrecta para " + username + ".";
+      return;
+    }
+    currentUser = { username };
+    localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
+    if (Array.isArray(existing.customChars) && existing.customChars.length === 3) {
+      customCharSlots = ensureSlotDefaults(existing.customChars);
+      localStorage.setItem(`apus_custom_chars_${username}`, JSON.stringify(customCharSlots));
+    } else {
+      loadCustomCharsFromStorage();
+    }
+    sound.playSFX("sfx_checkpoint");
+    msgBox.style.color = "#22c55e";
+    msgBox.textContent = `✅ ¡Bienvenido, ${username}! Tus 3 personajes están listos.`;
+  }
+
+  passInp.value = "";
+  updateUserStatusUI();
+  renderCustomCardPreview();
+
+  setTimeout(() => {
+    if (returnToGameOverAfterAuth) {
+      prepareGameOverModal();
+      showOverlay("gameover-overlay");
+    } else {
+      showOverlay("menu-overlay");
+    }
+  }, 850);
+}
+
+function logoutAccount() {
+  currentUser = null;
+  localStorage.removeItem("apus_iliniza_session_user");
+  loadCustomCharsFromStorage();
+  updateUserStatusUI();
+  renderCustomCardPreview();
+  document.getElementById("auth-msg-box").style.color = "#facc15";
+  document.getElementById("auth-msg-box").textContent = "Sesión cerrada correctamente.";
+}
+
+/* ============================================================================
+   5. ESTADO GLOBAL DEL JUEGO Y NIVELES (ILINIZA SUR)
    ============================================================================ */
 const DIFFICULTIES = [
   { id: "FACIL", name: "FÁCIL", hearts: 10, beerQuota: 7 },
@@ -826,9 +1552,15 @@ let snowParticles = [];
 let fighters = [];
 let projectiles = [];
 let vsWinner = null;
+let vsEndAnimTimer = 0; // 180 frames (3 segundos) de animación de victoria y derrota antes del cartel
+let vsIsOnline = false;
+let peerInstance = null;
+let peerConn = null;
+let isOnlineHost = false;
+let currentRoomCode = "";
 
 /* ============================================================================
-   4. DIBUJO PIXEL ART: LOGO APUS' GUARDIANS Y SPRITES JORDY & CHUGO
+   6. DIBUJO PIXEL ART: LOGO, JORDY, CHUGO Y MOTOR DE PERSONAJE PERSONALIZADO
    ============================================================================ */
 function drawApusLogo(ctx, x, y, size) {
   ctx.save();
@@ -871,6 +1603,12 @@ function drawApusLogo(ctx, x, y, size) {
   ctx.restore();
 }
 
+/**
+ * Renderiza a JORDY, CHUGO o cualquier configuración de Personaje Personalizado
+ * Incluye: Tipo de cabello (CORTO, MEDIO, LARGO), 8 colores de cabello,
+ * 4 tipos de mirada (FELIZ, ENOJADA, SERIA, NORMAL), animación de victoria (piolet arriba en bucle + caminata en sitio)
+ * y animación de derrota (agachado llorando lágrimas).
+ */
 function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   const {
     scale = 1,
@@ -882,7 +1620,9 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
     kicking = false,
     frozen = false,
     celebrating = false,
-    hurt = false
+    crying = false,
+    hurt = false,
+    customConfig = null
   } = opts;
 
   ctx.save();
@@ -892,27 +1632,47 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   }
   ctx.scale(facing * scale, scale);
 
+  const isCustom = charName === "CUSTOM" && customConfig;
   const isJordy = charName === "JORDY";
-  const helmetColor = isJordy ? "#f1f5f9" : "#f97316";
-  const jacketColor = isJordy ? "#f97316" : "#0ea5e9";
-  const packColor   = isJordy ? "#eab308" : "#1d4ed8";
-  const pantsColor  = isJordy ? "#334155" : "#ea580c";
-  const bootColor   = isJordy ? "#facc15" : "#1e3a8a";
 
-  const yOffset = crouching ? 14 : 0;
-  const stepBounce = Math.sin(anim * 0.35) * 3;
+  const gender       = isCustom ? customConfig.gender : "M";
+  const skinColor    = isCustom ? (SKIN_TONES[customConfig.skin] || "#d99b66") : "#f1c27d";
+  const hairLength   = isCustom ? (customConfig.hairLength || (gender === "F" ? "LARGO" : "CORTO")) : "CORTO";
+  const hairColor    = isCustom ? (customConfig.hairColor || "#18181b") : "#18181b";
+  const expression   = isCustom ? (customConfig.expression || "FELIZ") : "FELIZ";
+  const helmetBrand  = isCustom ? customConfig.helmetBrand : "PETZL";
+  const helmetColor  = isCustom ? customConfig.helmetColor : (isJordy ? "#f1f5f9" : "#f97316");
+  const hasGlasses   = isCustom ? customConfig.hasGlasses : isJordy;
+  const glassesColor = isCustom ? customConfig.glassesColor : "#38bdf8";
+  const beardStyle   = isCustom ? customConfig.beardStyle : (isJordy ? 0 : 1);
+  const jacketColor  = isCustom ? customConfig.jacketColor : (isJordy ? "#f97316" : "#0ea5e9");
+  const packColor    = isCustom ? customConfig.packColor   : (isJordy ? "#eab308" : "#1d4ed8");
+  const pantsColor   = isCustom ? customConfig.pantsColor  : (isJordy ? "#334155" : "#ea580c");
+  const harnessColor = isCustom ? customConfig.harnessColor : "#1e293b";
+  const bootColor    = isCustom ? customConfig.bootsColor  : (isJordy ? "#facc15" : "#1e3a8a");
+  const axeBrand     = isCustom ? customConfig.axeBrand    : "PETZL";
 
+  const isDownCrouch = crouching || hugging || crying;
+  const yOffset = crying ? 15 : (isDownCrouch ? 10 : 0);
+
+  // Cuando celebra, camina en su misma zona sin desplazarse
+  const walkCycle = celebrating ? (Date.now() * 0.018) : (anim * 0.35);
+  const stepBounce = crying ? 0 : Math.sin(walkCycle) * 3.5;
+
+  // Sombra en el suelo
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.fillRect(-18, 30, 36, 6);
 
+  // Mochila de expedición
   ctx.fillStyle = packColor;
   ctx.fillRect(-21, -16 + yOffset, 12, 26);
   ctx.strokeStyle = "#0f172a";
   ctx.lineWidth = 2;
   ctx.strokeRect(-21, -16 + yOffset, 12, 26);
 
-  const leg1Y = celebrating ? 0 : stepBounce;
-  const leg2Y = celebrating ? 0 : -stepBounce;
+  // Piernas y Pantalón (caminando en el sitio si celebra)
+  const leg1Y = stepBounce;
+  const leg2Y = -stepBounce;
   ctx.fillStyle = pantsColor;
   if (kicking) {
     ctx.fillRect(-8, 8 + yOffset, 9, 16);
@@ -923,56 +1683,185 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   } else {
     ctx.fillRect(-10, 8 + yOffset + leg1Y * 0.5, 9, 16 - yOffset * 0.4);
     ctx.fillRect(2, 8 + yOffset + leg2Y * 0.5, 9, 16 - yOffset * 0.4);
+    // Botas de alta montaña
     ctx.fillStyle = bootColor;
     ctx.fillRect(-11, 22 + leg1Y * 0.5, 12, 7);
     ctx.fillRect(2, 22 + leg2Y * 0.5, 12, 7);
   }
 
+  // Torso / Chaqueta
   ctx.fillStyle = jacketColor;
-  ctx.fillRect(-11, -16 + yOffset, 22, 26);
-  ctx.fillStyle = "#1e293b";
+  if (gender === "F") {
+    ctx.fillRect(-10, -16 + yOffset, 20, 26);
+  } else {
+    ctx.fillRect(-11, -16 + yOffset, 22, 26);
+  }
+
+  // Arnés de escalada
+  ctx.fillStyle = harnessColor;
   ctx.fillRect(-11, 4 + yOffset, 22, 4);
   ctx.fillRect(-11, -6 + yOffset, 22, 3);
+  ctx.fillRect(-9, 8 + yOffset, 7, 3);
+  ctx.fillRect(3, 8 + yOffset, 7, 3);
   ctx.fillStyle = "#cbd5e1";
   ctx.fillRect(-6, 5 + yOffset, 4, 6);
 
-  ctx.fillStyle = "#f1c27d";
+  // Cabello trasero/lateral (según CORTO, MEDIO o LARGO y color elegido)
+  ctx.fillStyle = hairColor;
+  if (hairLength === "LARGO") {
+    // Cabello largo cayendo por la espalda y hombros
+    ctx.fillRect(-16, -34 + yOffset, 7, 22);
+    ctx.fillRect(-18, -20 + yOffset, 6, 12);
+    ctx.fillRect(8, -32 + yOffset, 4, 14);
+  } else if (hairLength === "MEDIO") {
+    // Cabello medio a la altura de la nuca/cuello
+    ctx.fillRect(-14, -34 + yOffset, 6, 13);
+    ctx.fillRect(8, -33 + yOffset, 3, 9);
+  }
+
+  // Cabeza y Color de Piel
+  ctx.fillStyle = skinColor;
   ctx.fillRect(-10, -36 + yOffset, 20, 19);
 
-  if (isJordy) {
+  // Patillas / flequillo bajo el casco (visible en CORTO, MEDIO y LARGO)
+  ctx.fillStyle = hairColor;
+  ctx.fillRect(-11, -34 + yOffset, 3, 7);
+  if (hairLength !== "CORTO") {
+    ctx.fillRect(-11, -30 + yOffset, 3, 7);
+  }
+
+  // Ojos y Cejas según el Tipo de Mirada (FELIZ, ENOJADA, SERIA, NORMAL) o si está llorando
+  if (crying) {
+    // Ojos cerrados tristes llorando
     ctx.fillStyle = "#0f172a";
-    ctx.fillRect(-8, -30 + yOffset, 17, 6);
-    ctx.fillStyle = "#38bdf8";
-    ctx.fillRect(-6, -29 + yOffset, 5, 3);
-    ctx.fillRect(2, -29 + yOffset, 5, 3);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(-4, -21 + yOffset, 9, 3);
-  } else {
+    ctx.fillRect(-6, -28 + yOffset, 5, 2);
+    ctx.fillRect(2, -28 + yOffset, 5, 2);
+  } else if (!hasGlasses) {
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(-5, -29 + yOffset, 3, 3);
     ctx.fillRect(3, -29 + yOffset, 3, 3);
-    ctx.fillStyle = "#27272a";
-    ctx.fillRect(-10, -24 + yOffset, 20, 8);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(-5, -22 + yOffset, 10, 3);
+
+    // Cejas expresivas
+    ctx.fillStyle = hairColor;
+    if (expression === "ENOJADA") {
+      // Cejas inclinadas hacia el centro (mirada furiosa)
+      ctx.fillRect(-6, -32 + yOffset, 3, 1);
+      ctx.fillRect(-4, -31 + yOffset, 2, 1);
+      ctx.fillRect(3, -31 + yOffset, 2, 1);
+      ctx.fillRect(4, -32 + yOffset, 3, 1);
+    } else if (expression === "SERIA") {
+      // Cejas rectas bajas y firmes
+      ctx.fillRect(-6, -31 + yOffset, 5, 1.5);
+      ctx.fillRect(2, -31 + yOffset, 5, 1.5);
+    } else if (expression === "FELIZ") {
+      // Cejas arqueadas altas
+      ctx.fillRect(-6, -32.5 + yOffset, 4, 1);
+      ctx.fillRect(2, -32.5 + yOffset, 4, 1);
+    } else {
+      // Mirada Normal
+      ctx.fillRect(-5, -32 + yOffset, 4, 1);
+      ctx.fillRect(2, -32 + yOffset, 4, 1);
+    }
   }
 
+  // Opciones de Barba (0: Sin barba, 1: Completa, 2: Candado, 3: Bigote)
+  ctx.fillStyle = hairColor === "#f8fafc" || hairColor === "#94a3b8" ? hairColor : "#27272a";
+  if (beardStyle === 1) {
+    ctx.fillRect(-10, -24 + yOffset, 20, 8);
+  } else if (beardStyle === 2) {
+    ctx.fillRect(-5, -24 + yOffset, 11, 8);
+  } else if (beardStyle === 3) {
+    ctx.fillRect(-6, -24 + yOffset, 13, 3);
+  }
+
+  // Boca según expresión o llanto
+  if (crying) {
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-4, -21 + yOffset, 8, 2);
+    ctx.fillRect(-5, -20 + yOffset, 2, 2);
+    ctx.fillRect(3, -20 + yOffset, 2, 2);
+  } else if (expression === "FELIZ") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-4, -22 + yOffset, 9, 3);
+  } else if (expression === "ENOJADA") {
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-4, -21 + yOffset, 8, 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-3, -22 + yOffset, 6, 1);
+  } else if (expression === "SERIA") {
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-4, -21 + yOffset, 8, 1.5);
+  } else {
+    // Normal
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-3, -22 + yOffset, 7, 2);
+  }
+
+  // Gafas estilo Jordy (si están activadas y no está llorando sin gafas)
+  if (hasGlasses) {
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-9, -31 + yOffset, 19, 7);
+    ctx.fillStyle = glassesColor;
+    ctx.fillRect(-7, -30 + yOffset, 6, 4);
+    ctx.fillRect(2, -30 + yOffset, 6, 4);
+    // Si tiene mirada enojada con gafas, mostrar ceño fruncido sobre las gafas
+    if (expression === "ENOJADA" && !crying) {
+      ctx.fillStyle = hairColor;
+      ctx.fillRect(-6, -32.5 + yOffset, 4, 1.5);
+      ctx.fillRect(3, -32.5 + yOffset, 4, 1.5);
+    }
+  }
+
+  // Animación de lágrimas cayendo cuando el perdedor se agacha derrotado
+  if (crying) {
+    const tearFall1 = (Date.now() * 0.04) % 16;
+    const tearFall2 = ((Date.now() * 0.04) + 8) % 16;
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillRect(-6, -26 + yOffset + tearFall1, 3, 5);
+    ctx.fillRect(4, -26 + yOffset + tearFall2, 3, 5);
+    ctx.fillStyle = "#e0f2fe";
+    ctx.fillRect(-5, -26 + yOffset + tearFall1, 1.5, 2);
+    ctx.fillRect(5, -26 + yOffset + tearFall2, 1.5, 2);
+  }
+
+  // Casco Técnico (PETZL vs BLACK DIAMOND)
   ctx.fillStyle = helmetColor;
   ctx.fillRect(-12, -43 + yOffset, 24, 11);
-  ctx.fillStyle = "#0f172a";
-  ctx.fillRect(-7, -40 + yOffset, 3, 3);
-  ctx.fillRect(0, -41 + yOffset, 3, 3);
+  ctx.strokeStyle = "#0f172a";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(-12, -43 + yOffset, 24, 11);
 
-  ctx.save();
-  ctx.translate(4, -8 + yOffset);
-  if (celebrating) {
-    ctx.rotate(-Math.PI * 0.72);
-  } else if (swinging) {
-    ctx.rotate(Math.sin(Date.now() * 0.03) * 1.1 + 0.5);
-  } else if (hugging) {
-    ctx.rotate(-0.9);
+  if (helmetBrand === "PETZL") {
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-8, -40 + yOffset, 3, 3);
+    ctx.fillRect(-2, -41 + yOffset, 3, 3);
+    ctx.fillStyle = "#f97316";
+    ctx.fillRect(6, -40 + yOffset, 4, 3);
   } else {
-    ctx.rotate(Math.sin(anim * 0.3) * 0.25);
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(-12, -43 + yOffset, 24, 3);
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillRect(4, -39 + yOffset, 4, 4);
+  }
+
+  // Brazo y Piolet (Al ganar levanta el piolet hacia arriba varias veces en bucle)
+  ctx.save();
+  if (celebrating) {
+    const pumpLift = Math.abs(Math.sin(Date.now() * 0.015)) * 9;
+    ctx.translate(4, -12 + yOffset - pumpLift);
+    ctx.rotate(-Math.PI * 0.68 + Math.sin(Date.now() * 0.015) * 0.28);
+  } else if (crying) {
+    ctx.translate(2, -4 + yOffset);
+    ctx.rotate(0.65);
+  } else {
+    ctx.translate(4, -8 + yOffset);
+    if (swinging) {
+      ctx.rotate(Math.sin(Date.now() * 0.03) * 1.1 + 0.5);
+    } else if (hugging) {
+      ctx.rotate(-0.45);
+    } else {
+      ctx.rotate(Math.sin(anim * 0.3) * 0.25);
+    }
   }
 
   ctx.fillStyle = jacketColor;
@@ -980,9 +1869,11 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   ctx.fillStyle = "#0f172a";
   ctx.fillRect(10, -3, 5, 7);
 
-  ctx.fillStyle = "#f97316";
+  ctx.fillStyle = axeBrand === "BD" ? "#94a3b8" : "#f97316";
   ctx.fillRect(12, -20, 4, 28);
-  ctx.fillStyle = "#cbd5e1";
+  ctx.fillStyle = "#1e293b";
+  ctx.fillRect(12, 4, 4, 4);
+  ctx.fillStyle = axeBrand === "BD" ? "#e2e8f0" : "#cbd5e1";
   ctx.fillRect(6, -23, 18, 4);
   ctx.fillRect(21, -20, 4, 5);
   ctx.restore();
@@ -996,16 +1887,192 @@ function drawMountaineerSprite(ctx, charName, x, y, opts = {}) {
   }
 
   if (hugging) {
-    ctx.strokeStyle = "#10ac84";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(-22, -45 + yOffset, 44, 76);
+    ctx.fillStyle = "rgba(56, 189, 248, 0.28)";
+    ctx.beginPath();
+    ctx.arc(0, -8 + yOffset, 38, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
   }
 
   ctx.restore();
 }
 
 /* ============================================================================
-   5. GESTIÓN DE MENÚS, GUARDADO LOCAL Y RANKING TOP 10
+   7. LÓGICA INTERACTIVA DEL TALLER DE CREACIÓN DE PERSONAJES
+   ============================================================================ */
+function selectCustomSlot(slotIdx) {
+  activeCustomSlot = slotIdx;
+  [0, 1, 2].forEach((i) => {
+    const b = document.getElementById(`slot-btn-${i}`);
+    if (b) b.classList.toggle("active", i === slotIdx);
+  });
+  selectChar("CUSTOM");
+  renderCustomCardPreview();
+}
+
+function renderCustomCardPreview() {
+  const cardCanvas = document.getElementById("preview-custom-card");
+  if (!cardCanvas) return;
+  const cCtx = cardCanvas.getContext("2d");
+  cCtx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
+  const cfg = customCharSlots[activeCustomSlot];
+  drawMountaineerSprite(cCtx, "CUSTOM", 55, 88, {
+    scale: 1.6,
+    facing: 1,
+    customConfig: cfg
+  });
+  const titleEl = document.getElementById("custom-card-title");
+  if (titleEl) {
+    titleEl.textContent = cfg.name || `PERS. ${activeCustomSlot + 1}`;
+  }
+}
+
+function openCustomCreator() {
+  selectChar("CUSTOM");
+  switchCreatorSlot(activeCustomSlot);
+  showOverlay("custom-creator-overlay");
+}
+
+function switchCreatorSlot(slotIdx) {
+  activeCustomSlot = slotIdx;
+  [0, 1, 2].forEach((i) => {
+    document.getElementById(`creator-slot-${i}`).classList.toggle("active", i === slotIdx);
+    const sb = document.getElementById(`slot-btn-${i}`);
+    if (sb) sb.classList.toggle("active", i === slotIdx);
+  });
+  refreshCreatorUI();
+}
+
+function updateCreatorConfig(prop, val) {
+  const cfg = customCharSlots[activeCustomSlot];
+  cfg[prop] = val;
+
+  if (prop === "helmetBrand") {
+    cfg.helmetColor = HELMET_COLORS[val][0].hex;
+  }
+  sound.playSFX("sfx_jump");
+  refreshCreatorUI();
+}
+
+function buildColorSwatches(containerId, propName, currentColor) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+  GEAR_10_COLORS.forEach((hex) => {
+    const sw = document.createElement("div");
+    sw.className = "color-swatch" + (currentColor === hex ? " active" : "");
+    sw.style.backgroundColor = hex;
+    sw.onclick = () => updateCreatorConfig(propName, hex);
+    container.appendChild(sw);
+  });
+}
+
+function refreshCreatorUI() {
+  const cfg = customCharSlots[activeCustomSlot];
+  document.getElementById("custom-char-name").value = cfg.name || `PERS. ${activeCustomSlot + 1}`;
+
+  // 1. Género
+  document.getElementById("gender-M").classList.toggle("active", cfg.gender === "M");
+  document.getElementById("gender-F").classList.toggle("active", cfg.gender === "F");
+
+  // 2. Piel
+  ["BLANCO", "MESTIZO", "NEGRO"].forEach((s) => {
+    document.getElementById(`skin-${s}`).classList.toggle("active", cfg.skin === s);
+  });
+
+  // 3. Tipo de Cabello (CORTO, MEDIO, LARGO) y sus 8 colores
+  ["CORTO", "MEDIO", "LARGO"].forEach((hl) => {
+    document.getElementById(`hlen-${hl}`).classList.toggle("active", (cfg.hairLength || "CORTO") === hl);
+  });
+
+  const hairColorContainer = document.getElementById("hair-color-options");
+  hairColorContainer.innerHTML = "";
+  HAIR_COLORS.forEach((hc) => {
+    const btn = document.createElement("button");
+    btn.className = "chip-btn" + (cfg.hairColor === hc.hex ? " active" : "");
+    btn.innerHTML = `<span style="display:inline-block;width:9px;height:9px;background:${hc.hex};border:1px solid #000;margin-right:4px;"></span>${hc.name}`;
+    btn.onclick = () => updateCreatorConfig("hairColor", hc.hex);
+    hairColorContainer.appendChild(btn);
+  });
+
+  // 4. Tipo de Mirada (FELIZ, ENOJADA, SERIA, NORMAL)
+  ["FELIZ", "ENOJADA", "SERIA", "NORMAL"].forEach((ex) => {
+    document.getElementById(`expr-${ex}`).classList.toggle("active", (cfg.expression || "FELIZ") === ex);
+  });
+
+  // 5. Marca de casco y sus 4 colores oficiales
+  document.getElementById("hbrand-PETZL").classList.toggle("active", cfg.helmetBrand === "PETZL");
+  document.getElementById("hbrand-BD").classList.toggle("active", cfg.helmetBrand === "BD");
+
+  const hColorContainer = document.getElementById("helmet-color-options");
+  hColorContainer.innerHTML = "";
+  (HELMET_COLORS[cfg.helmetBrand] || HELMET_COLORS.PETZL).forEach((hc) => {
+    const btn = document.createElement("button");
+    btn.className = "chip-btn" + (cfg.helmetColor === hc.hex ? " active" : "");
+    btn.innerHTML = `<span style="display:inline-block;width:9px;height:9px;background:${hc.hex};border:1px solid #000;margin-right:4px;"></span>${hc.name}`;
+    btn.onclick = () => updateCreatorConfig("helmetColor", hc.hex);
+    hColorContainer.appendChild(btn);
+  });
+
+  // 6. Gafas y sus 4 colores
+  document.getElementById("glasses-ON").classList.toggle("active", !!cfg.hasGlasses);
+  document.getElementById("glasses-OFF").classList.toggle("active", !cfg.hasGlasses);
+
+  const gColorContainer = document.getElementById("glasses-color-options");
+  gColorContainer.innerHTML = "";
+  if (cfg.hasGlasses) {
+    GLASSES_COLORS.forEach((gc) => {
+      const btn = document.createElement("button");
+      btn.className = "chip-btn" + (cfg.glassesColor === gc.hex ? " active" : "");
+      btn.innerHTML = `<span style="display:inline-block;width:9px;height:9px;background:${gc.hex};border:1px solid #fff;margin-right:4px;"></span>${gc.name}`;
+      btn.onclick = () => updateCreatorConfig("glassesColor", gc.hex);
+      gColorContainer.appendChild(btn);
+    });
+  }
+
+  // 7. Barba (0, 1, 2, 3)
+  [0, 1, 2, 3].forEach((b) => {
+    document.getElementById(`beard-${b}`).classList.toggle("active", cfg.beardStyle === b);
+  });
+
+  // 8-12. Paletas de 10 colores para Chaqueta, Pantalón, Mochila, Arnés y Botas
+  buildColorSwatches("jacket-color-swatches", "jacketColor", cfg.jacketColor);
+  buildColorSwatches("pants-color-swatches", "pantsColor", cfg.pantsColor);
+  buildColorSwatches("pack-color-swatches", "packColor", cfg.packColor);
+  buildColorSwatches("harness-color-swatches", "harnessColor", cfg.harnessColor);
+  buildColorSwatches("boots-color-swatches", "bootsColor", cfg.bootsColor);
+
+  // 13. Piolet Petzl (Naranja) o Black Diamond (Gris)
+  document.getElementById("axe-PETZL").classList.toggle("active", cfg.axeBrand === "PETZL");
+  document.getElementById("axe-BD").classList.toggle("active", cfg.axeBrand === "BD");
+
+  // Dibujar vista previa en el lienzo del creador
+  const pCanvas = document.getElementById("creatorPreviewCanvas");
+  const pCtx = pCanvas.getContext("2d");
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  drawMountaineerSprite(pCtx, "CUSTOM", 65, 102, {
+    scale: 1.85,
+    facing: 1,
+    customConfig: cfg
+  });
+
+  renderCustomCardPreview();
+}
+
+async function saveAndUseCustomChar() {
+  const nameVal = (document.getElementById("custom-char-name").value || "").trim().toUpperCase();
+  customCharSlots[activeCustomSlot].name = nameVal || `PERS. ${activeCustomSlot + 1}`;
+  await saveCustomCharsToAccount();
+  renderCustomCardPreview();
+  selectChar("CUSTOM");
+  sound.playSFX("sfx_checkpoint");
+  showOverlay("char-overlay");
+}
+
+/* ============================================================================
+   8. GESTIÓN DE MENÚS, GUARDADO LOCAL Y RANKING DUAL (LOCAL + MUNDIAL)
    ============================================================================ */
 function showOverlay(id) {
   document.querySelectorAll(".overlay").forEach(el => el.classList.remove("active"));
@@ -1031,7 +2098,19 @@ function openCharSelect(mode) {
   document.getElementById("mode-subtitle").textContent =
     mode === "story"
       ? "MODO ASCENSO AL ILINIZA SUR (5 NIVELES)"
-      : "MINI JUEGO CHUGO VS JORDY";
+      : "MINI JUEGO CHUGO VS JORDY (ELIGE O CREA TU PERSONAJE)";
+
+  const customCard = document.getElementById("card-custom");
+  if (mode === "minigame") {
+    customCard.style.display = "block";
+    renderCustomCardPreview();
+  } else {
+    customCard.style.display = "none";
+    if (selectedCharacter === "CUSTOM") {
+      selectChar("JORDY");
+    }
+  }
+
   showOverlay("char-overlay");
   sound.playBGM("bgm_menu");
 }
@@ -1040,16 +2119,40 @@ function selectChar(name) {
   selectedCharacter = name;
   document.getElementById("card-jordy").classList.toggle("selected", name === "JORDY");
   document.getElementById("card-chugo").classList.toggle("selected", name === "CHUGO");
+  const customCard = document.getElementById("card-custom");
+  if (customCard) {
+    customCard.classList.toggle("selected", name === "CUSTOM");
+  }
   sound.playSFX("sfx_jump");
 }
 
 function confirmCharSelect() {
-  showOverlay(null);
   if (pendingMode === "story") {
+    if (selectedCharacter === "CUSTOM") selectedCharacter = "JORDY";
+    showOverlay(null);
     startNewStoryGame();
   } else {
-    startVersusMiniGame();
+    const charDisplayName = selectedCharacter === "CUSTOM"
+      ? `${customCharSlots[activeCustomSlot].name} (PERSONALIZADO #${activeCustomSlot + 1})`
+      : selectedCharacter;
+    document.getElementById("vs-chosen-char-label").textContent =
+      `PELEADOR ELEGIDO: ${charDisplayName}`;
+    document.getElementById("host-room-area").style.display = "none";
+    document.getElementById("join-status-text").textContent = "";
+    showOverlay("minigame-mode-overlay");
   }
+}
+
+function startVersusCPU() {
+  cleanupPeerConnection();
+  vsIsOnline = false;
+  showOverlay(null);
+  startVersusMiniGame(false);
+}
+
+function cancelOnlineAndBack() {
+  cleanupPeerConnection();
+  showOverlay("char-overlay");
 }
 
 function getSavesList() {
@@ -1129,7 +2232,7 @@ function loadSaveByIndex(idx) {
   if (saves[idx]) loadSaveObject(saves[idx]);
 }
 
-function getRankingList() {
+function getLocalRankingList() {
   try {
     const raw = localStorage.getItem("apus_iliniza_ranking");
     if (raw) return JSON.parse(raw);
@@ -1143,36 +2246,99 @@ function getRankingList() {
   ];
 }
 
-function openRanking() {
-  const list = getRankingList().slice(0, 10);
-  const tbody = document.getElementById("ranking-tbody");
-  tbody.innerHTML = list.map((r, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${r.name}</td>
-      <td>${r.char}</td>
-      <td>${r.diff}</td>
-      <td style="color:#facc15;">${r.score}</td>
-    </tr>
-  `).join("");
+function openRanking(tab = "local") {
   showOverlay("ranking-overlay");
+  switchRankingTab(tab);
 }
 
-function submitScore() {
+async function switchRankingTab(tab) {
+  currentRankingTab = tab;
+  document.getElementById("tab-rank-local").classList.toggle("active", tab === "local");
+  document.getElementById("tab-rank-world").classList.toggle("active", tab === "world");
+
+  const statusMsg = document.getElementById("ranking-status-msg");
+  const tbody = document.getElementById("ranking-tbody");
+
+  if (tab === "local") {
+    statusMsg.textContent = "📱 Mostrando los 10 mejores puntajes guardados en este dispositivo.";
+    const list = getLocalRankingList().slice(0, 10);
+    renderRankingRows(tbody, list);
+  } else {
+    statusMsg.textContent = "🌎 Sincronizando puntajes mundiales en tiempo real...";
+    const store = await fetchWorldCloudData();
+    const worldList = (store.worldRanking || DEFAULT_WORLD_RANKING).slice(0, 10);
+    renderRankingRows(tbody, worldList);
+    statusMsg.textContent = currentUser
+      ? `🌎 Ranking Mundial activo (Conectado como ${currentUser.username})`
+      : "🌎 Ranking Mundial (Inicia sesión en el menú para subir tus récords aquí)";
+  }
+}
+
+function renderRankingRows(tbody, list) {
+  tbody.innerHTML = list.map((r, i) => {
+    const isMe = currentUser && r.name === currentUser.username;
+    const rowStyle = isMe ? "background:rgba(247, 147, 30, 0.25);" : "";
+    return `
+      <tr style="${rowStyle}">
+        <td>${i + 1}</td>
+        <td>${r.name} ${isMe ? "⭐" : ""}</td>
+        <td>${r.char}</td>
+        <td>${r.diff}</td>
+        <td style="color:#facc15;">${r.score}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+async function refreshWorldRanking() {
+  sound.playSFX("sfx_jump");
+  await switchRankingTab("world");
+}
+
+function prepareGameOverModal() {
+  const nameInput = document.getElementById("player-name-input");
+  const statusEl = document.getElementById("end-account-status");
+  if (currentUser && currentUser.username) {
+    nameInput.value = currentUser.username;
+    nameInput.readOnly = true;
+    statusEl.style.color = "#22c55e";
+    statusEl.textContent = `✅ Sesión activa como ${currentUser.username}: Tu puntaje se guardará en el Ranking Local y Mundial.`;
+  } else {
+    nameInput.readOnly = false;
+    statusEl.style.color = "#facc15";
+    statusEl.textContent = "⚠️ Estás como Invitado: Tu puntaje se guardará en Local. Inicia sesión para aparecer en el Ranking Mundial.";
+  }
+}
+
+async function submitScore() {
   const input = document.getElementById("player-name-input");
-  const name = (input.value || "MONTANISTA").trim().toUpperCase();
+  const name = (currentUser ? currentUser.username : (input.value || "MONTANISTA")).trim().toUpperCase();
   const totalScore = storyData.score;
-  const list = getRankingList();
-  list.push({
+  const entry = {
     name,
     char: selectedCharacter,
     diff: DIFFICULTIES[diffIndex].name,
     score: totalScore
-  });
-  list.sort((a, b) => b.score - a.score);
-  localStorage.setItem("apus_iliniza_ranking", JSON.stringify(list.slice(0, 10)));
-  input.value = "";
-  openRanking();
+  };
+
+  const localList = getLocalRankingList();
+  localList.push(entry);
+  localList.sort((a, b) => b.score - a.score);
+  localStorage.setItem("apus_iliniza_ranking", JSON.stringify(localList.slice(0, 10)));
+
+  if (currentUser && currentUser.username) {
+    const store = await fetchWorldCloudData();
+    store.worldRanking = store.worldRanking || [];
+    store.worldRanking.push(entry);
+    store.worldRanking.sort((a, b) => b.score - a.score);
+    store.worldRanking = store.worldRanking.slice(0, 10);
+    await pushWorldCloudData(store);
+    input.value = "";
+    openRanking("world");
+  } else {
+    input.value = "";
+    openRanking("local");
+  }
 }
 
 function exitGame() {
@@ -1240,6 +2406,7 @@ function resumeFromSettings() {
 }
 
 function returnToMainMenu() {
+  cleanupPeerConnection();
   gameState = "MENU";
   updateTouchControlsVisibility();
   showOverlay("menu-overlay");
@@ -1247,7 +2414,215 @@ function returnToMainMenu() {
 }
 
 /* ============================================================================
-   6. CONTROLES: JOYSTICK VIRTUAL EN PANTALLA + TECLADO PC
+   9. SISTEMA MULTIJUGADOR ONLINE P2P (CON SINCRONIZACIÓN DE PERSONAJES PERSONALIZADOS)
+   ============================================================================ */
+function cleanupPeerConnection() {
+  if (peerConn) {
+    try { peerConn.close(); } catch (e) {}
+    peerConn = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  vsIsOnline = false;
+}
+
+function generateShortCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 4; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+function getMyFighterPayload() {
+  if (selectedCharacter === "CUSTOM") {
+    const cfg = customCharSlots[activeCustomSlot];
+    return {
+      char: "CUSTOM",
+      displayName: cfg.name || (currentUser ? currentUser.username : "PERS. " + (activeCustomSlot + 1)),
+      customConfig: cfg
+    };
+  }
+  return {
+    char: selectedCharacter,
+    displayName: currentUser ? `${selectedCharacter} (${currentUser.username})` : selectedCharacter,
+    customConfig: null
+  };
+}
+
+function createOnlineRoom() {
+  if (typeof Peer === "undefined") {
+    alert("Se necesita conexión a internet para cargar el modo Online P2P.");
+    return;
+  }
+  cleanupPeerConnection();
+  currentRoomCode = generateShortCode();
+  const fullPeerId = "APUS-ILINIZA-" + currentRoomCode;
+
+  document.getElementById("host-room-area").style.display = "block";
+  document.getElementById("room-code-display").textContent = currentRoomCode;
+  document.getElementById("host-status-text").textContent =
+    "Conectando servidor P2P... Espera un segundo.";
+
+  peerInstance = new Peer(fullPeerId);
+
+  peerInstance.on("open", () => {
+    document.getElementById("host-status-text").textContent =
+      "¡Sala activa! Pásale el código " + currentRoomCode + " a tu amigo. Esperando oponente...";
+  });
+
+  peerInstance.on("connection", (conn) => {
+    peerConn = conn;
+    isOnlineHost = true;
+    vsIsOnline = true;
+    setupOnlineHandlers();
+  });
+
+  peerInstance.on("error", (err) => {
+    document.getElementById("host-status-text").textContent =
+      "Error de red: " + err.type + ". Intenta crear la sala de nuevo.";
+  });
+}
+
+function joinOnlineRoom() {
+  if (typeof Peer === "undefined") {
+    alert("Se necesita conexión a internet para unirte a una sala Online.");
+    return;
+  }
+  const inputCode = document.getElementById("join-code-input").value.trim().toUpperCase();
+  if (inputCode.length < 3) {
+    document.getElementById("join-status-text").textContent =
+      "Por favor escribe el código de 4 letras que te dio tu amigo.";
+    return;
+  }
+
+  cleanupPeerConnection();
+  currentRoomCode = inputCode;
+  document.getElementById("join-status-text").textContent =
+    "Buscando sala " + currentRoomCode + "...";
+
+  peerInstance = new Peer();
+
+  peerInstance.on("open", () => {
+    const conn = peerInstance.connect("APUS-ILINIZA-" + currentRoomCode, { reliable: true });
+    peerConn = conn;
+    isOnlineHost = false;
+    vsIsOnline = true;
+    setupOnlineHandlers();
+  });
+
+  peerInstance.on("error", (err) => {
+    document.getElementById("join-status-text").textContent =
+      "No se pudo conectar al código " + currentRoomCode + " (" + err.type + ").";
+  });
+}
+
+function setupOnlineHandlers() {
+  peerConn.on("open", () => {
+    sound.playSFX("sfx_checkpoint");
+    const cache = getLocalCloudStore();
+    peerConn.send({
+      type: "SYNC_WORLD_RANKING",
+      worldRanking: cache.worldRanking
+    });
+
+    peerConn.send({
+      type: "HELLO_FIGHTER",
+      fighterInfo: getMyFighterPayload()
+    });
+  });
+
+  peerConn.on("data", (data) => {
+    if (!data || !data.type) return;
+
+    if (data.type === "SYNC_WORLD_RANKING" && Array.isArray(data.worldRanking)) {
+      const cache = getLocalCloudStore();
+      const combined = [...(cache.worldRanking || []), ...data.worldRanking];
+      const map = new Map();
+      combined.forEach((item) => {
+        const k = `${item.name}_${item.char}_${item.diff}`;
+        if (!map.has(k) || map.get(k).score < item.score) map.set(k, item);
+      });
+      cache.worldRanking = Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, 10);
+      saveLocalCloudStore(cache);
+    } else if (data.type === "HELLO_FIGHTER") {
+      showOverlay(null);
+      startVersusMiniGame(true, data.fighterInfo);
+    } else if (data.type === "STATE" && fighters.length === 2) {
+      const remote = fighters[1];
+      remote.x = data.nx * GW;
+      const groundY = isPortrait ? 545 : 390;
+      remote.y = groundY - data.jumpOffset;
+      remote.facing = data.facing;
+      remote.blocking = data.blocking;
+      remote.action = data.action;
+      remote.anim = data.anim;
+      remote.hp = data.myHp;
+      if (data.customConfig) {
+        remote.char = "CUSTOM";
+        remote.customConfig = data.customConfig;
+      }
+    } else if (data.type === "MELEE_ATTACK" && fighters.length === 2) {
+      const attacker = fighters[1];
+      const defender = fighters[0];
+      attacker.action = data.action;
+      attacker.actionTimer = 16;
+      sound.playSFX(data.action === "KICK" ? "sfx_kick" : "sfx_axe");
+      checkMeleeHit(attacker, defender, data.dmg);
+      sendMyStateToPeer();
+    } else if (data.type === "BEER_THROW" && fighters.length === 2) {
+      const attacker = fighters[1];
+      attacker.action = "THROW";
+      attacker.actionTimer = 14;
+      sound.playSFX("sfx_jump");
+      projectiles.push({
+        owner: 1,
+        x: attacker.x + attacker.facing * 30,
+        y: attacker.y - 24,
+        vx: attacker.facing * 8.5,
+        rot: 0
+      });
+    } else if (data.type === "WINNER") {
+      if (!vsWinner) {
+        vsWinner = data.winner;
+        vsEndAnimTimer = 180; // 3 segundos de animación de victoria y derrota
+      }
+    } else if (data.type === "REMATCH") {
+      sound.playSFX("sfx_checkpoint");
+      startVersusMiniGame(true, data.fighterInfo);
+    }
+  });
+
+  peerConn.on("close", () => {
+    if (gameState === "MINIGAME" && vsIsOnline) {
+      alert("El otro jugador se desconectó de la sala.");
+      returnToMainMenu();
+    }
+  });
+}
+
+function sendMyStateToPeer() {
+  if (!vsIsOnline || !peerConn || !peerConn.open || fighters.length < 2) return;
+  const p1 = fighters[0];
+  const groundY = isPortrait ? 545 : 390;
+  peerConn.send({
+    type: "STATE",
+    nx: p1.x / GW,
+    jumpOffset: Math.max(0, groundY - p1.y),
+    facing: p1.facing,
+    blocking: p1.blocking,
+    action: p1.action,
+    anim: p1.anim,
+    myHp: p1.hp,
+    customConfig: p1.customConfig
+  });
+}
+
+/* ============================================================================
+   10. CONTROLES: JOYSTICK VIRTUAL EN PANTALLA + TECLADO PC
    ============================================================================ */
 const keys = {
   left: false,
@@ -1265,6 +2640,8 @@ const keys = {
 const joyState = { active: false, dx: 0, dy: 0 };
 
 window.addEventListener("keydown", (e) => {
+  if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+
   const code = e.code;
   if (code === "ArrowLeft" || code === "KeyA") keys.left = true;
   if (code === "ArrowRight" || code === "KeyD") keys.right = true;
@@ -1282,8 +2659,8 @@ window.addEventListener("keydown", (e) => {
   if (code === "Space") {
     keys.jump = true;
     if (gameState === "MINIGAME") {
-      if (vsWinner) triggerFighterJump();
-      else keys.defend = true;
+      if (vsWinner && vsEndAnimTimer <= 0) requestRematch();
+      else if (!vsWinner) keys.defend = true;
     } else {
       triggerJump();
     }
@@ -1338,10 +2715,10 @@ function handleJoystickMove(clientX, clientY) {
   joyState.dx = dx / maxR;
   joyState.dy = dy / maxR;
 
-  if (joyState.dy < -0.58) {
+  if (joyState.dy < -0.55) {
     if (gameState === "STORY" && player.onGround) {
       triggerJump();
-    } else if (gameState === "MINIGAME") {
+    } else if (gameState === "MINIGAME" && !vsWinner) {
       triggerFighterJump();
     }
   }
@@ -1369,16 +2746,17 @@ function bindTouchButton(id, onDown, onUp) {
   const btn = document.getElementById(id);
   btn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
+    try { btn.setPointerCapture(e.pointerId); } catch (err) {}
     btn.classList.add("pressed");
     if (onDown) onDown();
   });
-  const release = () => {
+  const release = (e) => {
+    if (e) e.preventDefault();
     btn.classList.remove("pressed");
     if (onUp) onUp();
   };
   btn.addEventListener("pointerup", release);
   btn.addEventListener("pointercancel", release);
-  btn.addEventListener("pointerleave", release);
 }
 
 bindTouchButton("tbtn-jump", () => { keys.jump = true; triggerJump(); }, () => { keys.jump = false; });
@@ -1386,21 +2764,22 @@ bindTouchButton("tbtn-axe", () => { keys.axe = true; triggerAxe(); }, () => { ke
 bindTouchButton("tbtn-hug", () => { keys.hug = true; }, () => { keys.hug = false; });
 
 bindTouchButton("fbtn-defend", () => {
-  if (vsWinner) {
-    sound.playSFX("sfx_checkpoint");
-    startVersusMiniGame();
-  } else {
+  if (vsWinner && vsEndAnimTimer <= 0) {
+    requestRematch();
+  } else if (!vsWinner) {
     keys.defend = true;
+    if (fighters[0]) fighters[0].blocking = true;
   }
 }, () => {
   keys.defend = false;
+  if (fighters[0]) fighters[0].blocking = false;
 });
 bindTouchButton("fbtn-axe", () => { triggerFighterAxe(); }, null);
 bindTouchButton("fbtn-kick", () => { triggerKick(); }, null);
 bindTouchButton("fbtn-beer", () => { triggerBeerThrow(); }, null);
 
 /* ============================================================================
-   7. LÓGICA DEL MODO HISTORIA (5 NIVELES ILINIZA SUR)
+   11. LÓGICA DEL MODO HISTORIA (5 NIVELES ILINIZA SUR)
    ============================================================================ */
 function startNewStoryGame() {
   const diff = DIFFICULTIES[diffIndex];
@@ -1539,6 +2918,7 @@ function damagePlayer(amount = 0.5) {
       `PUNTAJE TOTAL: ${storyData.score + storyData.levelScore}`;
     storyData.score += storyData.levelScore;
     updateTouchControlsVisibility();
+    prepareGameOverModal();
     showOverlay("gameover-overlay");
   }
 }
@@ -1672,7 +3052,6 @@ function updateStoryMode() {
       }
     }
 
-    // Eliminar rocas o bolas de nieve cuando pasan la línea del suelo
     if (ob.x < -80 || ob.y > groundY + 45) ob.dead = true;
   });
 
@@ -1710,24 +3089,45 @@ function updateStoryMode() {
 }
 
 /* ============================================================================
-   8. MINI JUEGO VERSUS EN MENÚ PRINCIPAL (JORDY VS CHUGO - ESTILO TEKKEN)
+   12. MINI JUEGO CHUGO VS JORDY (CON ANIMACIÓN DE 3 SEGUNDOS AL GANAR/PERDER)
    ============================================================================ */
-function startVersusMiniGame() {
-  const p1Char = selectedCharacter;
-  const p2Char = selectedCharacter === "JORDY" ? "CHUGO" : "JORDY";
+let lastRemoteFighterInfo = null;
+
+function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
+  vsIsOnline = onlineMode;
+  if (remoteFighterInfo) lastRemoteFighterInfo = remoteFighterInfo;
+
+  const myInfo = getMyFighterPayload();
   const groundY = isPortrait ? 545 : 390;
+
+  keys.defend = false;
+
+  const p1StartX = (!onlineMode || isOnlineHost) ? (isPortrait ? 130 : 260) : (isPortrait ? 410 : 680);
+  const p2StartX = (!onlineMode || isOnlineHost) ? (isPortrait ? 410 : 680) : (isPortrait ? 130 : 260);
+
+  let p2Char = selectedCharacter === "JORDY" ? "CHUGO" : "JORDY";
+  let p2DisplayName = `${p2Char} (CPU)`;
+  let p2CustomConfig = null;
+
+  if (onlineMode && lastRemoteFighterInfo) {
+    p2Char = lastRemoteFighterInfo.char;
+    p2DisplayName = lastRemoteFighterInfo.displayName || "OPONENTE ONLINE";
+    p2CustomConfig = lastRemoteFighterInfo.customConfig || null;
+  }
 
   fighters = [
     {
-      char: p1Char,
+      char: myInfo.char,
+      displayName: myInfo.displayName,
+      customConfig: myInfo.customConfig,
       isAI: false,
-      x: isPortrait ? 130 : 260,
+      x: p1StartX,
       y: groundY,
       vx: 0,
       vy: 0,
       hp: 350,
       maxHp: 350,
-      facing: 1,
+      facing: p1StartX < p2StartX ? 1 : -1,
       onGround: true,
       blocking: false,
       action: null,
@@ -1737,14 +3137,16 @@ function startVersusMiniGame() {
     },
     {
       char: p2Char,
-      isAI: true,
-      x: isPortrait ? 410 : 680,
+      displayName: p2DisplayName,
+      customConfig: p2CustomConfig,
+      isAI: !onlineMode,
+      x: p2StartX,
       y: groundY,
       vx: 0,
       vy: 0,
       hp: 350,
       maxHp: 350,
-      facing: -1,
+      facing: p2StartX < p1StartX ? 1 : -1,
       onGround: true,
       blocking: false,
       action: null,
@@ -1755,19 +3157,30 @@ function startVersusMiniGame() {
   ];
   projectiles = [];
   vsWinner = null;
+  vsEndAnimTimer = 0;
   gameState = "MINIGAME";
   updateTouchControlsVisibility();
   sound.playBGM("bgm_versus");
 }
 
+function requestRematch() {
+  sound.playSFX("sfx_checkpoint");
+  if (vsIsOnline && peerConn && peerConn.open) {
+    peerConn.send({
+      type: "REMATCH",
+      fighterInfo: getMyFighterPayload()
+    });
+  }
+  startVersusMiniGame(vsIsOnline, lastRemoteFighterInfo);
+}
+
 function triggerFighterJump() {
   if (vsWinner) {
-    sound.playSFX("sfx_checkpoint");
-    startVersusMiniGame();
+    if (vsEndAnimTimer <= 0) requestRematch();
     return;
   }
   const f = fighters[0];
-  if (f && f.onGround && !vsWinner) {
+  if (f && f.onGround && !f.blocking && !vsWinner) {
     f.vy = -12;
     f.onGround = false;
     sound.playSFX("sfx_jump");
@@ -1781,7 +3194,11 @@ function triggerFighterAxe() {
   f.actionTimer = 16;
   f.cooldown = 22;
   sound.playSFX("sfx_axe");
-  checkMeleeHit(f, fighters[1], 6);
+  if (vsIsOnline && peerConn && peerConn.open) {
+    peerConn.send({ type: "MELEE_ATTACK", action: "AXE", dmg: 6 });
+  } else {
+    checkMeleeHit(f, fighters[1], 6);
+  }
 }
 
 function triggerKick() {
@@ -1791,7 +3208,11 @@ function triggerKick() {
   f.actionTimer = 18;
   f.cooldown = 26;
   sound.playSFX("sfx_kick");
-  checkMeleeHit(f, fighters[1], 8);
+  if (vsIsOnline && peerConn && peerConn.open) {
+    peerConn.send({ type: "MELEE_ATTACK", action: "KICK", dmg: 8 });
+  } else {
+    checkMeleeHit(f, fighters[1], 8);
+  }
 }
 
 function triggerBeerThrow() {
@@ -1808,12 +3229,25 @@ function triggerBeerThrow() {
     vx: f.facing * 8.5,
     rot: 0
   });
+  if (vsIsOnline && peerConn && peerConn.open) {
+    peerConn.send({ type: "BEER_THROW" });
+  }
+}
+
+function declareVersusWinner(winnerName) {
+  if (vsWinner) return;
+  vsWinner = winnerName;
+  vsEndAnimTimer = 180; // 3 segundos (180 frames a 60fps) de animación antes de mostrar el cartel
+  sound.playSFX("sfx_checkpoint");
+  if (vsIsOnline && peerConn && peerConn.open) {
+    peerConn.send({ type: "WINNER", winner: vsWinner });
+  }
 }
 
 function checkMeleeHit(attacker, defender, dmg) {
   if (Math.abs(attacker.x - defender.x) < 78 && Math.abs(attacker.y - defender.y) < 60) {
     if (defender.blocking) {
-      defender.vx = attacker.facing * 3.5;
+      defender.vx = attacker.facing * 2.5;
       sound.playSFX("sfx_axe");
       addFloatingScore(defender.x, defender.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
       return;
@@ -1823,86 +3257,132 @@ function checkMeleeHit(attacker, defender, dmg) {
     sound.playSFX("sfx_hit");
     addFloatingScore(defender.x, defender.y - 50, `-${dmg} HP`, "#ef4444");
     if (defender.hp <= 0) {
-      vsWinner = attacker.char;
+      declareVersusWinner(attacker.displayName || attacker.char);
     }
   }
 }
 
 function updateVersusMiniGame() {
-  if (vsWinner) return;
+  const groundY = isPortrait ? 545 : 390;
+
+  // Si ya hay un ganador, ejecutar los 3 segundos de animación de festejo y llanto en su sitio
+  if (vsWinner) {
+    if (vsEndAnimTimer > 0) {
+      vsEndAnimTimer--;
+    }
+    fighters.forEach((f) => {
+      f.vx = 0;
+      if (f.y < groundY) {
+        f.vy += 0.65;
+        f.y = Math.min(groundY, f.y + f.vy);
+      } else {
+        f.y = groundY;
+        f.vy = 0;
+      }
+      f.blocking = false;
+      f.action = null;
+      f.anim++;
+    });
+    floatingTexts.forEach((ft) => { ft.y -= 1; ft.life--; });
+    floatingTexts = floatingTexts.filter((ft) => ft.life > 0);
+    return;
+  }
 
   const p1 = fighters[0];
   const p2 = fighters[1];
-  const groundY = isPortrait ? 545 : 390;
+
+  p1.blocking = keys.defend || (joyState.dy > 0.45);
 
   p1.vx *= 0.8;
-  if (keys.left || joyState.dx < -0.25) { p1.vx = -4.2; p1.anim++; }
-  if (keys.right || joyState.dx > 0.25) { p1.vx = 4.2; p1.anim++; }
+  if (!p1.blocking) {
+    if (keys.left || joyState.dx < -0.25) { p1.vx = -4.2; p1.anim++; }
+    if (keys.right || joyState.dx > 0.25) { p1.vx = 4.2; p1.anim++; }
+  }
   p1.facing = p2.x >= p1.x ? 1 : -1;
 
-  p2.vx *= 0.8;
-  p2.facing = p1.x >= p2.x ? 1 : -1;
-  const dist = Math.abs(p1.x - p2.x);
-  if (dist > 72) {
-    p2.vx = p2.facing * 3.1;
-    p2.anim++;
-    if (Math.random() < 0.012 && p2.cooldown <= 0) {
-      p2.cooldown = 45;
-      projectiles.push({
-        owner: 1,
-        x: p2.x + p2.facing * 30,
-        y: p2.y - 24,
-        vx: p2.facing * 7.5,
-        rot: 0
-      });
-    }
-  } else if (p2.cooldown <= 0) {
-    if (Math.random() < 0.5) {
-      p2.action = "AXE";
-      p2.actionTimer = 15;
-      p2.cooldown = 52;
-      sound.playSFX("sfx_axe");
-      checkMeleeHit(p2, p1, 5);
-    } else {
-      p2.action = "KICK";
-      p2.actionTimer = 18;
-      p2.cooldown = 58;
-      sound.playSFX("sfx_kick");
-      checkMeleeHit(p2, p1, 7);
-    }
+  p1.x = Math.max(55, Math.min(GW - 55, p1.x + p1.vx));
+  p1.y += p1.vy;
+  if (p1.y < groundY) {
+    p1.vy += 0.65;
+    p1.onGround = false;
+  } else {
+    p1.y = groundY;
+    p1.vy = 0;
+    p1.onGround = true;
   }
+  if (p1.actionTimer > 0) p1.actionTimer--;
+  else p1.action = null;
+  if (p1.cooldown > 0) p1.cooldown--;
 
-  fighters.forEach((f) => {
-    f.x = Math.max(55, Math.min(GW - 55, f.x + f.vx));
-    f.y += f.vy;
-    if (f.y < groundY) {
-      f.vy += 0.65;
-      f.onGround = false;
-    } else {
-      f.y = groundY;
-      f.vy = 0;
-      f.onGround = true;
+  if (!vsIsOnline) {
+    p2.vx *= 0.8;
+    p2.facing = p1.x >= p2.x ? 1 : -1;
+    const dist = Math.abs(p1.x - p2.x);
+    if (dist > 72) {
+      p2.vx = p2.facing * 3.1;
+      p2.anim++;
+      if (Math.random() < 0.012 && p2.cooldown <= 0) {
+        p2.cooldown = 45;
+        projectiles.push({
+          owner: 1,
+          x: p2.x + p2.facing * 30,
+          y: p2.y - 24,
+          vx: p2.facing * 7.5,
+          rot: 0
+        });
+      }
+    } else if (p2.cooldown <= 0) {
+      if (Math.random() < 0.5) {
+        p2.action = "AXE";
+        p2.actionTimer = 15;
+        p2.cooldown = 52;
+        sound.playSFX("sfx_axe");
+        checkMeleeHit(p2, p1, 5);
+      } else {
+        p2.action = "KICK";
+        p2.actionTimer = 18;
+        p2.cooldown = 58;
+        sound.playSFX("sfx_kick");
+        checkMeleeHit(p2, p1, 7);
+      }
     }
-    if (f.actionTimer > 0) f.actionTimer--;
-    else f.action = null;
-    if (f.cooldown > 0) f.cooldown--;
-  });
+
+    p2.x = Math.max(55, Math.min(GW - 55, p2.x + p2.vx));
+    p2.y += p2.vy;
+    if (p2.y < groundY) {
+      p2.vy += 0.65;
+      p2.onGround = false;
+    } else {
+      p2.y = groundY;
+      p2.vy = 0;
+      p2.onGround = true;
+    }
+    if (p2.actionTimer > 0) p2.actionTimer--;
+    else p2.action = null;
+    if (p2.cooldown > 0) p2.cooldown--;
+  } else {
+    if (p2.actionTimer > 0) p2.actionTimer--;
+    sendMyStateToPeer();
+  }
 
   projectiles.forEach((pr) => {
     pr.x += pr.vx;
     pr.rot += 0.25;
     const target = pr.owner === 0 ? p2 : p1;
-    if (Math.hypot(pr.x - target.x, pr.y - (target.y - 20)) < 34) {
+    if (Math.hypot(pr.x - target.x, pr.y - (target.y - 20)) < 38) {
       pr.dead = true;
-      if (target.blocking) {
-        sound.playSFX("sfx_axe");
-        addFloatingScore(target.x, target.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
-      } else {
-        target.hp = Math.max(0, target.hp - 5);
-        sound.playSFX("sfx_hit");
-        addFloatingScore(target.x, target.y - 50, "-5 🍺", "#f97316");
-        if (target.hp <= 0) {
-          vsWinner = fighters[pr.owner].char;
+      if (!vsIsOnline || pr.owner === 1) {
+        if (target.blocking) {
+          sound.playSFX("sfx_axe");
+          addFloatingScore(target.x, target.y - 55, "🛡️ BLOQUEADO", "#38bdf8");
+        } else {
+          target.hp = Math.max(0, target.hp - 5);
+          sound.playSFX("sfx_hit");
+          addFloatingScore(target.x, target.y - 50, "-5 🍺", "#f97316");
+          if (target.hp <= 0) {
+            const winFighter = fighters[pr.owner];
+            declareVersusWinner(winFighter.displayName || winFighter.char);
+          }
         }
       }
     }
@@ -1915,7 +3395,7 @@ function updateVersusMiniGame() {
 }
 
 /* ============================================================================
-   9. RENDERIZADO ADAPTATIVO BALANCEADO (VERTICAL EN CELULAR / HORIZONTAL EN PC)
+   13. RENDERIZADO ADAPTATIVO BALANCEADO (VERTICAL EN CELULAR / HORIZONTAL EN PC)
    ============================================================================ */
 function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
   const horizonY = isPortrait ? 520 : 410;
@@ -1938,7 +3418,6 @@ function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, GW, GH);
 
-  // Nubes altas decorativas para que el cielo superior se vea lleno y vivo
   ctx.fillStyle = isNight && sunriseProgress < 0.3 ? "rgba(51, 65, 85, 0.35)" : "rgba(255, 255, 255, 0.22)";
   const cloudY = isPortrait ? 135 : 95;
   ctx.fillRect(45, cloudY, 130, 14);
@@ -1963,7 +3442,6 @@ function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
     ctx.fill();
   }
 
-  // Volcán Cotopaxi centrado y proporcionado
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(peakX - baseWidth / 2, horizonY);
@@ -1974,7 +3452,6 @@ function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
   ctx.fillStyle = isNight && sunriseProgress < 0.3 ? "#1e293b" : "#5c3a3a";
   ctx.fill();
 
-  // Glaciar nevado del Cotopaxi
   const snowBaseY = peakY + 95;
   ctx.beginPath();
   ctx.moveTo(peakX - 115, snowBaseY);
@@ -1991,7 +3468,6 @@ function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
   ctx.fill();
   ctx.restore();
 
-  // Mar de nubes andino
   ctx.fillStyle = isNight && sunriseProgress < 0.3 ? "rgba(30,41,59,0.75)" : "rgba(226,232,240,0.7)";
   ctx.fillRect(0, horizonY - 45, GW, 55);
 }
@@ -2053,7 +3529,6 @@ function renderStoryMode() {
   const scrollX = (storyData.distance * 0.8) % 120;
   const floorTop = groundY + 25;
 
-  // Roca y base glaciar hasta el fondo de la pantalla (detrás de los controles táctiles)
   ctx.fillStyle = "#1e293b";
   ctx.fillRect(0, floorTop, GW, GH - floorTop);
   ctx.fillStyle = "#334155";
@@ -2061,7 +3536,6 @@ function renderStoryMode() {
   ctx.fillStyle = "#e2e8f0";
   ctx.fillRect(0, floorTop - 5, GW, 18);
 
-  // Textura de estratos de roca en la parte baja para que luzca como ladera de montaña
   ctx.fillStyle = "#0f172a";
   for (let rx = 0; rx < GW; rx += 90) {
     ctx.fillRect((rx - scrollX + GW) % GW, floorTop + 32, 46, 10);
@@ -2164,7 +3638,6 @@ function renderStoryMode() {
     ctx.fillText(ft.text, ft.x - 20, ft.y);
   });
 
-  // HUD Superior Izquierdo (Ajustado para nunca chocar con los botones CONFIG y ON de la derecha)
   const hudW = isPortrait ? 305 : 470;
   ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
   ctx.fillRect(12, 10, hudW, 82);
@@ -2237,6 +3710,7 @@ function renderStoryMode() {
       document.getElementById("end-title").textContent = "🏔️ ¡CUMBRE ILINIZA SUR!";
       document.getElementById("end-subtitle").textContent = "FELICIDADES LLEGASTE A 5248 MSNM";
       document.getElementById("end-score-text").textContent = `PUNTAJE FINAL: ${storyData.score}`;
+      prepareGameOverModal();
       showOverlay("gameover-overlay");
     }
   }
@@ -2268,14 +3742,19 @@ function renderVersusMiniGame() {
   ctx.lineWidth = 3;
   ctx.strokeRect(20, barY, barW, 24);
   ctx.fillStyle = "#fff";
-  ctx.font = isPortrait ? "10px 'Press Start 2P'" : "12px 'Press Start 2P'";
-  ctx.fillText(`${p1.char} (TÚ)`, 22, barY + 42);
+  ctx.font = isPortrait ? "9px 'Press Start 2P'" : "11px 'Press Start 2P'";
+  ctx.fillText(`${p1.displayName || p1.char}`, 22, barY + 42);
 
   // VS
   ctx.textAlign = "center";
   ctx.fillStyle = "#facc15";
-  ctx.font = "15px 'Press Start 2P'";
-  ctx.fillText("VS", GW / 2, barY + 19);
+  ctx.font = "14px 'Press Start 2P'";
+  ctx.fillText(vsIsOnline ? "🌐 VS" : "VS", GW / 2, barY + 19);
+  if (vsIsOnline) {
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "8px 'Press Start 2P'";
+    ctx.fillText(`SALA: ${currentRoomCode}`, GW / 2, barY + 36);
+  }
 
   // Barra P2
   const p2BarX = GW - 20 - barW;
@@ -2287,10 +3766,15 @@ function renderVersusMiniGame() {
   ctx.strokeRect(p2BarX, barY, barW, 24);
   ctx.fillStyle = "#fff";
   ctx.textAlign = "right";
-  ctx.fillText(`${p2.char} (CPU)`, GW - 22, barY + 42);
+  ctx.font = isPortrait ? "9px 'Press Start 2P'" : "11px 'Press Start 2P'";
+  ctx.fillText(`${p2.displayName || p2.char}`, GW - 22, barY + 42);
   ctx.textAlign = "left";
 
   fighters.forEach((f) => {
+    const fName = f.displayName || f.char;
+    const isWinFighter = vsWinner && vsWinner === fName;
+    const isLoseFighter = vsWinner && vsWinner !== fName;
+
     drawMountaineerSprite(ctx, f.char, f.x, f.y, {
       scale: isPortrait ? 1.45 : 1.55,
       facing: f.facing,
@@ -2298,8 +3782,18 @@ function renderVersusMiniGame() {
       swinging: f.action === "AXE",
       kicking: f.action === "KICK",
       hugging: f.blocking,
-      celebrating: vsWinner === f.char
+      celebrating: isWinFighter,
+      crying: isLoseFighter,
+      customConfig: f.customConfig
     });
+
+    if (f.blocking && !vsWinner) {
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "10px 'Press Start 2P'";
+      ctx.textAlign = "center";
+      ctx.fillText("🛡️ GUARDIA", f.x, f.y - 75);
+      ctx.textAlign = "left";
+    }
   });
 
   projectiles.forEach((pr) => {
@@ -2312,7 +3806,8 @@ function renderVersusMiniGame() {
     ctx.fillText(ft.text, ft.x - 25, ft.y);
   });
 
-  if (vsWinner) {
+  // Mostrar el aviso de ganador exactamente después de los 3 segundos de animación (vsEndAnimTimer <= 0)
+  if (vsWinner && vsEndAnimTimer <= 0) {
     const boxW = isPortrait ? 480 : 520;
     const boxX = (GW - boxW) / 2;
     const boxY = isPortrait ? 240 : (GH - 150) / 2 - 40;
@@ -2324,32 +3819,30 @@ function renderVersusMiniGame() {
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#facc15";
-    ctx.font = "18px 'Press Start 2P'";
+    ctx.font = "16px 'Press Start 2P'";
     ctx.fillText(`🏆 ¡GANA ${vsWinner}!`, GW / 2, boxY + 50);
     ctx.fillStyle = "#fff";
     ctx.font = "10px 'Press Start 2P'";
     ctx.fillText("TOCA LA PANTALLA O DEFENDER PARA REVANCHA", GW / 2, boxY + 95);
     ctx.fillText("O USA CONFIG PARA SALIR AL MENÚ", GW / 2, boxY + 120);
     ctx.textAlign = "left";
-
-    if (keys.jump) {
-      startVersusMiniGame();
-    }
   }
 }
 
 /* ============================================================================
-   10. INICIALIZACIÓN Y BUCLE PRINCIPAL (60 FPS)
+   14. INICIALIZACIÓN Y BUCLE PRINCIPAL (60 FPS)
    ============================================================================ */
 function initPreviews() {
   const logoCtx = document.getElementById("logoCanvas").getContext("2d");
   drawApusLogo(logoCtx, 4, 4, 88);
 
   const jCtx = document.getElementById("preview-jordy").getContext("2d");
-  drawMountaineerSprite(jCtx, "JORDY", 60, 95, { scale: 1.75, facing: 1 });
+  drawMountaineerSprite(jCtx, "JORDY", 55, 88, { scale: 1.6, facing: 1 });
 
   const cCtx = document.getElementById("preview-chugo").getContext("2d");
-  drawMountaineerSprite(cCtx, "CHUGO", 60, 95, { scale: 1.75, facing: 1 });
+  drawMountaineerSprite(cCtx, "CHUGO", 55, 88, { scale: 1.6, facing: 1 });
+
+  renderCustomCardPreview();
 }
 
 function gameLoop() {
@@ -2374,14 +3867,15 @@ function gameLoop() {
 }
 
 canvas.addEventListener("pointerdown", () => {
-  if (gameState === "MINIGAME" && vsWinner) {
-    sound.playSFX("sfx_checkpoint");
-    startVersusMiniGame();
+  if (gameState === "MINIGAME" && vsWinner && vsEndAnimTimer <= 0) {
+    requestRematch();
   }
 });
 
+loadSavedSession();
 initPreviews();
 updateDiffLabel();
+fetchWorldCloudData();
 requestAnimationFrame(gameLoop);
 </script>
 </body>
