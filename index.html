@@ -2,13 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" id="vp-meta" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>APUS' GUARDIANS - RETO ILINIZA SUR</title>
-<link rel="manifest" href="manifest.json">
-<!-- Librería PeerJS con carga asíncrona segura -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -29,7 +27,6 @@
     font-family: 'Press Start 2P', monospace, sans-serif;
     color: #fff;
     touch-action: none;
-    -webkit-text-size-adjust: 100%;
   }
   #game-container {
     position: fixed;
@@ -55,9 +52,7 @@
     image-rendering: pixelated;
   }
   /* =========================================================
-     DISEÑO DE LA CAJA DEL MENÚ (IDÉNTICO A LA COMPUTADORA)
-     El script fitMenusToScreen() escala esta caja automáticamente
-     en celulares verticales para que llene toda la pantalla.
+     CSS ORIGINAL DEL INICIO (EL QUE SE VEÍA PERFECTO EN CELULAR Y PC)
      ========================================================= */
   .overlay {
     position: absolute;
@@ -66,11 +61,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(10, 15, 30, 0.86);
+    background: rgba(10, 15, 30, 0.84);
     z-index: 20;
-    padding: 8px;
+    padding: 12px;
     text-align: center;
-    overflow: hidden;
   }
   .overlay.active {
     display: flex;
@@ -78,28 +72,27 @@
   .retro-box {
     background: rgba(25, 34, 54, 0.96);
     border: 4px solid #8ba3c7;
-    box-shadow: 0 0 0 4px #111827, 0 10px 28px rgba(0,0,0,0.9);
+    box-shadow: 0 0 0 4px #111827, 0 8px 24px rgba(0,0,0,0.8);
     padding: 16px;
-    border-radius: 8px;
-    width: 580px;
-    max-width: 96vw;
-    max-height: 90dvh;
+    border-radius: 6px;
+    max-width: 640px;
+    width: 94%;
+    max-height: 88dvh;
     overflow-y: auto;
-    transform-origin: center center;
   }
   h1 {
-    font-size: 18px;
+    font-size: clamp(15px, 4vw, 24px);
     color: #f7931e;
     text-shadow: 3px 3px 0 #000;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     line-height: 1.35;
   }
   h2 {
-    font-size: 11px;
+    font-size: clamp(11px, 2.8vw, 15px);
     color: #63b3ed;
     text-shadow: 2px 2px 0 #000;
-    margin-bottom: 10px;
-    line-height: 1.35;
+    margin-bottom: 14px;
+    line-height: 1.3;
   }
   .menu-btn {
     display: block;
@@ -110,24 +103,24 @@
     border: 3px solid #6b82a8;
     color: #fff;
     font-family: inherit;
-    font-size: 11.5px;
+    font-size: clamp(11px, 3vw, 14px);
     cursor: pointer;
     text-shadow: 2px 2px 0 #000;
     transition: transform 0.1s, background 0.15s;
-    border-radius: 6px;
+    border-radius: 4px;
   }
   .menu-btn:hover, .menu-btn:active {
     background: #f7931e;
     border-color: #fff;
-    transform: scale(1.01);
+    transform: scale(1.02);
   }
   .user-status-bar {
     background: #141c2b;
     border: 2px solid #38bdf8;
-    padding: 9px 10px;
+    padding: 10px;
     margin-bottom: 10px;
-    border-radius: 6px;
-    font-size: 9.5px;
+    border-radius: 4px;
+    font-size: clamp(9px, 2.4vw, 11px);
     color: #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -147,9 +140,8 @@
     border: 3px solid #4a5d80;
     color: #94a3b8;
     font-family: inherit;
-    font-size: 9.5px;
+    font-size: clamp(9px, 2.4vw, 11px);
     cursor: pointer;
-    border-radius: 5px;
   }
   .tab-btn.active {
     background: #f7931e;
@@ -162,12 +154,11 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-top: 8px;
+    margin-top: 10px;
     padding: 10px;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    font-size: 10.5px;
-    border-radius: 6px;
+    font-size: clamp(10px, 2.6vw, 12px);
   }
   .diff-btn {
     background: #f7931e;
@@ -177,8 +168,7 @@
     font-weight: bold;
     padding: 7px 11px;
     cursor: pointer;
-    font-size: 9.5px;
-    border-radius: 5px;
+    font-size: clamp(9px, 2.4vw, 11px);
   }
   /* TOP BUTTONS */
   #top-bar {
@@ -188,7 +178,6 @@
     display: flex;
     gap: 6px;
     z-index: 30;
-    transform-origin: top right;
   }
   .icon-btn {
     background: rgba(30, 41, 66, 0.94);
@@ -211,10 +200,9 @@
   /* CHARACTER SELECTION */
   .char-grid {
     display: flex;
-    justify-content: center;
-    align-items: stretch;
+    justify-content: space-around;
     gap: 10px;
-    margin: 10px 0;
+    margin: 12px 0;
     flex-wrap: wrap;
   }
   .char-card {
@@ -222,51 +210,47 @@
     min-width: 135px;
     background: #1b263b;
     border: 4px solid #5a729a;
-    padding: 10px 8px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 8px;
     position: relative;
     transition: 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
   }
   .char-card canvas {
     width: 110px !important;
     height: 125px !important;
-    object-fit: contain !important;
     display: block;
     margin: 0 auto;
   }
   .char-card.selected {
     border-color: #f7931e;
-    box-shadow: 0 0 16px rgba(247, 147, 30, 0.75);
+    box-shadow: 0 0 18px rgba(247, 147, 30, 0.7);
     background: #253452;
   }
   .char-name {
     margin-top: 6px;
-    font-size: 11px;
+    font-size: 12px;
     text-shadow: 2px 2px 0 #000;
   }
-  /* CREADOR DE PERSONAJE PERSONALIZADO */
+  /* CREADOR DE PERSONAJE PERSONALIZADO: FIJO AL LADO SIN DEFORMARSE */
   .creator-layout {
     display: flex;
     flex-direction: row;
     gap: 10px;
     align-items: stretch;
-    flex-wrap: nowrap;
     margin: 8px 0;
     text-align: left;
-    height: 320px;
+    height: 46dvh;
+    min-height: 250px;
+    max-height: 360px;
   }
   .creator-preview-panel {
-    flex: 0 0 140px;
-    width: 140px;
+    flex: 0 0 130px;
+    width: 130px;
     background: #141c2b;
     border: 3px solid #63b3ed;
     border-radius: 8px;
-    padding: 8px;
+    padding: 6px;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -274,13 +258,10 @@
     align-items: center;
   }
   #creatorPreviewCanvas {
-    width: 120px !important;
-    height: 145px !important;
-    object-fit: contain !important;
+    width: 112px !important;
+    height: 138px !important;
     display: block;
     margin: 0 auto;
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: 6px;
   }
   .creator-options-panel {
     flex: 1;
@@ -288,7 +269,7 @@
     overflow-y: auto;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 10px;
   }
   .opt-row {
@@ -297,7 +278,7 @@
     border-bottom: 1px dashed #334155;
   }
   .opt-label {
-    font-size: 8.5px;
+    font-size: 9px;
     color: #facc15;
     margin-bottom: 6px;
     display: block;
@@ -313,10 +294,10 @@
     border: 2px solid #64748b;
     color: #fff;
     font-family: inherit;
-    font-size: 8.5px;
+    font-size: 9px;
     padding: 6px 8px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 4px;
   }
   .chip-btn.active {
     background: #f7931e;
@@ -325,40 +306,38 @@
     font-weight: bold;
   }
   .color-swatch {
-    width: 25px;
-    height: 25px;
-    border-radius: 5px;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
     border: 2px solid #64748b;
     cursor: pointer;
-    transition: transform 0.1s;
   }
   .color-swatch.active {
     border: 3px solid #ffffff;
     box-shadow: 0 0 8px #facc15;
     transform: scale(1.12);
   }
-  /* TOUCH CONTROLS */
+  /* TOUCH CONTROLS ORIGINALES */
   #touch-controls {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 12px 16px calc(20px + env(safe-area-inset-bottom, 10px)) 16px;
+    padding: 12px 16px calc(22px + env(safe-area-inset-bottom, 12px)) 16px;
     pointer-events: none;
     z-index: 25;
     display: none;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
   }
   #touch-controls.active {
     display: flex;
   }
   #joystick-zone {
-    width: 132px;
-    height: 132px;
-    background: rgba(255, 255, 255, 0.18);
-    border: 3px solid rgba(255, 255, 255, 0.65);
+    width: 128px;
+    height: 128px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 3px solid rgba(255, 255, 255, 0.55);
     border-radius: 50%;
     position: relative;
     pointer-events: auto;
@@ -367,8 +346,8 @@
     box-shadow: 0 4px 14px rgba(0,0,0,0.6);
   }
   #joystick-knob {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     background: rgba(247, 147, 30, 0.95);
     border: 3px solid #fff;
     border-radius: 50%;
@@ -386,8 +365,8 @@
     pointer-events: auto;
   }
   .act-btn {
-    width: 96px;
-    height: 60px;
+    width: 86px;
+    height: 58px;
     border-radius: 12px;
     border: 3px solid #fff;
     color: #fff;
@@ -410,17 +389,46 @@
     filter: brightness(1.25);
     border-color: #fde047;
   }
-  .btn-jump { background: rgba(46, 134, 222, 0.94); }
-  .btn-axe { background: rgba(238, 82, 83, 0.94); }
-  .btn-hug { background: rgba(16, 172, 132, 0.94); }
-  .btn-beer { background: rgba(243, 156, 18, 0.94); }
+  .btn-jump { background: rgba(46, 134, 222, 0.92); }
+  .btn-axe { background: rgba(238, 82, 83, 0.92); }
+  .btn-hug { background: rgba(16, 172, 132, 0.92); }
+  .btn-beer { background: rgba(243, 156, 18, 0.92); }
+
+  @media (orientation: portrait) {
+    #touch-controls {
+      height: 28dvh;
+      min-height: 195px;
+      max-height: 245px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(11, 16, 30, 0.95) 24%, #090d16 100%);
+      border-top: 3px solid rgba(139, 163, 199, 0.4);
+      padding: 14px 16px calc(26px + env(safe-area-inset-bottom, 16px)) 16px;
+      align-items: center;
+    }
+    #joystick-zone {
+      width: 122px;
+      height: 122px;
+    }
+    #joystick-knob {
+      width: 48px;
+      height: 48px;
+    }
+    .act-btn {
+      width: 84px;
+      height: 56px;
+      font-size: 8.5px;
+    }
+    #tbtn-hug {
+      width: 176px !important;
+      height: 48px;
+    }
+  }
 
   /* LIST TABLES & INPUTS */
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 8px 0;
-    font-size: 10px;
+    margin: 10px 0;
+    font-size: clamp(9px, 2.2vw, 11px);
   }
   th, td {
     border: 2px solid #4a5d80;
@@ -432,41 +440,40 @@
     width: 100%;
     padding: 11px;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     background: #0f172a;
     border: 3px solid #63b3ed;
     color: #fff;
-    margin: 6px 0;
+    margin: 7px 0;
     text-align: center;
-    border-radius: 6px;
     text-transform: uppercase;
   }
   .room-code-box {
     background: #0f172a;
     border: 3px dashed #facc15;
-    padding: 10px;
-    margin: 8px 0;
+    padding: 12px;
+    margin: 10px 0;
     font-size: 18px;
     color: #facc15;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
   }
   .status-badge {
-    font-size: 8.5px;
+    font-size: 9.5px;
     color: #38bdf8;
-    margin: 6px 0;
+    margin: 8px 0;
     line-height: 1.5;
   }
-  #logoCanvas {
-    width: 72px !important;
-    height: 72px !important;
-    margin: 0 auto 6px;
+  .logo-badge {
+    width: 76px !important;
+    height: 76px !important;
+    margin: 0 auto 8px;
     display: block;
   }
   .controls-hint {
-    font-size: 8px;
+    font-size: 9px;
     color: #a0aec0;
-    margin-top: 8px;
-    line-height: 1.5;
+    margin-top: 10px;
+    line-height: 1.6;
   }
 </style>
 </head>
@@ -481,22 +488,22 @@
     <button class="icon-btn" id="btn-sound" title="Activar/Desactivar Sonido">🔊 ON</button>
   </div>
 
-  <!-- MENU PRINCIPAL -->
+  <!-- MENU PRINCIPAL ORIGINAL RESTAURADO -->
   <div id="menu-overlay" class="overlay active">
     <div class="retro-box">
-      <canvas id="logoCanvas" width="96" height="96"></canvas>
+      <canvas id="logoCanvas" class="logo-badge" width="96" height="96"></canvas>
       <h1>APUS' GUARDIANS</h1>
       <h2>RETO ILINIZA SUR (5248 MSNM)</h2>
 
       <div class="user-status-bar">
-        <span id="menu-user-label">👤 SESIÓN: INVITADO (SIN CUENTA)</span>
+        <span id="menu-user-label">👤 SESIÓN: INVITADO</span>
         <button class="diff-btn" onclick="openAuthModal()">👤 CUENTA</button>
       </div>
 
       <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
       <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
-      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (LOCAL Y MUNDIAL)</button>
+      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (TOP 10)</button>
       <button class="menu-btn" onclick="openCharSelect('minigame')">🥊 MINI JUEGO CHUGO VS JORDY</button>
       <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
@@ -506,7 +513,6 @@
         <button class="diff-btn" onclick="changeDifficulty(1)">&gt;</button>
       </div>
       <div class="controls-hint">
-        🌎 Inicia sesión en tu cuenta para sincronizar tus 3 personajes, partidas y récords.<br>
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
     </div>
@@ -545,25 +551,25 @@
 
       <div class="char-grid">
         <div class="char-card selected" id="card-jordy" onclick="selectChar('JORDY')">
-          <canvas id="preview-jordy" width="120" height="135"></canvas>
+          <canvas id="preview-jordy" width="120" height="140"></canvas>
           <div class="char-name" style="color:#f7931e;">JORDY</div>
           <p style="font-size:8px; color:#cbd5e1; margin-top:4px;">Casco Blanco • Chaqueta Naranja</p>
         </div>
         <div class="char-card" id="card-chugo" onclick="selectChar('CHUGO')">
-          <canvas id="preview-chugo" width="120" height="135"></canvas>
+          <canvas id="preview-chugo" width="120" height="140"></canvas>
           <div class="char-name" style="color:#63b3ed;">CHUGO</div>
           <p style="font-size:8px; color:#cbd5e1; margin-top:4px;">Casco Naranja • Chaqueta Azul</p>
         </div>
         <!-- Tarjeta de Personaje Personalizado -->
         <div class="char-card" id="card-custom" style="display:none;" onclick="selectChar('CUSTOM')">
-          <canvas id="preview-custom-card" width="120" height="135"></canvas>
+          <canvas id="preview-custom-card" width="120" height="140"></canvas>
           <div class="char-name" id="custom-card-title" style="color:#c084fc;">PERSONALIZADO</div>
           <div style="display:flex; justify-content:center; gap:6px; margin-top:6px;" onclick="event.stopPropagation();">
-            <button class="chip-btn active" id="slot-btn-0" onclick="selectCustomSlot(0)">PERS 1</button>
-            <button class="chip-btn" id="slot-btn-1" onclick="selectCustomSlot(1)">PERS 2</button>
-            <button class="chip-btn" id="slot-btn-2" onclick="selectCustomSlot(2)">PERS 3</button>
+            <button class="chip-btn active" id="slot-btn-0" onclick="selectCustomSlot(0)">1</button>
+            <button class="chip-btn" id="slot-btn-1" onclick="selectCustomSlot(1)">2</button>
+            <button class="chip-btn" id="slot-btn-2" onclick="selectCustomSlot(2)">3</button>
           </div>
-          <button class="diff-btn" style="margin-top:8px; width:100%; padding:9px; background:#9333ea; color:#fff;" onclick="event.stopPropagation(); openCustomCreator();">✏️ PERSONALIZAR MONTAÑISTA</button>
+          <button class="diff-btn" style="margin-top:8px; width:100%; background:#9333ea; color:#fff;" onclick="event.stopPropagation(); openCustomCreator();">✏️ CREAR / EDITAR</button>
         </div>
       </div>
 
@@ -588,13 +594,12 @@
         <!-- Vista previa fija a la izquierda -->
         <div class="creator-preview-panel">
           <canvas id="creatorPreviewCanvas" width="130" height="160"></canvas>
-          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:7px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
+          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:6px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
           <div class="status-badge" id="creator-save-status">Vista en vivo</div>
         </div>
 
         <!-- Opciones con scroll propio a la derecha -->
         <div class="creator-options-panel">
-          <!-- 1. Género -->
           <div class="opt-row">
             <span class="opt-label">1. GÉNERO:</span>
             <div class="opt-buttons">
@@ -603,7 +608,6 @@
             </div>
           </div>
 
-          <!-- 2. Color de Piel -->
           <div class="opt-row">
             <span class="opt-label">2. COLOR DE PIEL:</span>
             <div class="opt-buttons">
@@ -613,7 +617,6 @@
             </div>
           </div>
 
-          <!-- 3. Tipo y Color de Cabello -->
           <div class="opt-row">
             <span class="opt-label">3. CABELLO (CORTO, MEDIO, LARGO):</span>
             <div class="opt-buttons" style="margin-bottom:6px;">
@@ -624,7 +627,6 @@
             <div class="opt-buttons" id="hair-color-options"></div>
           </div>
 
-          <!-- 4. Tipo de Mirada / Expresión -->
           <div class="opt-row">
             <span class="opt-label">4. TIPO DE MIRADA:</span>
             <div class="opt-buttons">
@@ -635,7 +637,6 @@
             </div>
           </div>
 
-          <!-- 5. Marca y Color de Casco -->
           <div class="opt-row">
             <span class="opt-label">5. CASCO (PETZL O BLACK DIAMOND):</span>
             <div class="opt-buttons" style="margin-bottom:6px;">
@@ -645,7 +646,6 @@
             <div class="opt-buttons" id="helmet-color-options"></div>
           </div>
 
-          <!-- 6. Gafas de Glaciar -->
           <div class="opt-row">
             <span class="opt-label">6. GAFAS DE ALTA MONTAÑA:</span>
             <div class="opt-buttons" style="margin-bottom:6px;">
@@ -655,7 +655,6 @@
             <div class="opt-buttons" id="glasses-color-options"></div>
           </div>
 
-          <!-- 7. Opciones de Barba -->
           <div class="opt-row">
             <span class="opt-label">7. BARBA:</span>
             <div class="opt-buttons">
@@ -666,37 +665,31 @@
             </div>
           </div>
 
-          <!-- 8. Chaqueta (10 Colores) -->
           <div class="opt-row">
             <span class="opt-label">8. CHAQUETA (10 COLORES):</span>
             <div class="opt-buttons" id="jacket-color-swatches"></div>
           </div>
 
-          <!-- 9. Pantalón (10 Colores) -->
           <div class="opt-row">
             <span class="opt-label">9. PANTALÓN (10 COLORES):</span>
             <div class="opt-buttons" id="pants-color-swatches"></div>
           </div>
 
-          <!-- 10. Mochila (10 Colores) -->
           <div class="opt-row">
             <span class="opt-label">10. MOCHILA (10 COLORES):</span>
             <div class="opt-buttons" id="pack-color-swatches"></div>
           </div>
 
-          <!-- 11. Arnés (10 Colores) -->
           <div class="opt-row">
             <span class="opt-label">11. ARNÉS (10 COLORES):</span>
             <div class="opt-buttons" id="harness-color-swatches"></div>
           </div>
 
-          <!-- 12. Botas (10 Colores) -->
           <div class="opt-row">
             <span class="opt-label">12. BOTAS (10 COLORES):</span>
             <div class="opt-buttons" id="boots-color-swatches"></div>
           </div>
 
-          <!-- 13. Piolet Técnico -->
           <div class="opt-row" style="border-bottom:none;">
             <span class="opt-label">13. PIOLET TÉCNICO:</span>
             <div class="opt-buttons">
@@ -708,7 +701,7 @@
       </div>
 
       <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="menu-btn" style="background:#10ac84;" onclick="saveAndUseCustomChar()">💾 GUARDAR EN CUENTA Y USAR</button>
+        <button class="menu-btn" style="background:#10ac84;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR</button>
         <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
       </div>
     </div>
@@ -819,7 +812,7 @@
 
 <script>
 /* ============================================================================
-   0. LIMPIEZA DE CACHÉ VIEJA Y ESCALADO AUTOMÁTICO PERFECTO PARA MÓVIL VERTICAL
+   0. LIMPIEZA DE CACHÉ Y SEGURO CONTRA "SITIO DE ESCRITORIO" EN CELULAR
    ============================================================================ */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then((regs) => {
@@ -832,6 +825,24 @@ if ("caches" in window) {
   }).catch(() => {});
 }
 
+// Si el navegador del celular fuerza un viewport falso de 980px ("Sitio para computadoras"),
+// este seguro aplica zoom automático al contenedor para que siempre se vea del tamaño original móvil.
+function fixMobileViewport() {
+  const realScreenW = Math.min(window.screen.width || window.innerWidth, window.innerWidth);
+  const vpW = window.innerWidth;
+  const isVertical = window.innerHeight > window.innerWidth;
+
+  document.querySelectorAll(".retro-box").forEach((box) => {
+    if (isVertical && vpW >= 750 && realScreenW < 550) {
+      // El usuario tiene activado "Sitio para computadoras" en Chrome móvil
+      const ratio = (vpW * 0.92) / 520;
+      box.style.zoom = ratio;
+    } else {
+      box.style.zoom = 1;
+    }
+  });
+}
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -841,50 +852,6 @@ let isPortrait = false;
 
 const FIGHT_STAGE_W = 960;
 const FIGHT_MOVE_SPEED = 4.0;
-
-/**
- * Escala automáticamente la caja del menú activo para que en el celular vertical
- * ocupe el 95% de la pantalla (incluso si Chrome tiene activado "Sitio de escritorio").
- */
-function fitMenusToScreen() {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const portrait = vh > vw;
-
-  const activeBox = document.querySelector(".overlay.active .retro-box");
-  if (!activeBox) return;
-
-  // Resetear transform primero para medir su tamaño natural real
-  activeBox.style.transform = "scale(1)";
-  activeBox.style.maxHeight = "none";
-
-  const naturalW = activeBox.offsetWidth || 580;
-  const naturalH = activeBox.offsetHeight || 520;
-
-  if (portrait) {
-    // En pantalla vertical de celular: calcular zoom exacto para que llene el ancho y alto cómodamente
-    const scaleX = (vw * 0.95) / naturalW;
-    const scaleY = (vh * 0.88) / naturalH;
-    const finalScale = Math.min(scaleX, scaleY);
-    activeBox.style.transform = `scale(${finalScale})`;
-  } else {
-    // En PC o celular horizontal: si la pantalla es baja, ajustar para que nunca se corte
-    const scaleX = (vw * 0.92) / naturalW;
-    const scaleY = (vh * 0.90) / naturalH;
-    const finalScale = Math.min(1.08, scaleX, scaleY);
-    activeBox.style.transform = `scale(${finalScale})`;
-  }
-
-  // Escalar también los botones superiores (CONFIG / ON) en vertical cuando Chrome simula escritorio
-  const topBar = document.getElementById("top-bar");
-  if (topBar) {
-    if (portrait && vw > 600) {
-      topBar.style.transform = "scale(1.55)";
-    } else {
-      topBar.style.transform = "scale(1)";
-    }
-  }
-}
 
 function updateCanvasOrientation() {
   isPortrait = window.innerHeight > window.innerWidth;
@@ -897,7 +864,7 @@ function updateCanvasOrientation() {
   }
   canvas.width = GW;
   canvas.height = GH;
-  fitMenusToScreen();
+  fixMobileViewport();
 }
 
 function getGroundY(inFlatSection = false) {
@@ -1425,7 +1392,6 @@ async function forceCloudSyncNow() {
 }
 
 function loadSavedSession() {
-  // Limpiar cualquier sesión automática antigua para que inicie limpio como pidió el usuario
   localStorage.removeItem("apus_iliniza_session_user");
   try {
     const saved = localStorage.getItem("apus_iliniza_session_user_manual");
@@ -1451,7 +1417,7 @@ function updateUserStatusUI() {
     label.innerHTML = `✅ CUENTA: <strong style="color:#facc15;">${currentUser.username}</strong>`;
     if (logoutBtn) logoutBtn.style.display = "block";
   } else {
-    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO (SIN CUENTA)</span>`;
+    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO</span>`;
     if (logoutBtn) logoutBtn.style.display = "none";
   }
 }
@@ -2056,7 +2022,7 @@ function renderCustomCardPreview() {
   const cCtx = cardCanvas.getContext("2d");
   cCtx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
   const cfg = customCharSlots[activeCustomSlot];
-  drawMountaineerSprite(cCtx, "CUSTOM", 60, 92, {
+  drawMountaineerSprite(cCtx, "CUSTOM", 60, 95, {
     scale: 1.65,
     facing: 1,
     customConfig: cfg
@@ -2111,16 +2077,13 @@ function refreshCreatorUI() {
   const cfg = customCharSlots[activeCustomSlot];
   document.getElementById("custom-char-name").value = (cfg.name || `MONTANISTA ${activeCustomSlot + 1}`).toUpperCase();
 
-  // 1. Género
   document.getElementById("gender-M").classList.toggle("active", cfg.gender === "M");
   document.getElementById("gender-F").classList.toggle("active", cfg.gender === "F");
 
-  // 2. Piel
   ["BLANCO", "MESTIZO", "NEGRO"].forEach((s) => {
     document.getElementById(`skin-${s}`).classList.toggle("active", cfg.skin === s);
   });
 
-  // 3. Tipo de Cabello (CORTO, MEDIO, LARGO) y sus 8 colores
   ["CORTO", "MEDIO", "LARGO"].forEach((hl) => {
     document.getElementById(`hlen-${hl}`).classList.toggle("active", (cfg.hairLength || "CORTO") === hl);
   });
@@ -2135,12 +2098,10 @@ function refreshCreatorUI() {
     hairColorContainer.appendChild(btn);
   });
 
-  // 4. Tipo de Mirada (FELIZ, ENOJADA, SERIA, NORMAL)
   ["FELIZ", "ENOJADA", "SERIA", "NORMAL"].forEach((ex) => {
     document.getElementById(`expr-${ex}`).classList.toggle("active", (cfg.expression || "FELIZ") === ex);
   });
 
-  // 5. Marca de casco y sus 4 colores oficiales
   document.getElementById("hbrand-PETZL").classList.toggle("active", cfg.helmetBrand === "PETZL");
   document.getElementById("hbrand-BD").classList.toggle("active", cfg.helmetBrand === "BD");
 
@@ -2154,7 +2115,6 @@ function refreshCreatorUI() {
     hColorContainer.appendChild(btn);
   });
 
-  // 6. Gafas y sus 4 colores
   document.getElementById("glasses-ON").classList.toggle("active", !!cfg.hasGlasses);
   document.getElementById("glasses-OFF").classList.toggle("active", !cfg.hasGlasses);
 
@@ -2170,19 +2130,16 @@ function refreshCreatorUI() {
     });
   }
 
-  // 7. Barba (0, 1, 2, 3)
   [0, 1, 2, 3].forEach((b) => {
     document.getElementById(`beard-${b}`).classList.toggle("active", cfg.beardStyle === b);
   });
 
-  // 8-12. Paletas de 10 colores para Chaqueta, Pantalón, Mochila, Arnés y Botas
   buildColorSwatches("jacket-color-swatches", "jacketColor", cfg.jacketColor);
   buildColorSwatches("pants-color-swatches", "pantsColor", cfg.pantsColor);
   buildColorSwatches("pack-color-swatches", "packColor", cfg.packColor);
   buildColorSwatches("harness-color-swatches", "harnessColor", cfg.harnessColor);
   buildColorSwatches("boots-color-swatches", "bootsColor", cfg.bootsColor);
 
-  // 13. Piolet Petzl (Naranja) o Black Diamond (Gris)
   document.getElementById("axe-PETZL").classList.toggle("active", cfg.axeBrand === "PETZL");
   document.getElementById("axe-BD").classList.toggle("active", cfg.axeBrand === "BD");
 
@@ -2215,7 +2172,7 @@ function showOverlay(id) {
   document.querySelectorAll(".overlay").forEach(el => el.classList.remove("active"));
   if (id) {
     document.getElementById(id).classList.add("active");
-    requestAnimationFrame(fitMenusToScreen);
+    fixMobileViewport();
   }
 }
 
@@ -2240,7 +2197,7 @@ function openCharSelect(mode) {
 
   const customCard = document.getElementById("card-custom");
   if (mode === "minigame") {
-    customCard.style.display = "flex";
+    customCard.style.display = "block";
     renderCustomCardPreview();
   } else {
     customCard.style.display = "none";
@@ -2428,7 +2385,6 @@ async function switchRankingTab(tab) {
       ? `🌎 Ranking Mundial activo (Conectado como ${currentUser.username})`
       : "🌎 Ranking Mundial (Inicia sesión para subir tus récords)";
   }
-  requestAnimationFrame(fitMenusToScreen);
 }
 
 function renderRankingRows(tbody, list) {
@@ -2630,7 +2586,6 @@ function createOnlineRoom() {
   document.getElementById("room-code-display").textContent = currentRoomCode;
   document.getElementById("host-status-text").textContent =
     "Conectando servidor P2P... Espera un segundo.";
-  requestAnimationFrame(fitMenusToScreen);
 
   peerInstance = new Peer(fullPeerId);
 
@@ -4019,10 +3974,10 @@ function initPreviews() {
   drawApusLogo(logoCtx, 4, 4, 88);
 
   const jCtx = document.getElementById("preview-jordy").getContext("2d");
-  drawMountaineerSprite(jCtx, "JORDY", 60, 92, { scale: 1.65, facing: 1 });
+  drawMountaineerSprite(jCtx, "JORDY", 60, 95, { scale: 1.65, facing: 1 });
 
   const cCtx = document.getElementById("preview-chugo").getContext("2d");
-  drawMountaineerSprite(cCtx, "CHUGO", 60, 92, { scale: 1.65, facing: 1 });
+  drawMountaineerSprite(cCtx, "CHUGO", 60, 95, { scale: 1.65, facing: 1 });
 
   renderCustomCardPreview();
 }
@@ -4058,7 +4013,6 @@ updateCanvasOrientation();
 loadSavedSession();
 initPreviews();
 updateDiffLabel();
-setTimeout(fitMenusToScreen, 100);
 requestAnimationFrame(gameLoop);
 </script>
 </body>
