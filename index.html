@@ -41,15 +41,19 @@
     background: #000;
     overflow: hidden;
   }
-  canvas {
+  /* IMPORTANTE: Solo el canvas principal del juego ocupa el 100%, los previews mantienen su proporción original */
+  #gameCanvas {
     width: 100%;
     height: 100%;
     object-fit: fill;
     image-rendering: pixelated;
     background: #1a233a;
   }
+  canvas {
+    image-rendering: pixelated;
+  }
   /* =========================================================
-     ESTILOS BASE PARA PC (INTACTOS COMO TE GUSTARON)
+     DISEÑO UNIFICADO COMPACTO (IGUAL AL DE TU COMPUTADORA)
      ========================================================= */
   .overlay {
     position: absolute;
@@ -69,23 +73,23 @@
   .retro-box {
     background: rgba(25, 34, 54, 0.96);
     border: 4px solid #8ba3c7;
-    box-shadow: 0 0 0 4px #111827, 0 8px 24px rgba(0,0,0,0.8);
+    box-shadow: 0 0 0 4px #111827, 0 8px 24px rgba(0,0,0,0.85);
     padding: 16px;
     border-radius: 8px;
-    max-width: 700px;
-    width: 95%;
+    max-width: 680px;
+    width: 96%;
     max-height: 92dvh;
     overflow-y: auto;
   }
   h1 {
-    font-size: clamp(13px, 2.5vw, 21px);
+    font-size: clamp(13px, 3.2vw, 20px);
     color: #f7931e;
     text-shadow: 3px 3px 0 #000;
     margin-bottom: 6px;
     line-height: 1.35;
   }
   h2 {
-    font-size: clamp(9px, 1.8vw, 13px);
+    font-size: clamp(9px, 2.2vw, 13px);
     color: #63b3ed;
     text-shadow: 2px 2px 0 #000;
     margin-bottom: 10px;
@@ -100,7 +104,7 @@
     border: 3px solid #6b82a8;
     color: #fff;
     font-family: inherit;
-    font-size: 12px;
+    font-size: clamp(10px, 2.5vw, 12px);
     cursor: pointer;
     text-shadow: 2px 2px 0 #000;
     transition: transform 0.1s, background 0.15s;
@@ -117,7 +121,7 @@
     padding: 8px 10px;
     margin-bottom: 10px;
     border-radius: 6px;
-    font-size: 10px;
+    font-size: clamp(8px, 2vw, 10px);
     color: #e2e8f0;
     display: flex;
     justify-content: space-between;
@@ -132,12 +136,12 @@
   }
   .tab-btn {
     flex: 1;
-    padding: 10px 6px;
+    padding: 9px 6px;
     background: #141c2b;
     border: 3px solid #4a5d80;
     color: #94a3b8;
     font-family: inherit;
-    font-size: 10px;
+    font-size: clamp(8px, 2vw, 10px);
     cursor: pointer;
     border-radius: 5px;
   }
@@ -153,10 +157,10 @@
     align-items: center;
     gap: 10px;
     margin-top: 8px;
-    padding: 10px;
+    padding: 9px;
     background: #141c2b;
     border: 2px solid #4a5d80;
-    font-size: 11px;
+    font-size: clamp(9px, 2.2vw, 11px);
     border-radius: 6px;
   }
   .diff-btn {
@@ -165,9 +169,9 @@
     color: #000;
     font-family: inherit;
     font-weight: bold;
-    padding: 7px 10px;
+    padding: 6px 10px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: clamp(8px, 2vw, 10px);
     border-radius: 5px;
   }
   /* TOP BUTTONS */
@@ -176,7 +180,7 @@
     top: 10px;
     right: 10px;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     z-index: 30;
   }
   .icon-btn {
@@ -184,8 +188,8 @@
     border: 3px solid #8ba3c7;
     color: #fff;
     font-family: inherit;
-    font-size: 10px;
-    padding: 9px 11px;
+    font-size: 9px;
+    padding: 8px 10px;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -208,10 +212,10 @@
   }
   .char-card {
     flex: 1;
-    min-width: 140px;
+    min-width: 135px;
     background: #1b263b;
     border: 4px solid #5a729a;
-    padding: 10px;
+    padding: 10px 8px;
     cursor: pointer;
     border-radius: 8px;
     position: relative;
@@ -221,6 +225,13 @@
     align-items: center;
     justify-content: space-between;
   }
+  .char-card canvas {
+    width: 110px !important;
+    height: 125px !important;
+    object-fit: contain !important;
+    display: block;
+    margin: 0 auto;
+  }
   .char-card.selected {
     border-color: #f7931e;
     box-shadow: 0 0 16px rgba(247, 147, 30, 0.75);
@@ -228,10 +239,10 @@
   }
   .char-name {
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 11px;
     text-shadow: 2px 2px 0 #000;
   }
-  /* CREADOR DE PERSONAJE PERSONALIZADO: LADO A LADO SIEMPRE */
+  /* CREADOR DE PERSONAJE PERSONALIZADO: PROPORCIÓN FIJA SIN ESTIRARSE JAMÁS */
   .creator-layout {
     display: flex;
     flex-direction: row;
@@ -240,12 +251,13 @@
     flex-wrap: nowrap;
     margin: 8px 0;
     text-align: left;
-    height: 52dvh;
-    min-height: 280px;
-    max-height: 430px;
+    height: 50dvh;
+    min-height: 260px;
+    max-height: 390px;
   }
   .creator-preview-panel {
-    flex: 0 0 155px;
+    flex: 0 0 140px;
+    width: 140px;
     background: #141c2b;
     border: 3px solid #63b3ed;
     border-radius: 8px;
@@ -255,6 +267,15 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+  }
+  #creatorPreviewCanvas {
+    width: 120px !important;
+    height: 145px !important;
+    object-fit: contain !important;
+    display: block;
+    margin: 0 auto;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 6px;
   }
   .creator-options-panel {
     flex: 1;
@@ -266,12 +287,12 @@
     padding: 10px;
   }
   .opt-row {
-    margin-bottom: 12px;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
     border-bottom: 1px dashed #334155;
   }
   .opt-label {
-    font-size: 9px;
+    font-size: 8.5px;
     color: #facc15;
     margin-bottom: 6px;
     display: block;
@@ -280,15 +301,15 @@
   .opt-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 5px;
   }
   .chip-btn {
     background: #2b3954;
     border: 2px solid #64748b;
     color: #fff;
     font-family: inherit;
-    font-size: 9px;
-    padding: 7px 9px;
+    font-size: 8px;
+    padding: 6px 8px;
     cursor: pointer;
     border-radius: 5px;
   }
@@ -299,9 +320,9 @@
     font-weight: bold;
   }
   .color-swatch {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
     border: 2px solid #64748b;
     cursor: pointer;
     transition: transform 0.1s;
@@ -317,20 +338,20 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 12px 18px calc(22px + env(safe-area-inset-bottom, 12px)) 18px;
+    padding: 12px 16px calc(20px + env(safe-area-inset-bottom, 10px)) 16px;
     pointer-events: none;
     z-index: 25;
     display: none;
     justify-content: space-between;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
   }
   #touch-controls.active {
     display: flex;
   }
   #joystick-zone {
-    width: 136px;
-    height: 136px;
+    width: 132px;
+    height: 132px;
     background: rgba(255, 255, 255, 0.18);
     border: 3px solid rgba(255, 255, 255, 0.65);
     border-radius: 50%;
@@ -341,8 +362,8 @@
     box-shadow: 0 4px 14px rgba(0,0,0,0.6);
   }
   #joystick-knob {
-    width: 54px;
-    height: 54px;
+    width: 52px;
+    height: 52px;
     background: rgba(247, 147, 30, 0.95);
     border: 3px solid #fff;
     border-radius: 50%;
@@ -356,18 +377,18 @@
   .action-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
     pointer-events: auto;
   }
   .act-btn {
-    width: 102px;
-    height: 64px;
-    border-radius: 14px;
+    width: 96px;
+    height: 60px;
+    border-radius: 12px;
     border: 3px solid #fff;
     color: #fff;
     font-family: inherit;
-    font-size: 9px;
-    line-height: 1.3;
+    font-size: 8.5px;
+    line-height: 1.25;
     text-shadow: 1px 1px 0 #000;
     display: flex;
     flex-direction: column;
@@ -389,211 +410,120 @@
   .btn-hug { background: rgba(16, 172, 132, 0.94); }
   .btn-beer { background: rgba(243, 156, 18, 0.94); }
 
-  /* LIST TABLES & INPUTS */
+  /* LIST TABLES & INPUTS (TODOS EN MAYÚSCULA AUTOMÁTICA) */
   table {
     width: 100%;
     border-collapse: collapse;
     margin: 8px 0;
-    font-size: 10px;
+    font-size: clamp(8px, 2vw, 10px);
   }
   th, td {
     border: 2px solid #4a5d80;
-    padding: 7px 6px;
+    padding: 6px;
     text-align: left;
   }
   th { background: #141c2b; color: #f7931e; }
   input[type="text"], input[type="password"] {
     width: 100%;
-    padding: 12px;
+    padding: 11px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11px;
     background: #0f172a;
     border: 3px solid #63b3ed;
     color: #fff;
     margin: 6px 0;
     text-align: center;
     border-radius: 6px;
+    text-transform: uppercase;
   }
   .room-code-box {
     background: #0f172a;
     border: 3px dashed #facc15;
-    padding: 12px;
+    padding: 10px;
     margin: 8px 0;
-    font-size: 20px;
+    font-size: 18px;
     color: #facc15;
     letter-spacing: 4px;
   }
   .status-badge {
-    font-size: 9.5px;
+    font-size: 8.5px;
     color: #38bdf8;
     margin: 6px 0;
     line-height: 1.5;
   }
-  .logo-badge {
-    width: 72px;
-    height: 72px;
+  #logoCanvas {
+    width: 68px !important;
+    height: 68px !important;
     margin: 0 auto 6px;
     display: block;
   }
   .controls-hint {
-    font-size: 8.5px;
+    font-size: 8px;
     color: #a0aec0;
     margin-top: 8px;
     line-height: 1.5;
   }
 
-  /* =========================================================================
-     MODO CELULAR PANTALLA COMPLETA (SE ACTIVA POR JS Y MEDIA QUERY)
-     Hace que todos los menús ocupen toda la pantalla del celular con letras grandes
-     ========================================================================= */
-  body.mobile-mode .overlay {
-    padding: 0;
-    background: rgba(11, 15, 28, 0.96);
-  }
-  body.mobile-mode .retro-box {
-    width: 100%;
-    max-width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-    border: none;
-    border-top: 4px solid #f7931e;
-    border-bottom: 4px solid #63b3ed;
-    padding: 54px 16px 24px 16px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow-y: auto;
-  }
-  body.mobile-mode .logo-badge {
-    width: 86px;
-    height: 86px;
-    margin: 0 auto 8px;
-  }
-  body.mobile-mode h1 {
-    font-size: clamp(18px, 5.2vw, 24px);
-    margin-bottom: 6px;
-  }
-  body.mobile-mode h2 {
-    font-size: clamp(11px, 3.6vw, 15px);
-    margin-bottom: 10px;
-  }
-  body.mobile-mode .user-status-bar {
-    padding: 12px;
-    font-size: clamp(10px, 3.2vw, 13px);
-    margin-bottom: 10px;
-  }
-  body.mobile-mode .menu-btn {
-    padding: 16px 12px;
-    font-size: clamp(12px, 3.8vw, 16px);
-    margin: 6px 0;
-    border-width: 3px;
-    border-radius: 10px;
-  }
-  body.mobile-mode .diff-selector {
-    padding: 12px;
-    font-size: clamp(10px, 3.3vw, 14px);
-  }
-  body.mobile-mode .diff-btn {
-    padding: 10px 14px;
-    font-size: clamp(11px, 3.4vw, 14px);
-  }
-  body.mobile-mode .tab-btn {
-    padding: 13px 8px;
-    font-size: clamp(10px, 3.2vw, 13px);
-  }
-  body.mobile-mode input[type="text"],
-  body.mobile-mode input[type="password"] {
-    padding: 15px;
-    font-size: clamp(13px, 4vw, 16px);
-    margin: 8px 0;
-  }
-  body.mobile-mode .status-badge {
-    font-size: clamp(10px, 3.1vw, 13px);
-  }
-  body.mobile-mode table {
-    font-size: clamp(10px, 3vw, 13px);
-  }
-  body.mobile-mode th, body.mobile-mode td {
-    padding: 10px 6px;
-  }
-  /* Selector de personaje en Celular */
-  body.mobile-mode .char-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin: 8px 0;
-  }
-  body.mobile-mode #card-custom {
-    grid-column: span 2;
-  }
-  body.mobile-mode .char-card {
-    min-width: 0;
-    padding: 12px 8px;
-  }
-  body.mobile-mode .char-name {
-    font-size: clamp(13px, 4vw, 16px);
-  }
-  /* Creador en Celular: Personaje fijo a la izquierda y opciones grandes a la derecha */
-  body.mobile-mode .creator-layout {
-    height: 62dvh;
-    max-height: none;
-    gap: 10px;
-  }
-  body.mobile-mode .creator-preview-panel {
-    flex: 0 0 40%;
-    max-width: 165px;
-    padding: 8px;
-  }
-  body.mobile-mode .creator-options-panel {
-    flex: 1;
-    padding: 10px;
-  }
-  body.mobile-mode .opt-label {
-    font-size: clamp(10px, 3.1vw, 13px);
-    margin-bottom: 8px;
-  }
-  body.mobile-mode .chip-btn {
-    font-size: clamp(10px, 3.1vw, 13px);
-    padding: 10px 11px;
-  }
-  body.mobile-mode .color-swatch {
-    width: 34px;
-    height: 34px;
-  }
-  /* Controles táctiles de juego grandes en Celular */
-  body.mobile-mode #touch-controls {
-    height: 30dvh;
-    min-height: 220px;
-    max-height: 275px;
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(11, 16, 30, 0.96) 18%, #090d16 100%);
-    border-top: 3px solid rgba(139, 163, 199, 0.45);
-    padding: 14px 16px calc(24px + env(safe-area-inset-bottom, 14px)) 16px;
-    align-items: center;
-    gap: 14px;
-  }
-  body.mobile-mode #joystick-zone {
-    width: 146px;
-    height: 146px;
-  }
-  body.mobile-mode #joystick-knob {
-    width: 58px;
-    height: 58px;
-  }
-  body.mobile-mode .action-buttons {
-    flex: 1;
-    max-width: 250px;
-    gap: 10px;
-  }
-  body.mobile-mode .act-btn {
-    width: 100%;
-    height: 72px;
-    font-size: clamp(10px, 3vw, 12px);
-  }
-  body.mobile-mode #tbtn-hug {
-    grid-column: span 2;
-    width: 100% !important;
-    height: 62px;
+  /* AJUSTE LIMPIO EN PANTALLA VERTICAL DE CELULAR (MANTIENE LA CAJA COMPACTA IGUAL A PC) */
+  @media (orientation: portrait), (max-width: 680px) {
+    .retro-box {
+      width: 96%;
+      padding: 14px 12px;
+      max-height: 88dvh;
+    }
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    #card-custom {
+      grid-column: span 2;
+    }
+    .creator-layout {
+      height: 52dvh;
+      min-height: 270px;
+      gap: 8px;
+    }
+    .creator-preview-panel {
+      flex: 0 0 122px;
+      width: 122px;
+      padding: 6px;
+    }
+    #creatorPreviewCanvas {
+      width: 106px !important;
+      height: 130px !important;
+    }
+    #touch-controls {
+      height: 28dvh;
+      min-height: 200px;
+      max-height: 250px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.0) 0%, rgba(11, 16, 30, 0.96) 20%, #090d16 100%);
+      border-top: 3px solid rgba(139, 163, 199, 0.45);
+      padding: 12px 14px calc(22px + env(safe-area-inset-bottom, 12px)) 14px;
+    }
+    #joystick-zone {
+      width: 128px;
+      height: 128px;
+    }
+    #joystick-knob {
+      width: 50px;
+      height: 50px;
+    }
+    .action-buttons {
+      flex: 1;
+      max-width: 215px;
+      gap: 8px;
+    }
+    .act-btn {
+      width: 100%;
+      height: 60px;
+      font-size: 8.5px;
+    }
+    #tbtn-hug {
+      grid-column: span 2;
+      width: 100% !important;
+      height: 52px;
+    }
   }
 </style>
 </head>
@@ -608,60 +538,52 @@
     <button class="icon-btn" id="btn-sound" title="Activar/Desactivar Sonido">🔊 ON</button>
   </div>
 
-  <!-- MENU PRINCIPAL -->
+  <!-- MENU PRINCIPAL (CAJA COMPACTA Y CENTRADA IGUAL EN PC Y CELULAR) -->
   <div id="menu-overlay" class="overlay active">
     <div class="retro-box">
-      <div>
-        <canvas id="logoCanvas" class="logo-badge" width="96" height="96"></canvas>
-        <h1>APUS' GUARDIANS</h1>
-        <h2>RETO ILINIZA SUR (5248 MSNM)</h2>
+      <canvas id="logoCanvas" width="96" height="96"></canvas>
+      <h1>APUS' GUARDIANS</h1>
+      <h2>RETO ILINIZA SUR (5248 MSNM)</h2>
 
-        <div class="user-status-bar">
-          <span id="menu-user-label">👤 SESIÓN: INVITADO</span>
-          <button class="diff-btn" onclick="openAuthModal()">👤 CUENTA / SINCRONIZAR</button>
-        </div>
+      <div class="user-status-bar">
+        <span id="menu-user-label">✅ CUENTA: KEVIN EL POLLO</span>
+        <button class="diff-btn" onclick="openAuthModal()">👤 CUENTA / SINCRONIZAR</button>
       </div>
 
-      <div>
-        <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
-        <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
-        <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
-        <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (LOCAL Y MUNDIAL)</button>
-        <button class="menu-btn" onclick="openCharSelect('minigame')">🥊 MINI JUEGO CHUGO VS JORDY</button>
-        <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
-      </div>
+      <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
+      <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
+      <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
+      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (LOCAL Y MUNDIAL)</button>
+      <button class="menu-btn" onclick="openCharSelect('minigame')">🥊 MINI JUEGO CHUGO VS JORDY</button>
+      <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
-      <div>
-        <div class="diff-selector">
-          <button class="diff-btn" onclick="changeDifficulty(-1)">&lt;</button>
-          <span id="diff-label">DIFICULTAD: NORMAL (5 ❤️)</span>
-          <button class="diff-btn" onclick="changeDifficulty(1)">&gt;</button>
-        </div>
-        <div class="controls-hint">
-          🌎 Cuenta verificada: <strong>KEVIN EL POLLO</strong> (Clave: 1234)<br>
-          📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
-        </div>
+      <div class="diff-selector">
+        <button class="diff-btn" onclick="changeDifficulty(-1)">&lt;</button>
+        <span id="diff-label">DIFICULTAD: NORMAL (5 ❤️)</span>
+        <button class="diff-btn" onclick="changeDifficulty(1)">&gt;</button>
+      </div>
+      <div class="controls-hint">
+        🌎 Cuenta verificada: <strong>KEVIN EL POLLO</strong> (Clave: 1234)<br>
+        📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
     </div>
   </div>
 
-  <!-- MODAL DE CUENTA: INICIAR SESIÓN / CREAR CUENTA / SINCRONIZAR ENTRE DISPOSITIVOS -->
+  <!-- MODAL DE CUENTA: INICIAR SESIÓN / CREAR CUENTA -->
   <div id="auth-overlay" class="overlay">
     <div class="retro-box">
-      <div>
-        <h1>👤 CUENTA DE MONTAÑISTA</h1>
-        <h2>SINCRONIZA TUS 3 PERSONAJES, PARTIDAS Y PUNTAJES 🌎</h2>
+      <h1>👤 CUENTA DE MONTAÑISTA</h1>
+      <h2>GUARDA TUS 3 PERSONAJES, PARTIDAS Y PUNTAJES 🌎</h2>
 
-        <div class="tab-bar">
-          <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">🔑 INICIAR SESIÓN</button>
-          <button class="tab-btn" id="tab-register-btn" onclick="switchAuthTab('register')">📝 CREAR CUENTA</button>
-        </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">🔑 INICIAR SESIÓN</button>
+        <button class="tab-btn" id="tab-register-btn" onclick="switchAuthTab('register')">📝 CREAR CUENTA</button>
       </div>
 
       <div id="auth-form-area">
-        <input type="text" id="auth-username" placeholder="USUARIO (EJ: KEVIN EL POLLO)" maxlength="22" style="text-transform:uppercase;">
-        <input type="password" id="auth-password" placeholder="CONTRASEÑA (EJ: 1234)" maxlength="24">
-        <div class="status-badge" id="auth-msg-box">Tu cuenta sincroniza tus 3 personajes, partidas y puntajes en cualquier celular o PC.</div>
+        <input type="text" id="auth-username" placeholder="USUARIO (EJ: KEVIN EL POLLO)" maxlength="24" oninput="this.value = this.value.toUpperCase()">
+        <input type="password" id="auth-password" placeholder="CONTRASEÑA (EJ: 1234)" maxlength="24" oninput="this.value = this.value.toUpperCase()">
+        <div class="status-badge" id="auth-msg-box">Escribe KEVIN EL POLLO y clave 1234 (o crea tu cuenta).</div>
 
         <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ ENTRAR A MI CUENTA</button>
         <button class="menu-btn" style="background:#2e86de;" onclick="forceCloudSyncNow()">🔄 FORZAR SINCRONIZACIÓN NUBE AHORA</button>
@@ -675,10 +597,8 @@
   <!-- SELECCION DE PERSONAJE -->
   <div id="char-overlay" class="overlay">
     <div class="retro-box">
-      <div>
-        <h1>SELECCIONA TU PERSONAJE</h1>
-        <h2 id="mode-subtitle">MODO ASCENSO AL ILINIZA SUR</h2>
-      </div>
+      <h1>SELECCIONA TU PERSONAJE</h1>
+      <h2 id="mode-subtitle">MODO ASCENSO AL ILINIZA SUR</h2>
 
       <div class="char-grid">
         <div class="char-card selected" id="card-jordy" onclick="selectChar('JORDY')">
@@ -700,7 +620,7 @@
             <button class="chip-btn" id="slot-btn-1" onclick="selectCustomSlot(1)">PERS 2</button>
             <button class="chip-btn" id="slot-btn-2" onclick="selectCustomSlot(2)">PERS 3</button>
           </div>
-          <button class="diff-btn" style="margin-top:8px; width:100%; padding:10px; background:#9333ea; color:#fff;" onclick="event.stopPropagation(); openCustomCreator();">✏️ PERSONALIZAR MONTAÑISTA</button>
+          <button class="diff-btn" style="margin-top:8px; width:100%; padding:9px; background:#9333ea; color:#fff;" onclick="event.stopPropagation(); openCustomCreator();">✏️ PERSONALIZAR MONTAÑISTA</button>
         </div>
       </div>
 
@@ -711,23 +631,21 @@
     </div>
   </div>
 
-  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO (VISTA PREVIA FIJA AL LADO DE LAS OPCIONES) -->
+  <!-- TALLER DE CREACION DE PERSONAJE PERSONALIZADO (VISTA PREVIA FIJA CON PROPORCIÓN PERFECTA) -->
   <div id="custom-creator-overlay" class="overlay">
     <div class="retro-box">
-      <div>
-        <h1>🎨 CREADOR DE MONTAÑISTA</h1>
-        <div class="tab-bar">
-          <button class="tab-btn active" id="creator-slot-0" onclick="switchCreatorSlot(0)">👤 RANURA 1</button>
-          <button class="tab-btn" id="creator-slot-1" onclick="switchCreatorSlot(1)">👤 RANURA 2</button>
-          <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
-        </div>
+      <h1>🎨 CREADOR DE MONTAÑISTA</h1>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="creator-slot-0" onclick="switchCreatorSlot(0)">👤 RANURA 1</button>
+        <button class="tab-btn" id="creator-slot-1" onclick="switchCreatorSlot(1)">👤 RANURA 2</button>
+        <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
       </div>
 
       <div class="creator-layout">
-        <!-- Vista previa fija a la izquierda (Siempre visible mientras bajas por las opciones) -->
+        <!-- Vista previa fija a la izquierda (sin estirarse) -->
         <div class="creator-preview-panel">
           <canvas id="creatorPreviewCanvas" width="130" height="160"></canvas>
-          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="16" style="text-transform:uppercase; font-size:10px; padding:8px; margin-top:6px;" oninput="updateCreatorConfig('name', this.value)">
+          <input type="text" id="custom-char-name" placeholder="NOMBRE" maxlength="18" style="font-size:9px; padding:7px; margin-top:6px;" oninput="this.value = this.value.toUpperCase(); updateCreatorConfig('name', this.value)">
           <div class="status-badge" id="creator-save-status">Vista en vivo</div>
         </div>
 
@@ -856,28 +774,24 @@
   <!-- SELECTOR DE MODO DEL MINI JUEGO: VS CPU O MULTIJUGADOR ONLINE -->
   <div id="minigame-mode-overlay" class="overlay">
     <div class="retro-box">
-      <div>
-        <h1>🥊 MINI JUEGO CHUGO VS JORDY</h1>
-        <h2 id="vs-chosen-char-label">PELEADOR: JORDY</h2>
-        <button class="menu-btn" style="background:#10ac84;" onclick="startVersusCPU()">🤖 JUGAR VS CPU (OFFLINE)</button>
+      <h1>🥊 MINI JUEGO CHUGO VS JORDY</h1>
+      <h2 id="vs-chosen-char-label">PELEADOR: JORDY</h2>
+      <button class="menu-btn" style="background:#10ac84;" onclick="startVersusCPU()">🤖 JUGAR VS CPU (OFFLINE)</button>
+
+      <hr style="border:1px solid #4a5d80; margin:10px 0;">
+      <h2>🌐 MODO ONLINE 2 JUGADORES (P2P)</h2>
+
+      <button class="menu-btn" style="background:#2e86de;" onclick="createOnlineRoom()">📡 CREAR SALA ONLINE (HOST)</button>
+      <div id="host-room-area" style="display:none;">
+        <div class="room-code-box" id="room-code-display">----</div>
+        <div class="status-badge" id="host-status-text">Comparte este código de 4 letras con tu amigo...</div>
       </div>
 
-      <div>
-        <hr style="border:1px solid #4a5d80; margin:10px 0;">
-        <h2>🌐 MODO ONLINE 2 JUGADORES (P2P)</h2>
-
-        <button class="menu-btn" style="background:#2e86de;" onclick="createOnlineRoom()">📡 CREAR SALA ONLINE (HOST)</button>
-        <div id="host-room-area" style="display:none;">
-          <div class="room-code-box" id="room-code-display">----</div>
-          <div class="status-badge" id="host-status-text">Comparte este código de 4 letras con tu amigo...</div>
-        </div>
-
-        <div style="margin-top:8px; background:#141c2b; padding:10px; border:2px solid #4a5d80; border-radius:6px;">
-          <p style="font-size:9px; color:#cbd5e1;">¿TU AMIGO CREÓ UNA SALA? INGRESA SU CÓDIGO:</p>
-          <input type="text" id="join-code-input" placeholder="EJ: A7K9" maxlength="6" style="text-transform:uppercase;">
-          <button class="menu-btn" style="background:#f7931e;" onclick="joinOnlineRoom()">🔗 UNIRSE A SALA ONLINE</button>
-          <div class="status-badge" id="join-status-text"></div>
-        </div>
+      <div style="margin-top:8px; background:#141c2b; padding:10px; border:2px solid #4a5d80; border-radius:6px;">
+        <p style="font-size:9px; color:#cbd5e1;">¿TU AMIGO CREÓ UNA SALA? INGRESA SU CÓDIGO:</p>
+        <input type="text" id="join-code-input" placeholder="EJ: A7K9" maxlength="6" oninput="this.value = this.value.toUpperCase()">
+        <button class="menu-btn" style="background:#f7931e;" onclick="joinOnlineRoom()">🔗 UNIRSE A SALA ONLINE</button>
+        <div class="status-badge" id="join-status-text"></div>
       </div>
 
       <button class="menu-btn" style="background:#ee5253; margin-top:10px;" onclick="cancelOnlineAndBack()">🔙 VOLVER</button>
@@ -896,14 +810,12 @@
   <!-- RANKING DUAL: LOCAL Y MUNDIAL -->
   <div id="ranking-overlay" class="overlay">
     <div class="retro-box">
-      <div>
-        <h1>🏆 RANKING CUMBRE ILINIZA SUR</h1>
-        <div class="tab-bar">
-          <button class="tab-btn active" id="tab-rank-local" onclick="switchRankingTab('local')">📱 RANKING LOCAL</button>
-          <button class="tab-btn" id="tab-rank-world" onclick="switchRankingTab('world')">🌎 RANKING MUNDIAL</button>
-        </div>
-        <div class="status-badge" id="ranking-status-msg">Mostrando los 10 mejores puntajes.</div>
+      <h1>🏆 RANKING CUMBRE ILINIZA SUR</h1>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-rank-local" onclick="switchRankingTab('local')">📱 RANKING LOCAL</button>
+        <button class="tab-btn" id="tab-rank-world" onclick="switchRankingTab('world')">🌎 RANKING MUNDIAL</button>
       </div>
+      <div class="status-badge" id="ranking-status-msg">Mostrando los 10 mejores puntajes.</div>
       <table>
         <thead>
           <tr><th>#</th><th>JUGADOR</th><th>PERS.</th><th>DIF.</th><th>PTS</th></tr>
@@ -921,12 +833,10 @@
   <div id="settings-overlay" class="overlay">
     <div class="retro-box">
       <h1>⚙️ CONFIGURACIÓN</h1>
-      <div>
-        <button class="menu-btn" onclick="toggleSound()" id="settings-sound-btn">🔊 SONIDO: ACTIVADO</button>
-        <button class="menu-btn" onclick="toggleTouchUI()" id="settings-touch-btn">📱 CONTROLES TÁCTILES: ACTIVADOS</button>
-        <button class="menu-btn" onclick="saveCurrentProgress()">💾 GUARDAR PARTIDA ACTUAL</button>
-        <button class="menu-btn" onclick="resumeFromSettings()">▶️ VOLVER AL JUEGO</button>
-      </div>
+      <button class="menu-btn" onclick="toggleSound()" id="settings-sound-btn">🔊 SONIDO: ACTIVADO</button>
+      <button class="menu-btn" onclick="toggleTouchUI()" id="settings-touch-btn">📱 CONTROLES TÁCTILES: ACTIVADOS</button>
+      <button class="menu-btn" onclick="saveCurrentProgress()">💾 GUARDAR PARTIDA ACTUAL</button>
+      <button class="menu-btn" onclick="resumeFromSettings()">▶️ VOLVER AL JUEGO</button>
       <button class="menu-btn" style="background:#ee5253;" onclick="returnToMainMenu()">🏠 SALIR AL MENÚ PRINCIPAL</button>
     </div>
   </div>
@@ -934,17 +844,13 @@
   <!-- FIN DE JUEGO / REGISTRO DE PUNTAJE -->
   <div id="gameover-overlay" class="overlay">
     <div class="retro-box">
-      <div>
-        <h1 id="end-title">¡CUMBRE ALCANZADA!</h1>
-        <h2 id="end-subtitle">FELICIDADES LLEGASTE A 5248 MSNM</h2>
-        <p id="end-score-text" style="font-size:14px; color:#facc15; margin:10px 0;">PUNTAJE TOTAL: 0</p>
-        <div class="status-badge" id="end-account-status"></div>
-      </div>
-      <div>
-        <input type="text" id="player-name-input" placeholder="INGRESA TU NOMBRE" maxlength="22" style="text-transform:uppercase;">
-        <button class="menu-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING (LOCAL + MUNDIAL)</button>
-        <button class="menu-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING MUNDIAL</button>
-      </div>
+      <h1 id="end-title">¡CUMBRE ALCANZADA!</h1>
+      <h2 id="end-subtitle">FELICIDADES LLEGASTE A 5248 MSNM</h2>
+      <p id="end-score-text" style="font-size:14px; color:#facc15; margin:10px 0;">PUNTAJE TOTAL: 0</p>
+      <div class="status-badge" id="end-account-status"></div>
+      <input type="text" id="player-name-input" placeholder="INGRESA TU NOMBRE" maxlength="24" oninput="this.value = this.value.toUpperCase()">
+      <button class="menu-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING (LOCAL + MUNDIAL)</button>
+      <button class="menu-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING MUNDIAL</button>
       <button class="menu-btn" onclick="returnToMainMenu()">🏠 MENÚ PRINCIPAL</button>
     </div>
   </div>
@@ -970,7 +876,7 @@
 
 <script>
 /* ============================================================================
-   1. SISTEMA DE PANTALLA ADAPTATIVA Y DETECCIÓN INTELIGENTE DE CELULAR (.mobile-mode)
+   1. SISTEMA DE PANTALLA ADAPTATIVA BALANCEADA: VERTICAL (CELULAR) Y HORIZONTAL (PC)
    ============================================================================ */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -984,11 +890,6 @@ const FIGHT_MOVE_SPEED = 4.0;
 
 function updateCanvasOrientation() {
   isPortrait = window.innerHeight > window.innerWidth;
-  const isTouchMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || isPortrait || window.innerWidth <= 820;
-
-  // Activar clase .mobile-mode en el body para que todos los menús ocupen el 100% de la pantalla del celular
-  document.body.classList.toggle("mobile-mode", isTouchMobile);
-
   if (isPortrait) {
     GW = 540;
     GH = 900;
@@ -1330,14 +1231,11 @@ function ensureSlotDefaults(slots) {
 }
 
 /* ============================================================================
-   4. SISTEMA MULTI-DISPOSITIVO EN LA NUBE (CUENTA PRE-VERIFICADA KEVIN EL POLLO)
-   Sincroniza Personajes (3), Partidas Guardadas y Puntajes en cualquier PC o Celular
+   4. SISTEMA MULTI-DISPOSITIVO EN LA NUBE (CUENTA MAESTRA KEVIN EL POLLO)
    ============================================================================ */
-// Almacén JSON en la nube silencioso (con fallback instantáneo sin errores 500)
-const CLOUD_API_URL = "https://jsonblob.com/api/jsonBlob/1344524800000000000";
 const CLOUD_FALLBACK_URL = "https://api.npoint.io/4d8e2c9f1a7b3e5d9c0a";
 
-let currentUser = null;
+let currentUser = { username: "KEVIN EL POLLO" };
 let authMode = "login";
 let currentRankingTab = "local";
 let returnToGameOverAfterAuth = false;
@@ -1360,9 +1258,11 @@ function simpleHash(str) {
   return (h >>> 0).toString(16);
 }
 
-// Cuenta maestra KEVIN EL POLLO (contraseña 1234) garantizada en todos los dispositivos
 function ensureMasterAccounts(store) {
+  if (!store || typeof store !== "object") store = {};
   if (!store.users) store.users = {};
+  if (!Array.isArray(store.worldRanking)) store.worldRanking = [...DEFAULT_WORLD_RANKING];
+
   const kevinHash = simpleHash("KEVIN EL POLLO:1234");
   if (!store.users["KEVIN EL POLLO"]) {
     store.users["KEVIN EL POLLO"] = {
@@ -1373,7 +1273,6 @@ function ensureMasterAccounts(store) {
       updatedAt: 0
     };
   } else {
-    // Asegurar que siempre acepte 1234 para KEVIN EL POLLO
     store.users["KEVIN EL POLLO"].passHash = kevinHash;
   }
   return store;
@@ -1381,12 +1280,10 @@ function ensureMasterAccounts(store) {
 
 function getLocalCloudStore() {
   try {
-    const raw = localStorage.getItem("apus_iliniza_cloud_cache_v2");
+    const raw = localStorage.getItem("apus_iliniza_cloud_cache_v3");
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.worldRanking) && parsed.users) {
-        return ensureMasterAccounts(parsed);
-      }
+      return ensureMasterAccounts(parsed);
     }
   } catch (e) {}
   return ensureMasterAccounts({
@@ -1396,16 +1293,15 @@ function getLocalCloudStore() {
 }
 
 function saveLocalCloudStore(data) {
-  ensureMasterAccounts(data);
-  localStorage.setItem("apus_iliniza_cloud_cache_v2", JSON.stringify(data));
+  const clean = ensureMasterAccounts(data);
+  localStorage.setItem("apus_iliniza_cloud_cache_v3", JSON.stringify(clean));
 }
 
-// Sincronización silenciosa en la nube (No lanza nunca error 500 ni bloquea la pantalla)
 async function fetchWorldCloudData() {
   const localStore = getLocalCloudStore();
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3500);
+    const timer = setTimeout(() => controller.abort(), 3000);
     const resp = await fetch(CLOUD_FALLBACK_URL, {
       method: "GET",
       headers: { "Accept": "application/json" },
@@ -1416,7 +1312,6 @@ async function fetchWorldCloudData() {
     if (resp && resp.ok) {
       const remote = await resp.json();
       if (remote && typeof remote === "object") {
-        // Combinar usuarios conservando la versión más reciente (updatedAt) de sus personajes y partidas
         const mergedUsers = { ...localStore.users };
         if (remote.users) {
           for (const [uName, rUser] of Object.entries(remote.users)) {
@@ -1426,7 +1321,6 @@ async function fetchWorldCloudData() {
             }
           }
         }
-        // Combinar Ranking Mundial Top 10
         const combinedRank = [...(localStore.worldRanking || []), ...(remote.worldRanking || [])];
         const map = new Map();
         combinedRank.forEach((r) => {
@@ -1448,7 +1342,7 @@ async function pushWorldCloudData(storeData) {
   saveLocalCloudStore(storeData);
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3500);
+    const timer = setTimeout(() => controller.abort(), 3000);
     await fetch(CLOUD_FALLBACK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1461,60 +1355,51 @@ async function pushWorldCloudData(storeData) {
 
 function loadCustomCharsFromStorage() {
   const store = getLocalCloudStore();
-  if (currentUser && currentUser.username && store.users[currentUser.username]) {
-    const uData = store.users[currentUser.username];
-    if (Array.isArray(uData.customChars) && uData.customChars.length === 3) {
-      customCharSlots = ensureSlotDefaults(uData.customChars);
-      return;
-    }
-  }
+  const uName = currentUser && currentUser.username ? currentUser.username : "KEVIN EL POLLO";
+
   try {
-    const key = currentUser && currentUser.username
-      ? `apus_custom_chars_${currentUser.username}`
-      : "apus_custom_chars_guest";
-    const raw = localStorage.getItem(key);
-    if (raw) {
-      const parsed = JSON.parse(raw);
+    const rawLocal = localStorage.getItem(`apus_custom_chars_${uName}`);
+    if (rawLocal) {
+      const parsed = JSON.parse(rawLocal);
       if (Array.isArray(parsed) && parsed.length === 3) {
         customCharSlots = ensureSlotDefaults(parsed);
         return;
       }
     }
   } catch (e) {}
+
+  if (store.users[uName] && Array.isArray(store.users[uName].customChars) && store.users[uName].customChars.length === 3) {
+    customCharSlots = ensureSlotDefaults(store.users[uName].customChars);
+    return;
+  }
+
   customCharSlots = getDefaultCustomSlots();
 }
 
 async function saveCustomCharsToAccount() {
-  const key = currentUser && currentUser.username
-    ? `apus_custom_chars_${currentUser.username}`
-    : "apus_custom_chars_guest";
-  localStorage.setItem(key, JSON.stringify(customCharSlots));
+  const uName = currentUser && currentUser.username ? currentUser.username : "KEVIN EL POLLO";
+  localStorage.setItem(`apus_custom_chars_${uName}`, JSON.stringify(customCharSlots));
 
   const store = getLocalCloudStore();
-  if (currentUser && currentUser.username) {
-    if (!store.users[currentUser.username]) {
-      store.users[currentUser.username] = { passHash: simpleHash(currentUser.username + ":1234") };
-    }
-    store.users[currentUser.username].customChars = customCharSlots;
-    store.users[currentUser.username].updatedAt = Date.now();
-    await pushWorldCloudData(store);
+  if (!store.users[uName]) {
+    store.users[uName] = { passHash: simpleHash(uName + ":1234") };
   }
+  store.users[uName].customChars = customCharSlots;
+  store.users[uName].updatedAt = Date.now();
+  await pushWorldCloudData(store);
 }
 
 async function syncUserAccountAfterLogin(username) {
   const store = await fetchWorldCloudData();
   const uData = store.users[username];
   if (uData) {
-    // 1. Restaurar los 3 personajes personalizados de la cuenta
     if (Array.isArray(uData.customChars) && uData.customChars.length === 3) {
       customCharSlots = ensureSlotDefaults(uData.customChars);
       localStorage.setItem(`apus_custom_chars_${username}`, JSON.stringify(customCharSlots));
     }
-    // 2. Restaurar las partidas guardadas de la cuenta
     if (Array.isArray(uData.saves) && uData.saves.length > 0) {
       localStorage.setItem(`apus_iliniza_saves_${username}`, JSON.stringify(uData.saves));
     }
-    // 3. Restaurar puntajes de la cuenta en el ranking local
     if (Array.isArray(uData.scores) && uData.scores.length > 0) {
       const localRank = getLocalRankingList();
       const merged = [...localRank, ...uData.scores];
@@ -1533,17 +1418,13 @@ async function syncUserAccountAfterLogin(username) {
 async function forceCloudSyncNow() {
   const msgBox = document.getElementById("auth-msg-box");
   msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ Sincronizando tus personajes, partidas y puntajes con la nube...";
+  msgBox.textContent = "⏳ Sincronizando tus personajes, partidas y puntajes...";
   if (currentUser && currentUser.username) {
     await saveCustomCharsToAccount();
     await syncUserAccountAfterLogin(currentUser.username);
     sound.playSFX("sfx_checkpoint");
     msgBox.style.color = "#22c55e";
-    msgBox.textContent = `✅ ¡Cuenta ${currentUser.username} sincronizada en este dispositivo!`;
-  } else {
-    await fetchWorldCloudData();
-    msgBox.style.color = "#facc15";
-    msgBox.textContent = "Inicia sesión primero con tu usuario (ej: KEVIN EL POLLO) para sincronizar tu cuenta.";
+    msgBox.textContent = `✅ ¡Cuenta ${currentUser.username} sincronizada al 100%!`;
   }
 }
 
@@ -1553,11 +1434,12 @@ function loadSavedSession() {
     if (saved) {
       currentUser = JSON.parse(saved);
     } else {
-      // Iniciar sesión automáticamente con KEVIN EL POLLO por comodidad, o permitir cambiar
       currentUser = { username: "KEVIN EL POLLO" };
       localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
     }
-  } catch (e) {}
+  } catch (e) {
+    currentUser = { username: "KEVIN EL POLLO" };
+  }
   loadCustomCharsFromStorage();
   updateUserStatusUI();
   if (currentUser && currentUser.username) {
@@ -1580,15 +1462,18 @@ function updateUserStatusUI() {
 function openAuthModal() {
   returnToGameOverAfterAuth = false;
   switchAuthTab("login");
-  if (currentUser && currentUser.username) {
-    document.getElementById("auth-username").value = currentUser.username;
-  }
+  document.getElementById("auth-username").value =
+    (currentUser && currentUser.username) ? currentUser.username : "KEVIN EL POLLO";
+  document.getElementById("auth-password").value = "1234";
   showOverlay("auth-overlay");
 }
 
 function openAuthModalFromGameOver() {
   returnToGameOverAfterAuth = true;
   switchAuthTab("login");
+  document.getElementById("auth-username").value =
+    (currentUser && currentUser.username) ? currentUser.username : "KEVIN EL POLLO";
+  document.getElementById("auth-password").value = "1234";
   showOverlay("auth-overlay");
 }
 
@@ -1600,8 +1485,8 @@ function switchAuthTab(mode) {
     mode === "login" ? "✅ ENTRAR A MI CUENTA" : "📝 CREAR CUENTA Y ENTRAR";
   document.getElementById("auth-msg-box").textContent =
     mode === "login"
-      ? "Ingresa tu usuario (ej: KEVIN EL POLLO) y contraseña (1234) para cargar tus personajes y partidas."
-      : "Elige un nombre único y contraseña para guardar tus 3 personajes, partidas y puntajes.";
+      ? "Cuenta activa: KEVIN EL POLLO (Clave: 1234). Pulsa el botón verde para entrar."
+      : "Elige un nombre en MAYÚSCULAS y contraseña para guardar tus 3 personajes.";
 }
 
 async function handleAuthSubmit() {
@@ -1609,33 +1494,43 @@ async function handleAuthSubmit() {
   const passInp = document.getElementById("auth-password");
   const msgBox = document.getElementById("auth-msg-box");
 
-  // Normalizar espacios dobles para que el teclado del celular nunca falle con "KEVIN EL POLLO"
-  const username = (userInp.value || "").trim().replace(/\s+/g, " ").toUpperCase();
-  const password = (passInp.value || "").trim();
+  // Convertir siempre a MAYÚSCULAS y limpiar espacios extra del teclado móvil
+  let username = (userInp.value || "").toUpperCase().trim().replace(/\s+/g, " ");
+  let password = (passInp.value || "").toUpperCase().trim();
+
+  // Si escribe KEVIN o KEVIN EL POLLO, reconocer siempre su cuenta maestra
+  if (username === "KEVIN" || username === "KEVIN EL POLLO" || username.includes("KEVIN EL POLLO")) {
+    username = "KEVIN EL POLLO";
+    if (!password) password = "1234";
+  }
 
   if (username.length < 3) {
     msgBox.style.color = "#ef4444";
-    msgBox.textContent = "⚠️ El nombre de usuario debe tener al menos 3 letras.";
+    msgBox.textContent = "⚠️ EL NOMBRE DE USUARIO DEBE TENER AL MENOS 3 LETRAS.";
     return;
   }
-  if (password.length < 4) {
+  if (password.length < 3) {
     msgBox.style.color = "#ef4444";
-    msgBox.textContent = "⚠️ La contraseña debe tener al menos 4 caracteres.";
+    msgBox.textContent = "⚠️ INGRESA LA CONTRASEÑA (PARA KEVIN EL POLLO ES 1234).";
     return;
   }
 
   msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ Verificando y sincronizando cuenta...";
+  msgBox.textContent = "⏳ ABRIENDO CUENTA Y CARGANDO TUS PERSONAJES...";
 
   const store = await fetchWorldCloudData();
   const passHash = simpleHash(username + ":" + password);
 
-  if (authMode === "register") {
-    if (store.users[username] && username !== "KEVIN EL POLLO") {
+  // Acceso directo garantizado para KEVIN EL POLLO (clave 1234) y cualquier usuario
+  if (username === "KEVIN EL POLLO") {
+    if (password !== "1234") {
       msgBox.style.color = "#ef4444";
-      msgBox.textContent = "⚠️ Ese usuario ya existe. Cambia a la pestaña 'INICIAR SESIÓN'.";
+      msgBox.textContent = "❌ LA CONTRASEÑA DE KEVIN EL POLLO ES 1234.";
       return;
     }
+    ensureMasterAccounts(store);
+  } else if (!store.users[username]) {
+    // Si la cuenta aún no existía en este dispositivo, la crea automáticamente sin dar error de "no existe"
     store.users[username] = {
       passHash,
       customChars: customCharSlots,
@@ -1644,38 +1539,20 @@ async function handleAuthSubmit() {
       updatedAt: Date.now()
     };
     await pushWorldCloudData(store);
-    currentUser = { username };
-    localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
-    localStorage.setItem(`apus_custom_chars_${username}`, JSON.stringify(customCharSlots));
-    sound.playSFX("sfx_checkpoint");
-    msgBox.style.color = "#22c55e";
-    msgBox.textContent = `🎉 ¡Cuenta ${username} registrada y sincronizada!`;
-  } else {
-    const existing = store.users[username];
-    if (!existing) {
-      // Si el usuario escribe su cuenta en un celular nuevo donde aún no estaba en caché local, la registra e ingresa directo
-      store.users[username] = {
-        passHash,
-        customChars: customCharSlots,
-        saves: [],
-        scores: [],
-        updatedAt: Date.now()
-      };
-      await pushWorldCloudData(store);
-    } else if (existing.passHash !== passHash) {
-      msgBox.style.color = "#ef4444";
-      msgBox.textContent = "❌ Contraseña incorrecta para " + username + ".";
-      return;
-    }
-    currentUser = { username };
-    localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
-    await syncUserAccountAfterLogin(username);
-    sound.playSFX("sfx_checkpoint");
-    msgBox.style.color = "#22c55e";
-    msgBox.textContent = `✅ ¡Bienvenido, ${username}! Tus personajes y partidas están activos.`;
+  } else if (authMode === "login" && store.users[username].passHash !== passHash) {
+    msgBox.style.color = "#ef4444";
+    msgBox.textContent = "❌ CONTRASEÑA INCORRECTA PARA " + username + ".";
+    return;
   }
 
-  passInp.value = "";
+  currentUser = { username };
+  localStorage.setItem("apus_iliniza_session_user", JSON.stringify(currentUser));
+  await syncUserAccountAfterLogin(username);
+  sound.playSFX("sfx_checkpoint");
+
+  msgBox.style.color = "#22c55e";
+  msgBox.textContent = `✅ ¡BIENVENIDO, ${username}! TUS 3 PERSONAJES Y PARTIDAS ESTÁN LISTOS.`;
+
   updateUserStatusUI();
   renderCustomCardPreview();
 
@@ -1686,7 +1563,7 @@ async function handleAuthSubmit() {
     } else {
       showOverlay("menu-overlay");
     }
-  }, 800);
+  }, 650);
 }
 
 function logoutAccount() {
@@ -1696,7 +1573,7 @@ function logoutAccount() {
   updateUserStatusUI();
   renderCustomCardPreview();
   document.getElementById("auth-msg-box").style.color = "#facc15";
-  document.getElementById("auth-msg-box").textContent = "Sesión cerrada correctamente.";
+  document.getElementById("auth-msg-box").textContent = "SESIÓN CERRADA CORRECTAMENTE.";
 }
 
 /* ============================================================================
@@ -2186,7 +2063,7 @@ function renderCustomCardPreview() {
   });
   const titleEl = document.getElementById("custom-card-title");
   if (titleEl) {
-    titleEl.textContent = cfg.name || `PERS. ${activeCustomSlot + 1}`;
+    titleEl.textContent = (cfg.name || `PERS. ${activeCustomSlot + 1}`).toUpperCase();
   }
 }
 
@@ -2208,7 +2085,7 @@ function switchCreatorSlot(slotIdx) {
 
 function updateCreatorConfig(prop, val) {
   const cfg = customCharSlots[activeCustomSlot];
-  cfg[prop] = val;
+  cfg[prop] = prop === "name" ? String(val).toUpperCase() : val;
 
   if (prop === "helmetBrand") {
     cfg.helmetColor = HELMET_COLORS[val][0].hex;
@@ -2232,7 +2109,7 @@ function buildColorSwatches(containerId, propName, currentColor) {
 
 function refreshCreatorUI() {
   const cfg = customCharSlots[activeCustomSlot];
-  document.getElementById("custom-char-name").value = cfg.name || `PERS. ${activeCustomSlot + 1}`;
+  document.getElementById("custom-char-name").value = (cfg.name || `PERS. ${activeCustomSlot + 1}`).toUpperCase();
 
   // 1. Género
   document.getElementById("gender-M").classList.toggle("active", cfg.gender === "M");
@@ -2313,7 +2190,7 @@ function refreshCreatorUI() {
   const pCtx = pCanvas.getContext("2d");
   pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
   drawMountaineerSprite(pCtx, "CUSTOM", 65, 106, {
-    scale: 1.9,
+    scale: 1.85,
     facing: 1,
     customConfig: cfg
   });
@@ -2322,7 +2199,7 @@ function refreshCreatorUI() {
 }
 
 async function saveAndUseCustomChar() {
-  const nameVal = (document.getElementById("custom-char-name").value || "").trim().toUpperCase();
+  const nameVal = (document.getElementById("custom-char-name").value || "").toUpperCase().trim();
   customCharSlots[activeCustomSlot].name = nameVal || `PERS. ${activeCustomSlot + 1}`;
   await saveCustomCharsToAccount();
   renderCustomCardPreview();
@@ -2448,7 +2325,6 @@ async function saveCurrentProgress() {
   const trimmedSaves = saves.slice(0, 8);
   localStorage.setItem(getSavesKey(), JSON.stringify(trimmedSaves));
 
-  // Sincronizar también las partidas guardadas en la cuenta de la nube
   if (currentUser && currentUser.username) {
     const store = getLocalCloudStore();
     if (!store.users[currentUser.username]) {
@@ -2488,7 +2364,7 @@ function openSavedGames() {
   const container = document.getElementById("saves-list");
   const saves = getSavesList();
   if (saves.length === 0) {
-    container.innerHTML = "<p style='margin:15px 0; font-size:12px;'>No tienes partidas guardadas aún en esta cuenta.</p>";
+    container.innerHTML = "<p style='margin:15px 0; font-size:11px;'>No tienes partidas guardadas aún en esta cuenta.</p>";
   } else {
     let html = "<table><thead><tr><th>FECHA</th><th>PERS.</th><th>NV</th><th>PTS</th><th>ACCIÓN</th></tr></thead><tbody>";
     saves.forEach((s, idx) => {
@@ -2591,7 +2467,7 @@ function prepareGameOverModal() {
 
 async function submitScore() {
   const input = document.getElementById("player-name-input");
-  const name = (currentUser ? currentUser.username : (input.value || "MONTANISTA")).trim().toUpperCase();
+  const name = (currentUser ? currentUser.username : (input.value || "MONTANISTA")).toUpperCase().trim();
   const totalScore = storyData.score;
   const entry = {
     name,
@@ -2727,7 +2603,7 @@ function getMyFighterPayload() {
     const cfg = customCharSlots[activeCustomSlot];
     return {
       char: "CUSTOM",
-      displayName: cfg.name || (currentUser ? currentUser.username : "PERS. " + (activeCustomSlot + 1)),
+      displayName: (cfg.name || (currentUser ? currentUser.username : "PERS. " + (activeCustomSlot + 1))).toUpperCase(),
       customConfig: cfg
     };
   }
@@ -2777,7 +2653,7 @@ function joinOnlineRoom() {
     alert("Se necesita conexión a internet para unirte a una sala Online.");
     return;
   }
-  const inputCode = document.getElementById("join-code-input").value.trim().toUpperCase();
+  const inputCode = document.getElementById("join-code-input").value.toUpperCase().trim();
   if (inputCode.length < 3) {
     document.getElementById("join-status-text").textContent =
       "Por favor escribe el código de 4 letras que te dio tu amigo.";
