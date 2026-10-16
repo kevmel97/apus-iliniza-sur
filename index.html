@@ -2439,16 +2439,54 @@ function createOnlineRoom() {
   });
 }
 
+function createOnlineRoom() {
+  if (typeof Peer === "undefined") {
+    alert("Se necesita conexión a internet para el modo Online.");
+    return;
+  }
+  cleanupPeerConnection();
+  currentRoomCode = generateShortCode();
+  const fullPeerId = "APUS-ILINIZA-" + currentRoomCode;
+
+  const area = document.getElementById("host-room-area");
+  if (area) area.style.display = "block";
+  const display = document.getElementById("room-code-display");
+  if (display) display.textContent = currentRoomCode;
+  const hostStatus = document.getElementById("host-status-text");
+  if (hostStatus) hostStatus.textContent = "⏳ Creando sala en el servidor...";
+
+  peerInstance = new Peer(fullPeerId);
+  peerInstance.on("open", () => {
+    if (hostStatus) hostStatus.textContent = "✅ Sala activa. Comparte el código con tu amigo...";
+  });
+  peerInstance.on("connection", (conn) => {
+    peerConn = conn;
+    isOnlineHost = true;
+    vsIsOnline = true;
+    if (hostStatus) hostStatus.textContent = "🔗 ¡Amigo conectado! Iniciando combate...";
+    setupOnlineHandlers();
+  });
+  peerInstance.on("error", (err) => {
+    if (hostStatus) hostStatus.textContent = "❌ Error al crear sala (" + err.type + "). Intenta de nuevo.";
+  });
+}
+
 function joinOnlineRoom() {
   if (typeof Peer === "undefined") {
     alert("Se necesita conexión a internet.");
     return;
   }
   const inputCode = document.getElementById("join-code-input").value.toUpperCase().trim();
-  if (inputCode.length < 3) return;
+  const joinStatus = document.getElementById("join-status-text");
+  if (inputCode.length < 3) {
+    if (joinStatus) joinStatus.textContent = "⚠️ Ingresa un código válido de 4 letras.";
+    return;
+  }
 
   cleanupPeerConnection();
   currentRoomCode = inputCode;
+  if (joinStatus) joinStatus.textContent = "⏳ Buscando sala " + currentRoomCode + "...";
+
   peerInstance = new Peer();
   peerInstance.on("open", () => {
     const conn = peerInstance.connect("APUS-ILINIZA-" + currentRoomCode, { reliable: true });
@@ -2457,17 +2495,30 @@ function joinOnlineRoom() {
     vsIsOnline = true;
     setupOnlineHandlers();
   });
+  peerInstance.on("error", (err) => {
+    if (joinStatus) joinStatus.textContent = "❌ No se pudo conectar a la sala (" + err.type + ").";
+  });
 }
 
 function setupOnlineHandlers() {
-  peerConn.on("open", () => {
+  let handshakeSent = false;
+  const sendHello = () => {
+    if (handshakeSent || !peerConn || !peerConn.open) return;
+    handshakeSent = true;
     sound.playSFX("sfx_checkpoint");
     peerConn.send({ type: "HELLO_FIGHTER", fighterInfo: getMyFighterPayload() });
-  });
+  };
+
+  if (peerConn.open) {
+    sendHello();
+  } else {
+    peerConn.on("open", sendHello);
+  }
 
   peerConn.on("data", (data) => {
     if (!data || !data.type) return;
     if (data.type === "HELLO_FIGHTER") {
+      if (!handshakeSent) sendHello();
       showOverlay(null);
       startVersusMiniGame(true, data.fighterInfo);
     } else if (data.type === "STATE" && fighters.length === 2) {
@@ -2487,6 +2538,13 @@ function setupOnlineHandlers() {
       spawnBeer(1);
     } else if (data.type === "REMATCH" && gameState === "MINIGAME") {
       startVersusMiniGame(true, lastRemoteFighterInfo);
+    }
+  });
+
+  peerConn.on("close", () => {
+    if (gameState === "MINIGAME" && vsIsOnline) {
+      alert("El otro jugador se desconectó de la partida.");
+      returnToMainMenu();
     }
   });
 }
