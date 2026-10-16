@@ -2552,9 +2552,14 @@ function setupOnlineHandlers() {
       const remote = fighters[1];
       remote.x = data.nx * FIGHT_STAGE_W;
       remote.y = getFightGroundY() - (data.jumpOffset || 0);
+      remote.facing = typeof data.facing === "number" ? data.facing : remote.facing;
       remote.blocking = !!data.blocking;
       remote.action = data.action || null;
       remote.anim = data.anim || 0;
+      if (data.customConfig) {
+        remote.char = "CUSTOM";
+        remote.customConfig = data.customConfig;
+      }
       if (typeof data.myHp === "number") {
         remote.hp = data.myHp;
         if (remote.hp <= 0 && !vsWinner) declareVersusWinner(0);
@@ -2772,6 +2777,29 @@ function addFloatingScore(x, y, text = "+10", color = "#facc15") {
   floatingTexts.push({ x, y, text, color, life: 55 });
 }
 
+function maybeSpawnPilsener(x, y) {
+  const diff = DIFFICULTIES[diffIndex];
+  if (storyData.beersSpawnedThisLevel >= diff.beerQuota) return;
+
+  const lvl = LEVELS[storyData.levelIdx];
+  const progress = storyData.distance / lvl.totalDistance;
+  const chance = diff.id === "FACIL" ? 0.45 : diff.id === "NORMAL" ? 0.25 : diff.id === "DIFICIL" ? 0.18 : 0.12;
+  const forceSpawn = (progress > 0.72 && storyData.beersSpawnedThisLevel === 0);
+
+  if (Math.random() < chance || forceSpawn) {
+    storyData.beersSpawnedThisLevel++;
+    obstacles.push({
+      type: "PILSENER",
+      x: x,
+      y: y - 10,
+      vx: 0,
+      vy: 0,
+      r: 20,
+      dead: false
+    });
+  }
+}
+
 function triggerJump() {
   if (gameState === "STORY" && player.onGround && !player.huggingWall) {
     player.vy = -12.5;
@@ -2786,6 +2814,7 @@ function triggerAxe() {
   if (gameState === "STORY") {
     player.swingTimer = 16;
     sound.playSFX("sfx_axe");
+
     obstacles.forEach((ob) => {
       if (ob.dead) return;
       const dist = Math.hypot((ob.x) - (player.x + player.facing * 32), (ob.y) - (player.y - 10));
@@ -2795,6 +2824,10 @@ function triggerAxe() {
           storyData.levelScore += 10;
           addFloatingScore(ob.x, ob.y - 20, "+10", "#facc15");
           sound.playSFX("sfx_axe");
+
+          if (ob.type === "ICEBLOCK") {
+            maybeSpawnPilsener(ob.x, ob.y);
+          }
         }
       }
     });
@@ -2825,7 +2858,8 @@ function updateStoryMode() {
   const inFlatSection = storyData.distance < lvl.flatTutorialDist;
   const groundY = getGroundY(inFlatSection);
 
-  let moveX = 0, moveY = 0;
+  let moveX = 0;
+  let moveY = 0;
   if (keys.right || joyState.dx > 0.25) moveX = 1;
   else if (keys.left || joyState.dx < -0.25) moveX = -1;
 
@@ -2851,6 +2885,13 @@ function updateStoryMode() {
     }
   }
 
+  const blockingIce = obstacles.find(
+    (ob) => !ob.dead && ob.type === "ICEBLOCK" && Math.abs(ob.x - player.x) < 42
+  );
+  if (blockingIce && advanceSpeed > 0 && player.onGround) {
+    advanceSpeed = 0;
+  }
+
   const minPlayerX = isPortrait ? 65 : 90;
   const maxPlayerX = isPortrait ? 225 : 420;
 
@@ -2869,24 +2910,108 @@ function updateStoryMode() {
     player.onGround = true;
   }
 
+  if (storyData.distance >= storyData.nextIceDist && storyData.distance < lvl.totalDistance - 600) {
+    storyData.nextIceDist = storyData.distance + lvl.iceBlockGap + Math.random() * 140;
+    obstacles.push({
+      type: "ICEBLOCK",
+      x: GW + 30,
+      y: groundY - 12,
+      r: 28,
+      dead: false
+    });
+  }
+
+  if (!inFlatSection) {
+    if (Math.random() < lvl.snowRate) {
+      obstacles.push({
+        type: "SNOWBALL",
+        x: (isPortrait ? 100 : 220) + Math.random() * (GW - 120),
+        y: isPortrait ? 75 : -30,
+        vx: -1.8 - Math.random() * 1.6,
+        vy: 2.8 + Math.random() * 2.2,
+        r: 20,
+        dead: false
+      });
+    }
+    if (Math.random() < lvl.rockRate) {
+      obstacles.push({
+        type: "ROCK",
+        x: (isPortrait ? 70 : 150) + Math.random() * (GW - 110),
+        y: isPortrait ? 75 : -35,
+        vx: -1.3 - Math.random() * 1.4,
+        vy: 4.0 + Math.random() * 2.8,
+        r: 22,
+        dead: false
+      });
+    }
+  }
+
+  obstacles.forEach((ob) => {
+    if (ob.dead) return;
+
+    if (ob.type === "ICEBLOCK" || ob.type === "PILSENER") {
+      ob.x -= advanceSpeed * 1.15;
+      ob.y = groundY - 12;
+    } else {
+      ob.x += ob.vx - advanceSpeed * 0.4;
+      ob.y += ob.vy;
+    }
+
+    const distToPlayer = Math.hypot(ob.x - player.x, ob.y - (player.y - 18));
+
+    if (ob.type === "PILSENER" && distToPlayer < 42) {
+      ob.dead = true;
+      storyData.hearts = Math.min(storyData.maxHearts, storyData.hearts + 0.5);
+      sound.playSFX("sfx_beer");
+      addFloatingScore(ob.x, ob.y - 20, "+0.5 ❤️ PILSENER", "#22c55e");
+    } else if (ob.type === "SNOWBALL" && distToPlayer < 34) {
+      if (player.swingTimer > 0) {
+        ob.dead = true;
+        storyData.levelScore += 10;
+        addFloatingScore(ob.x, ob.y, "+10", "#facc15");
+      } else {
+        ob.dead = true;
+        damagePlayer(0.5);
+      }
+    } else if (ob.type === "ROCK" && distToPlayer < 34) {
+      if (!player.huggingWall) {
+        ob.dead = true;
+        damagePlayer(0.5);
+      }
+    }
+
+    if (ob.x < -80 || ob.y > groundY + 45) ob.dead = true;
+  });
+
+  obstacles = obstacles.filter((o) => !o.dead);
+
+  floatingTexts.forEach((ft) => {
+    ft.y -= 1.2;
+    ft.life--;
+  });
+  floatingTexts = floatingTexts.filter((ft) => ft.life > 0);
+
+  const windMultiplier = lvl.storm ? 3.4 : 1.0;
   snowParticles.forEach((p) => {
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.y > GH) p.y = 0;
+    p.x += p.vx * windMultiplier;
+    p.y += p.vy * (lvl.storm ? 2.2 : 1.0);
     if (p.x < 0) p.x = GW;
+    if (p.y > GH) { p.y = 0; p.x = Math.random() * GW; }
   });
 
   if (storyData.distance >= lvl.totalDistance) {
     storyData.score += storyData.levelScore;
     storyData.levelScore = 0;
     sound.playSFX("sfx_checkpoint");
+
     if (storyData.levelIdx < LEVELS.length - 1) {
-      initStoryLevel(storyData.levelIdx + 1, false);
+      gameState = "CHECKPOINT";
+      storyData.checkpointTimer = 210;
     } else {
       gameState = "SUMMIT";
       player.celebrating = true;
-      prepareGameOverModal();
-      showOverlay("gameover-overlay");
+      sound.playBGM("bgm_summit");
+      updateTouchControlsVisibility();
     }
   }
 }
@@ -3216,7 +3341,8 @@ function updateVersusMiniGame() {
     blocking: p1.blocking,
     action: p1.action,
     anim: p1.anim,
-    myHp: p1.hp
+    myHp: p1.hp,
+    customConfig: p1.customConfig
   });
 }
 
@@ -3261,15 +3387,137 @@ function drawCotopaxiBackground(isNight = false, sunriseProgress = 0) {
   ctx.fillRect(0, horizonY - 45, GW, 55);
 }
 
+function drawBottlePilsener(x, y, rot = 0) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.fillStyle = "rgba(250, 204, 21, 0.35)";
+  ctx.beginPath();
+  ctx.arc(0, 0, 18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#78350f";
+  ctx.fillRect(-7, -6, 14, 22);
+  ctx.fillRect(-4, -16, 8, 10);
+  ctx.fillStyle = "#facc15";
+  ctx.fillRect(-4, -18, 8, 3);
+  ctx.fillRect(-7, 0, 14, 9);
+  ctx.fillStyle = "#dc2626";
+  ctx.fillRect(-7, 2, 14, 5);
+  ctx.restore();
+}
+
+function drawHeartsHUD(x, y, hearts, maxHearts) {
+  const spacing = isPortrait ? 23 : 28;
+  for (let i = 0; i < maxHearts; i++) {
+    const hx = x + i * spacing;
+    const fillAmount = Math.max(0, Math.min(1, hearts - i));
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(hx - 2, y - 2, 20, 18);
+    if (fillAmount >= 1) {
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(hx, y, 16, 14);
+    } else if (fillAmount >= 0.5) {
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(hx, y, 8, 14);
+      ctx.fillStyle = "#475569";
+      ctx.fillRect(hx + 8, y, 8, 14);
+    } else {
+      ctx.fillStyle = "#475569";
+      ctx.fillRect(hx, y, 16, 14);
+    }
+  }
+}
+
 function renderStoryMode() {
-  drawCotopaxiBackground(false, 0);
-  const groundY = getGroundY(false);
+  const lvl = LEVELS[storyData.levelIdx];
+  const progress = Math.min(1, storyData.distance / lvl.totalDistance);
+  const currentAlt = Math.floor(lvl.startAlt + (lvl.endAlt - lvl.startAlt) * progress);
+  const inFlatSection = storyData.distance < lvl.flatTutorialDist;
+  const groundY = getGroundY(inFlatSection);
+
+  if (gameState === "SUMMIT" && player.celebrating && storyData.summitSunriseProgress < 1) {
+    storyData.summitSunriseProgress = Math.min(1, storyData.summitSunriseProgress + 0.005);
+  }
+
+  drawCotopaxiBackground(lvl.night, storyData.summitSunriseProgress);
+
+  const scrollX = (storyData.distance * 0.8) % 120;
   const floorTop = groundY + 25;
 
   ctx.fillStyle = "#1e293b";
   ctx.fillRect(0, floorTop, GW, GH - floorTop);
   ctx.fillStyle = "#334155";
   ctx.fillRect(0, floorTop, GW, 75);
+  ctx.fillStyle = "#e2e8f0";
+  ctx.fillRect(0, floorTop - 5, GW, 18);
+
+  ctx.fillStyle = "#0f172a";
+  for (let rx = 0; rx < GW; rx += 90) {
+    ctx.fillRect((rx - scrollX + GW) % GW, floorTop + 32, 46, 10);
+    ctx.fillRect((rx + 40 - scrollX + GW) % GW, floorTop + 65, 55, 12);
+  }
+
+  if (!inFlatSection) {
+    const wallBaseX = isPortrait ? 275 : 520;
+    const wallTopX = isPortrait ? 390 : 680;
+    ctx.fillStyle = "#1e293b";
+    ctx.beginPath();
+    ctx.moveTo(wallBaseX, floorTop + 20);
+    ctx.lineTo(wallTopX, 85);
+    ctx.lineTo(GW, 85);
+    ctx.lineTo(GW, floorTop + 20);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#bae6fd";
+    for (let i = 0; i < 6; i++) {
+      const ry = ((i * 85 + scrollX) % (floorTop - 100)) + 90;
+      ctx.fillRect(wallTopX - (ry - 85) * 0.22, ry, 42, 15);
+    }
+  } else {
+    const boxW = isPortrait ? 490 : 390;
+    const boxX = isPortrait ? (GW - boxW) / 2 : 25;
+    const boxY = groundY - 125;
+    ctx.fillStyle = "rgba(30, 41, 59, 0.92)";
+    ctx.fillRect(boxX, boxY, boxW, 50);
+    ctx.strokeStyle = "#f7931e";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(boxX, boxY, boxW, 50);
+    ctx.fillStyle = "#fff";
+    ctx.font = "10px 'Press Start 2P'";
+    ctx.fillText("TRAMO PLANO: SALTA Y USA EL PIOLET", boxX + 16, boxY + 21);
+    ctx.fillText("LUEGO INICIA LA ESCALADA AL ILINIZA", boxX + 16, boxY + 39);
+  }
+
+  obstacles.forEach((ob) => {
+    if (ob.type === "ICEBLOCK") {
+      ctx.fillStyle = "#38bdf8";
+      ctx.fillRect(ob.x - 24, ob.y - 36, 48, 52);
+      ctx.fillStyle = "#e0f2fe";
+      ctx.fillRect(ob.x - 20, ob.y - 32, 40, 14);
+      ctx.strokeStyle = "#0284c7";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(ob.x - 24, ob.y - 36, 48, 52);
+    } else if (ob.type === "SNOWBALL") {
+      ctx.fillStyle = "#f8fafc";
+      ctx.beginPath();
+      ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#94a3b8";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    } else if (ob.type === "ROCK") {
+      ctx.fillStyle = "#475569";
+      ctx.beginPath();
+      ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    } else if (ob.type === "PILSENER") {
+      drawBottlePilsener(ob.x, ob.y, 0);
+    }
+  });
 
   drawMountaineerSprite(ctx, selectedCharacter, player.x, player.y, {
     scale: isPortrait ? 1.45 : 1.35,
@@ -3277,11 +3525,110 @@ function renderStoryMode() {
     anim: player.animFrame,
     swinging: player.swingTimer > 0,
     crouching: player.crouching,
-    hugging: player.huggingWall
+    hugging: player.huggingWall,
+    frozen: lvl.frozenPlayer,
+    celebrating: player.celebrating,
+    hurt: player.invulnTimer > 0
   });
 
   ctx.fillStyle = "#ffffff";
-  snowParticles.forEach((p) => ctx.fillRect(p.x, p.y, p.r, p.r));
+  snowParticles.forEach((p) => {
+    ctx.fillRect(p.x, p.y, p.r, p.r);
+  });
+
+  if (lvl.night && storyData.summitSunriseProgress < 0.5) {
+    const darkness = ctx.createRadialGradient(
+      player.x, player.y - 20, 75,
+      player.x, player.y - 20, 320
+    );
+    darkness.addColorStop(0, "rgba(5, 8, 18, 0.1)");
+    darkness.addColorStop(1, "rgba(5, 8, 18, 0.86)");
+    ctx.fillStyle = darkness;
+    ctx.fillRect(0, 0, GW, GH);
+  }
+
+  floatingTexts.forEach((ft) => {
+    ctx.fillStyle = ft.color;
+    ctx.font = "13px 'Press Start 2P'";
+    ctx.fillText(ft.text, ft.x - 20, ft.y);
+  });
+
+  const hudW = isPortrait ? 305 : 470;
+  ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
+  ctx.fillRect(12, 10, hudW, 82);
+  ctx.strokeStyle = "#64748b";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(12, 10, hudW, 82);
+
+  drawHeartsHUD(20, 20, storyData.hearts, storyData.maxHearts);
+
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = isPortrait ? "9px 'Press Start 2P'" : "11px 'Press Start 2P'";
+  ctx.fillText(
+    `NV ${lvl.level}/5 | ${currentAlt}m | PTS:${storyData.score + storyData.levelScore}`,
+    20, 56
+  );
+
+  const barW = hudW - 18;
+  ctx.fillStyle = "#334155";
+  ctx.fillRect(20, 68, barW, 12);
+  ctx.fillStyle = "#f7931e";
+  ctx.fillRect(20, 68, barW * progress, 12);
+
+  if (gameState === "CHECKPOINT") {
+    const cpW = isPortrait ? 490 : 660;
+    const cpX = (GW - cpW) / 2;
+    const cpY = isPortrait ? 250 : (GH - 150) / 2 - 20;
+    ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
+    ctx.fillRect(cpX, cpY, cpW, 150);
+    ctx.strokeStyle = "#f7931e";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(cpX, cpY, cpW, 150);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#facc15";
+    ctx.font = isPortrait ? "13px 'Press Start 2P'" : "16px 'Press Start 2P'";
+    ctx.fillText("🚩 PUNTO DE CONTROL ALCANZADO", GW / 2, cpY + 45);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = isPortrait ? "11px 'Press Start 2P'" : "14px 'Press Start 2P'";
+    ctx.fillText(lvl.checkpointText, GW / 2, cpY + 85);
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = isPortrait ? "9px 'Press Start 2P'" : "11px 'Press Start 2P'";
+    ctx.fillText("PREPARANDO SIGUIENTE TRAMO...", GW / 2, cpY + 122);
+    ctx.textAlign = "left";
+
+    storyData.checkpointTimer--;
+    if (storyData.checkpointTimer <= 0) {
+      initStoryLevel(storyData.levelIdx + 1, false);
+    }
+  }
+
+  if (gameState === "SUMMIT" && player.celebrating) {
+    const smW = isPortrait ? 500 : 680;
+    const smX = (GW - smW) / 2;
+    ctx.fillStyle = "rgba(15, 23, 42, 0.92)";
+    ctx.fillRect(smX, 115, smW, 120);
+    ctx.strokeStyle = "#facc15";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(smX, 115, smW, 120);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#facc15";
+    ctx.font = isPortrait ? "11px 'Press Start 2P'" : "15px 'Press Start 2P'";
+    ctx.fillText("🏔️ ¡FELICIDADES LLEGASTE A 5248 MSNM!", GW / 2, 160);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = isPortrait ? "10px 'Press Start 2P'" : "12px 'Press Start 2P'";
+    ctx.fillText(`FIN DE JUEGO - PUNTAJE: ${storyData.score}`, GW / 2, 198);
+    ctx.textAlign = "left";
+
+    if (storyData.summitSunriseProgress >= 1 && !document.getElementById("gameover-overlay").classList.contains("active")) {
+      document.getElementById("end-title").textContent = "🏔️ ¡CUMBRE ILINIZA SUR!";
+      document.getElementById("end-subtitle").textContent = "FELICIDADES LLEGASTE A 5248 MSNM";
+      document.getElementById("end-score-text").textContent = `PUNTAJE FINAL: ${storyData.score}`;
+      prepareGameOverModal();
+      showOverlay("gameover-overlay");
+    }
+  }
 }
 
 function trimName(n, max) {
@@ -3575,8 +3922,8 @@ function gameLoop() {
     const cX = isPortrait ? GW * 0.86 : 815;
     drawMountaineerSprite(ctx, "JORDY", jX, charY, { scale: 1.4, facing: -1, celebrating: true });
     drawMountaineerSprite(ctx, "CHUGO", cX, charY + 5, { scale: 1.4, facing: -1 });
-  } else if (gameState === "STORY") {
-    updateStoryMode();
+  } else if (gameState === "STORY" || gameState === "CHECKPOINT" || gameState === "SUMMIT") {
+    if (gameState === "STORY") updateStoryMode();
     renderStoryMode();
   } else if (gameState === "MINIGAME") {
     updateVersusMiniGame();
