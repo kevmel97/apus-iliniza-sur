@@ -1713,9 +1713,20 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   }
 
   if (crying) {
+    // Mirada triste: ojos caídos con brillo húmedo + cejas inclinadas hacia el centro
     targetCtx.fillStyle = "#0f172a";
-    targetCtx.fillRect(-6, -28 + yOffset, 5, 2);
-    targetCtx.fillRect(2, -28 + yOffset, 5, 2);
+    targetCtx.fillRect(-5, -27 + yOffset, 3, 3);
+    targetCtx.fillRect(3, -27 + yOffset, 3, 3);
+    targetCtx.fillStyle = "#e0f2fe";
+    targetCtx.fillRect(-4, -27 + yOffset, 1, 1);
+    targetCtx.fillRect(4, -27 + yOffset, 1, 1);
+    targetCtx.fillStyle = hairColor;
+    targetCtx.fillRect(-8, -29 + yOffset, 2, 1.5);
+    targetCtx.fillRect(-6, -30 + yOffset, 2, 1.5);
+    targetCtx.fillRect(-4, -31 + yOffset, 2, 1.5);
+    targetCtx.fillRect(3, -31 + yOffset, 2, 1.5);
+    targetCtx.fillRect(5, -30 + yOffset, 2, 1.5);
+    targetCtx.fillRect(7, -29 + yOffset, 2, 1.5);
   } else if (!hasGlasses) {
     targetCtx.fillStyle = "#0f172a";
     targetCtx.fillRect(-5, -29 + yOffset, 3, 3);
@@ -1749,8 +1760,11 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   }
 
   if (crying) {
+    // Boca triste (curva hacia abajo)
     targetCtx.fillStyle = "#0f172a";
-    targetCtx.fillRect(-4, -21 + yOffset, 8, 2);
+    targetCtx.fillRect(-3, -22 + yOffset, 7, 2);
+    targetCtx.fillRect(-5, -20 + yOffset, 2, 2);
+    targetCtx.fillRect(4, -20 + yOffset, 2, 2);
   } else if (expression === "FELIZ") {
     targetCtx.fillStyle = "#ffffff";
     targetCtx.fillRect(-4, -22 + yOffset, 9, 3);
@@ -1762,7 +1776,7 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
     targetCtx.fillRect(-3, -22 + yOffset, 7, 2);
   }
 
-  if (hasGlasses) {
+  if (hasGlasses && !crying) {
     targetCtx.fillStyle = "#0f172a";
     targetCtx.fillRect(-9, -31 + yOffset, 19, 7);
     targetCtx.fillStyle = glassesColor;
@@ -1775,6 +1789,27 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   targetCtx.strokeStyle = "#0f172a";
   targetCtx.lineWidth = 1.5;
   targetCtx.strokeRect(-12, -43 + yOffset, 24, 11);
+
+  // Lágrimas animadas cayendo desde los ojos
+  if (crying) {
+    const nowT = Date.now();
+    targetCtx.save();
+    [[-3.5, -1], [4.5, 1]].forEach(([ex, side], k) => {
+      targetCtx.fillStyle = "rgba(125, 211, 252, 0.55)";
+      targetCtx.fillRect(ex - 1, -24 + yOffset, 2, 5);
+      for (let d = 0; d < 3; d++) {
+        const t = ((nowT / 650) + d / 3 + k * 0.18) % 1;
+        const tx = ex + side * t * 3;
+        const ty = -24 + yOffset + t * 22;
+        targetCtx.globalAlpha = Math.max(0.15, 1 - t * 0.75);
+        targetCtx.fillStyle = "#38bdf8";
+        targetCtx.fillRect(tx - 1, ty, 3, 4);
+        targetCtx.fillStyle = "#e0f2fe";
+        targetCtx.fillRect(tx - 1, ty, 1, 1);
+      }
+    });
+    targetCtx.restore();
+  }
 
   targetCtx.save();
   if (celebrating) {
@@ -2438,15 +2473,20 @@ function setupOnlineHandlers() {
     } else if (data.type === "STATE" && fighters.length === 2) {
       const remote = fighters[1];
       remote.x = data.nx * FIGHT_STAGE_W;
-      const groundY = isPortrait ? 535 : 390;
-      remote.y = groundY - data.jumpOffset;
-      remote.facing = data.facing;
-      remote.blocking = data.blocking;
-      remote.action = data.action;
-      remote.anim = data.anim;
-      remote.hp = data.myHp;
-    } else if (data.type === "MELEE_ATTACK" && fighters.length === 2) {
+      remote.y = getFightGroundY() - (data.jumpOffset || 0);
+      remote.blocking = !!data.blocking;
+      remote.action = data.action || null;
+      remote.anim = data.anim || 0;
+      if (typeof data.myHp === "number") {
+        remote.hp = data.myHp;
+        if (remote.hp <= 0 && !vsWinner) declareVersusWinner(0);
+      }
+    } else if (data.type === "MELEE_ATTACK" && fighters.length === 2 && !vsWinner) {
       checkMeleeHit(fighters[1], fighters[0], data.dmg);
+    } else if (data.type === "BEER" && fighters.length === 2 && !vsWinner) {
+      spawnBeer(1);
+    } else if (data.type === "REMATCH" && gameState === "MINIGAME") {
+      startVersusMiniGame(true, lastRemoteFighterInfo);
     }
   });
 }
@@ -2769,9 +2809,30 @@ function updateStoryMode() {
    MINI JUEGO CHUGO VS JORDY
    ============================================================================ */
 let lastRemoteFighterInfo = null;
+let vsWinnerIdx = -1;
+let vsFloaters = [];
+
+const FIGHT_GRAVITY = 0.7;
+const FIGHT_JUMP_SPEED = -12;
+const BEER_DAMAGE = 10;
+const BEER_SPEED = 9;
 
 function stageXToCanvasX(stageX) {
   return (stageX / FIGHT_STAGE_W) * GW;
+}
+
+function getFightGroundY() {
+  return isPortrait ? 535 : 390;
+}
+
+function addVsFloater(x, y, text, color) {
+  vsFloaters.push({ x, y, text, color, life: 50 });
+}
+
+function sendOnline(msg) {
+  if (vsIsOnline && peerConn && peerConn.open) {
+    try { peerConn.send(msg); } catch (e) {}
+  }
 }
 
 function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
@@ -2779,7 +2840,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   if (remoteFighterInfo) lastRemoteFighterInfo = remoteFighterInfo;
 
   const myInfo = getMyFighterPayload();
-  const groundY = isPortrait ? 535 : 390;
+  const groundY = getFightGroundY();
 
   keys.defend = false;
   const p1StartX = (!onlineMode || isOnlineHost) ? 260 : 700;
@@ -2798,19 +2859,21 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   fighters = [
     {
       char: myInfo.char, displayName: myInfo.displayName, customConfig: myInfo.customConfig,
-      isAI: false, x: p1StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350,
+      isAI: false, x: p1StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350, hpGhost: 350,
       facing: p1StartX < p2StartX ? 1 : -1, onGround: true, blocking: false,
-      action: null, actionTimer: 0, cooldown: 0, anim: 0
+      action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0
     },
     {
       char: p2Char, displayName: p2DisplayName, customConfig: p2CustomConfig,
-      isAI: !onlineMode, x: p2StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350,
+      isAI: !onlineMode, x: p2StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350, hpGhost: 350,
       facing: p2StartX < p1StartX ? 1 : -1, onGround: true, blocking: false,
-      action: null, actionTimer: 0, cooldown: 0, anim: 0
+      action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0
     }
   ];
   projectiles = [];
+  vsFloaters = [];
   vsWinner = null;
+  vsWinnerIdx = -1;
   vsEndAnimTimer = 0;
   gameState = "MINIGAME";
   updateTouchControlsVisibility();
@@ -2819,78 +2882,171 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
 
 function requestRematch() {
   sound.playSFX("sfx_checkpoint");
+  sendOnline({ type: "REMATCH" });
   startVersusMiniGame(vsIsOnline, lastRemoteFighterInfo);
 }
 
 function triggerFighterJump() {
+  if (gameState !== "MINIGAME" || fighters.length < 2) return;
   if (vsWinner) {
     if (vsEndAnimTimer <= 0) requestRematch();
     return;
   }
   const f = fighters[0];
-  if (f && f.onGround && !f.blocking && !vsWinner) {
-    f.vy = -12;
+  if (f && f.onGround && !f.blocking) {
+    f.vy = FIGHT_JUMP_SPEED;
     f.onGround = false;
     sound.playSFX("sfx_jump");
   }
 }
 
+function canFighterAct(f) {
+  return gameState === "MINIGAME" && fighters.length === 2 && f && f.cooldown <= 0 && !f.blocking && !vsWinner;
+}
+
 function triggerFighterAxe() {
   const f = fighters[0];
-  if (!f || f.cooldown > 0 || f.blocking || vsWinner) return;
+  if (!canFighterAct(f)) return;
   f.action = "AXE";
   f.actionTimer = 16;
   f.cooldown = 22;
   sound.playSFX("sfx_axe");
+  sendOnline({ type: "MELEE_ATTACK", dmg: 6 });
   checkMeleeHit(f, fighters[1], 6);
 }
 
 function triggerKick() {
   const f = fighters[0];
-  if (!f || f.cooldown > 0 || f.blocking || vsWinner) return;
+  if (!canFighterAct(f)) return;
   f.action = "KICK";
   f.actionTimer = 18;
   f.cooldown = 26;
   sound.playSFX("sfx_kick");
+  sendOnline({ type: "MELEE_ATTACK", dmg: 8 });
   checkMeleeHit(f, fighters[1], 8);
+}
+
+function spawnBeer(ownerIdx) {
+  const f = fighters[ownerIdx];
+  if (!f) return;
+  projectiles.push({
+    owner: ownerIdx,
+    x: f.x + f.facing * 36,
+    y: f.y - 28,
+    vx: f.facing * BEER_SPEED,
+    vy: -5,
+    rot: 0,
+    life: 150
+  });
 }
 
 function triggerBeerThrow() {
   const f = fighters[0];
-  if (!f || f.cooldown > 0 || f.blocking || vsWinner) return;
+  if (!canFighterAct(f)) return;
   f.action = "THROW";
   f.actionTimer = 14;
   f.cooldown = 38;
-  sound.playSFX("sfx_jump");
+  sound.playSFX("sfx_beer");
+  spawnBeer(0);
+  sendOnline({ type: "BEER" });
 }
 
-function declareVersusWinner(winnerName) {
+function declareVersusWinner(idx) {
   if (vsWinner) return;
-  vsWinner = winnerName;
+  const w = fighters[idx];
+  if (!w) return;
+  vsWinnerIdx = idx;
+  vsWinner = w.displayName || w.char;
   vsEndAnimTimer = 180;
+  projectiles = [];
   sound.playSFX("sfx_checkpoint");
 }
 
-function checkMeleeHit(attacker, defender, dmg) {
-  if (Math.abs(attacker.x - defender.x) < 92 && Math.abs(attacker.y - defender.y) < 65) {
-    if (defender.blocking) {
-      sound.playSFX("sfx_axe");
-      return;
-    }
+/* Aplica daño (o lo bloquea) y muestra el número flotante.
+   En online, el daño real a MI personaje lo calculo yo; al oponente solo
+   le muestro el efecto (su vida real llega por el mensaje STATE). */
+function dealDamage(attacker, defender, dmg) {
+  const remoteTarget = vsIsOnline && defender === fighters[1];
+
+  if (defender.blocking) {
+    addVsFloater(defender.x, defender.y - 78, "BLOQUEO", "#38bdf8");
+    sound.playSFX("sfx_axe");
+    return false;
+  }
+
+  if (!remoteTarget) {
     defender.hp = Math.max(0, defender.hp - dmg);
-    sound.playSFX("sfx_hit");
-    if (defender.hp <= 0) declareVersusWinner(attacker.displayName || attacker.char);
+    defender.vx = (defender.x >= attacker.x ? 1 : -1) * 7;
+  }
+  defender.hurtTimer = 18;
+  addVsFloater(defender.x, defender.y - 78, "-" + dmg, "#ef4444");
+  sound.playSFX("sfx_hit");
+
+  if (!remoteTarget && defender.hp <= 0) {
+    declareVersusWinner(fighters.indexOf(attacker));
+  }
+  return true;
+}
+
+function checkMeleeHit(attacker, defender, dmg) {
+  if (!attacker || !defender) return;
+  if (Math.abs(attacker.x - defender.x) < 92 && Math.abs(attacker.y - defender.y) < 65) {
+    dealDamage(attacker, defender, dmg);
+  }
+}
+
+function updateProjectiles() {
+  const groundY = getFightGroundY();
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const pr = projectiles[i];
+    pr.x += pr.vx;
+    pr.vy += 0.28;
+    pr.y += pr.vy;
+    pr.rot += pr.vx > 0 ? 0.4 : -0.4;
+    pr.life--;
+
+    const attacker = fighters[pr.owner];
+    const target = fighters[pr.owner === 0 ? 1 : 0];
+    let remove = false;
+
+    if (attacker && target && Math.abs(pr.x - target.x) < 36 && Math.abs(pr.y - (target.y - 8)) < 50) {
+      dealDamage(attacker, target, BEER_DAMAGE);
+      if (vsWinner) return; // declareVersusWinner ya vació los proyectiles
+      remove = true;
+    }
+    if (pr.y > groundY + 30 || pr.x < -30 || pr.x > FIGHT_STAGE_W + 30 || pr.life <= 0) remove = true;
+    if (remove) projectiles.splice(i, 1);
   }
 }
 
 function updateVersusMiniGame() {
-  const groundY = isPortrait ? 535 : 390;
+  const groundY = getFightGroundY();
+
+  // Temporizadores (cooldown, acción, parpadeo de daño, barra "fantasma")
+  fighters.forEach((f, i) => {
+    if (f.cooldown > 0) f.cooldown--;
+    if (f.hurtTimer > 0) f.hurtTimer--;
+    f.hpGhost = f.hpGhost > f.hp ? Math.max(f.hp, f.hpGhost - 1.4) : f.hp;
+    const isRemote = vsIsOnline && i === 1; // su acción llega por STATE
+    if (!isRemote && f.actionTimer > 0) {
+      f.actionTimer--;
+      if (f.actionTimer === 0) f.action = null;
+    }
+  });
+
+  for (let i = vsFloaters.length - 1; i >= 0; i--) {
+    const fl = vsFloaters[i];
+    fl.y -= 0.9;
+    fl.life--;
+    if (fl.life <= 0) vsFloaters.splice(i, 1);
+  }
 
   if (vsWinner) {
     if (vsEndAnimTimer > 0) vsEndAnimTimer--;
     fighters.forEach((f) => {
       f.vx = 0;
       f.y = groundY;
+      f.blocking = false;
       f.anim++;
     });
     return;
@@ -2899,7 +3055,12 @@ function updateVersusMiniGame() {
   const p1 = fighters[0];
   const p2 = fighters[1];
 
-  p1.blocking = keys.defend || (joyState.dy > 0.45);
+  // --- Jugador local ---
+  p1.blocking = p1.onGround && (keys.defend || joyState.dy > 0.45);
+  if ((keys.up || joyState.dy < -0.55) && p1.onGround && !p1.blocking) {
+    triggerFighterJump();
+  }
+
   p1.vx *= 0.8;
   if (!p1.blocking) {
     if (keys.left || joyState.dx < -0.25) { p1.vx = -FIGHT_MOVE_SPEED; p1.anim++; }
@@ -2907,25 +3068,70 @@ function updateVersusMiniGame() {
   }
   p1.facing = p2.x >= p1.x ? 1 : -1;
   p1.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p1.x + p1.vx));
-  p1.y = groundY;
 
+  // Física vertical (salto con gravedad)
+  p1.vy += FIGHT_GRAVITY;
+  p1.y += p1.vy;
+  if (p1.y >= groundY) {
+    p1.y = groundY;
+    p1.vy = 0;
+    p1.onGround = true;
+  } else {
+    p1.onGround = false;
+  }
+
+  // --- Oponente ---
   if (!vsIsOnline) {
+    // CPU
     p2.vx *= 0.8;
+    p2.blocking = false;
     p2.facing = p1.x >= p2.x ? 1 : -1;
     const dist = Math.abs(p1.x - p2.x);
     if (dist > 82) {
       p2.vx = p2.facing * FIGHT_MOVE_SPEED;
       p2.anim++;
+      if (dist > 230 && p2.cooldown <= 0 && Math.random() < 0.012) {
+        p2.action = "THROW";
+        p2.actionTimer = 14;
+        p2.cooldown = 70;
+        spawnBeer(1);
+        sound.playSFX("sfx_beer");
+      }
     } else if (p2.cooldown <= 0) {
-      p2.action = "AXE";
-      p2.actionTimer = 15;
-      p2.cooldown = 48;
-      checkMeleeHit(p2, p1, 6);
+      if (Math.random() < 0.35) {
+        p2.action = "KICK";
+        p2.actionTimer = 18;
+        p2.cooldown = 55;
+        sound.playSFX("sfx_kick");
+        checkMeleeHit(p2, p1, 8);
+      } else {
+        p2.action = "AXE";
+        p2.actionTimer = 15;
+        p2.cooldown = 48;
+        sound.playSFX("sfx_axe");
+        checkMeleeHit(p2, p1, 6);
+      }
     }
     p2.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p2.x + p2.vx));
     p2.y = groundY;
-    if (p2.cooldown > 0) p2.cooldown--;
+  } else {
+    // Online: la posición/acción del rival llegan por STATE; solo oriento su sprite
+    p2.facing = p1.x >= p2.x ? 1 : -1;
   }
+
+  updateProjectiles();
+
+  // Online: envío mi estado al rival
+  sendOnline({
+    type: "STATE",
+    nx: p1.x / FIGHT_STAGE_W,
+    jumpOffset: groundY - p1.y,
+    facing: p1.facing,
+    blocking: p1.blocking,
+    action: p1.action,
+    anim: p1.anim,
+    myHp: p1.hp
+  });
 }
 
 /* ============================================================================
@@ -2992,25 +3198,170 @@ function renderStoryMode() {
   snowParticles.forEach((p) => ctx.fillRect(p.x, p.y, p.r, p.r));
 }
 
+function trimName(n, max) {
+  n = String(n || "");
+  return n.length > max ? n.slice(0, max - 1) + "…" : n;
+}
+
+function fitFont(text, maxW, startSize) {
+  let size = startSize;
+  ctx.font = `${size}px 'Press Start 2P', monospace`;
+  while (ctx.measureText(text).width > maxW && size > 7) {
+    size--;
+    ctx.font = `${size}px 'Press Start 2P', monospace`;
+  }
+}
+
+function drawVsShield(f) {
+  const cx = stageXToCanvasX(f.x) + f.facing * 34;
+  const cy = f.y - 8;
+  ctx.save();
+  ctx.fillStyle = "rgba(56, 189, 248, 0.28)";
+  ctx.strokeStyle = "#7dd3fc";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 16, 50, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawBeerBottle(pr) {
+  ctx.save();
+  ctx.translate(stageXToCanvasX(pr.x), pr.y);
+  ctx.rotate(pr.rot);
+  ctx.scale(1.3, 1.3);
+  ctx.fillStyle = "#b45309";
+  ctx.fillRect(-5, -4, 14, 9);
+  ctx.fillStyle = "#92400e";
+  ctx.fillRect(9, -2, 8, 5);
+  ctx.fillStyle = "#facc15";
+  ctx.fillRect(17, -3, 3, 7);
+  ctx.fillStyle = "#fef3c7";
+  ctx.fillRect(-2, -4, 5, 9);
+  ctx.restore();
+}
+
+function drawVsFloaters() {
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.font = "14px 'Press Start 2P', monospace";
+  vsFloaters.forEach((fl) => {
+    ctx.globalAlpha = Math.max(0, Math.min(1, fl.life / 20));
+    const x = stageXToCanvasX(fl.x);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#000000";
+    ctx.strokeText(fl.text, x, fl.y);
+    ctx.fillStyle = fl.color;
+    ctx.fillText(fl.text, x, fl.y);
+  });
+  ctx.restore();
+}
+
+function drawVsHud() {
+  // Bajo los botones CONFIG/SONIDO del DOM (que están arriba a la derecha)
+  const cssScale = (window.innerHeight / GH) || 1;
+  const topY = Math.min(130, 58 / cssScale) + 12;
+  const margin = 14;
+  const gap = 44;
+  const barW = Math.floor((GW - margin * 2 - gap) / 2);
+  const barH = 20;
+  const barY = topY + 8;
+
+  ctx.save();
+  fighters.forEach((f, i) => {
+    const x = i === 0 ? margin : GW - margin - barW;
+    const pct = Math.max(0, Math.min(1, f.hp / f.maxHp));
+    const ghostPct = Math.max(pct, Math.min(1, f.hpGhost / f.maxHp));
+    const name = trimName(f.displayName || f.char, 16);
+
+    ctx.font = "9px 'Press Start 2P', monospace";
+    ctx.textAlign = i === 0 ? "left" : "right";
+    const nx = i === 0 ? x : x + barW;
+    ctx.fillStyle = "#000000";
+    ctx.fillText(name, nx + 1, topY + 1);
+    ctx.fillStyle = i === 0 ? "#f7931e" : "#63b3ed";
+    ctx.fillText(name, nx, topY);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(x - 3, barY - 3, barW + 6, barH + 6);
+    ctx.fillStyle = "#334155";
+    ctx.fillRect(x, barY, barW, barH);
+
+    const gw = barW * ghostPct;
+    const w = barW * pct;
+    ctx.fillStyle = "#fde68a"; // daño reciente
+    ctx.fillRect(i === 0 ? x : x + barW - gw, barY, gw, barH);
+    ctx.fillStyle = pct > 0.5 ? "#22c55e" : (pct > 0.25 ? "#eab308" : "#ef4444");
+    ctx.fillRect(i === 0 ? x : x + barW - w, barY, w, barH);
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
+    ctx.fillRect(i === 0 ? x : x + barW - w, barY, w, 6);
+
+    ctx.strokeStyle = "#f8fafc";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, barY, barW, barH);
+
+    ctx.font = "8px 'Press Start 2P', monospace";
+    ctx.textAlign = "center";
+    const label = `${Math.ceil(f.hp)}/${f.maxHp}`;
+    ctx.fillStyle = "#000000";
+    ctx.fillText(label, x + barW / 2 + 1, barY + 15);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(label, x + barW / 2, barY + 14);
+  });
+
+  ctx.textAlign = "center";
+  ctx.font = "12px 'Press Start 2P', monospace";
+  ctx.fillStyle = "#000000";
+  ctx.fillText("VS", GW / 2 + 1, barY + 17);
+  ctx.fillStyle = "#facc15";
+  ctx.fillText("VS", GW / 2, barY + 16);
+  ctx.restore();
+}
+
 function renderVersusMiniGame() {
   drawCotopaxiBackground(false, 0.4);
-  const groundY = isPortrait ? 535 : 390;
+  const groundY = getFightGroundY();
   const floorTop = groundY + 25;
   ctx.fillStyle = "#1e293b";
   ctx.fillRect(0, floorTop, GW, GH - floorTop);
 
-  const p1 = fighters[0];
-  const p2 = fighters[1];
+  fighters.forEach((f, i) => {
+    const isWinner = !!vsWinner && i === vsWinnerIdx;
+    const isLoser = !!vsWinner && i !== vsWinnerIdx;
+    drawMountaineerSprite(ctx, f.char, stageXToCanvasX(f.x), f.y, {
+      scale: 1.5,
+      facing: f.facing,
+      anim: f.anim,
+      swinging: f.action === "AXE",
+      kicking: f.action === "KICK",
+      crouching: f.blocking,
+      celebrating: isWinner,
+      crying: isLoser,
+      hurt: f.hurtTimer > 0 && !vsWinner,
+      customConfig: f.customConfig
+    });
+    if (f.blocking && !vsWinner) drawVsShield(f);
+  });
 
-  drawMountaineerSprite(ctx, p1.char, stageXToCanvasX(p1.x), p1.y, {
-    scale: 1.5, facing: p1.facing, anim: p1.anim, customConfig: p1.customConfig
-  });
-  drawMountaineerSprite(ctx, p2.char, stageXToCanvasX(p2.x), p2.y, {
-    scale: 1.5, facing: p2.facing, anim: p2.anim, customConfig: p2.customConfig
-  });
+  projectiles.forEach(drawBeerBottle);
+  drawVsFloaters();
+  drawVsHud();
+
+  if (vsWinner && vsEndAnimTimer > 0) {
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.font = `${isPortrait ? 24 : 32}px 'Press Start 2P', monospace`;
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#000000";
+    ctx.strokeText("K.O.!", GW / 2, GH / 2 - 30);
+    ctx.fillStyle = "#ef4444";
+    ctx.fillText("K.O.!", GW / 2, GH / 2 - 30);
+    ctx.restore();
+  }
 
   if (vsWinner && vsEndAnimTimer <= 0) {
-    const boxW = 460;
+    const boxW = Math.min(460, GW - 30);
     const boxX = (GW - boxW) / 2;
     const boxY = GH / 2 - 60;
     ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
@@ -3021,11 +3372,12 @@ function renderVersusMiniGame() {
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#facc15";
-    ctx.font = "16px 'Press Start 2P'";
-    ctx.fillText(`🏆 ¡GANA ${vsWinner}!`, GW / 2, boxY + 50);
+    fitFont(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, boxW - 30, isPortrait ? 12 : 16);
+    ctx.fillText(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, GW / 2, boxY + 50);
     ctx.fillStyle = "#fff";
-    ctx.font = "10px 'Press Start 2P'";
-    ctx.fillText("TOCA PARA REVANCHA O SAL CON CONFIG", GW / 2, boxY + 90);
+    const sub = "TOCA PARA REVANCHA O SAL CON CONFIG";
+    fitFont(sub, boxW - 30, 10);
+    ctx.fillText(sub, GW / 2, boxY + 90);
     ctx.textAlign = "left";
   }
 }
