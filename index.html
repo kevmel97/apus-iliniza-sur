@@ -825,7 +825,7 @@
     <div class="retro-box">
       <h1>🥊 MINI JUEGO CHUGO VS JORDY</h1>
       <h2 id="vs-chosen-char-label">PELEADOR: JORDY</h2>
-      <button class="menu-btn" style="background:#10ac84;" onclick="startVersusCPU()">🤖 JUGAR VS CPU (OFFLINE)</button>
+      <button class="menu-btn" style="background:#10ac84;" onclick="openCpuOpponentSelect()">🤖 JUGAR VS CPU (OFFLINE)</button>
 
       <hr style="border:1px solid #4a5d80; margin:10px 0;">
       <h2>🌐 MODO ONLINE 2 JUGADORES (P2P)</h2>
@@ -844,6 +844,18 @@
       </div>
 
       <button class="menu-btn" style="background:#ee5253; margin-top:10px;" onclick="cancelOnlineAndBack()">🔙 VOLVER</button>
+    </div>
+  </div>
+
+  <!-- SELECTOR DE RIVAL CPU: SOLO MODO OFFLINE -->
+  <div id="cpu-opponent-overlay" class="overlay">
+    <div class="retro-box">
+      <h1>🥊 ELIGE TU RIVAL</h1>
+      <h2>CPU OFFLINE</h2>
+      <p style="font-size:12px; color:#cbd5e1; margin:10px 0;">Tu personaje seleccionado se mantiene. Escoge contra quién quieres pelear:</p>
+      <button class="menu-btn" style="background:#f7931e;" onclick="startVersusCPU('JORDY')">🟠 PELEAR CONTRA JORDY</button>
+      <button class="menu-btn" style="background:#2e86de;" onclick="startVersusCPU('CHUGO')">🔵 PELEAR CONTRA CHUGO</button>
+      <button class="menu-btn" style="background:#ee5253; margin-top:10px;" onclick="showOverlay('minigame-mode-overlay')">🔙 VOLVER</button>
     </div>
   </div>
 
@@ -1540,6 +1552,7 @@ const LEVELS = [
 
 let diffIndex = 1;
 let selectedCharacter = "JORDY";
+let selectedCpuOpponent = "JORDY";
 let pendingMode = "story";
 let gameState = "INTRO";
 let forceTouchUI = true;
@@ -2097,7 +2110,13 @@ function confirmCharSelect() {
   }
 }
 
-function startVersusCPU() {
+function openCpuOpponentSelect() {
+  // Este selector solo afecta al modo VS CPU offline.
+  showOverlay("cpu-opponent-overlay");
+}
+
+function startVersusCPU(opponent = "JORDY") {
+  selectedCpuOpponent = opponent === "CHUGO" ? "CHUGO" : "JORDY";
   cleanupPeerConnection();
   vsIsOnline = false;
   showOverlay(null);
@@ -2846,6 +2865,12 @@ function damagePlayer(amount = 0.5) {
   if (storyData.hearts <= 0) {
     gameState = "SUMMIT";
     sound.stopBGM();
+    document.getElementById("end-title").textContent = "❄️ ¡LA MONTAÑA TE VENCIÓ!";
+    document.getElementById("end-subtitle").textContent = "TE QUEDASTE SIN CORAZONES EN EL ILINIZA SUR";
+    document.getElementById("end-score-text").textContent =
+      `PUNTAJE TOTAL: ${storyData.score + storyData.levelScore}`;
+    storyData.score += storyData.levelScore;
+    updateTouchControlsVisibility();
     prepareGameOverModal();
     showOverlay("gameover-overlay");
   }
@@ -3058,6 +3083,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   const p2StartX = (!onlineMode || isOnlineHost) ? 700 : 260;
 
   let p2Char = selectedCharacter === "JORDY" ? "CHUGO" : "JORDY";
+  if (!onlineMode) p2Char = selectedCpuOpponent;
   let p2DisplayName = `${p2Char} (CPU)`;
   let p2CustomConfig = null;
 
