@@ -10,6 +10,7 @@
 <title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.25</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
+<!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
   * {
@@ -724,7 +725,7 @@
   <div id="auth-overlay" class="overlay">
     <div class="retro-box">
       <h1>👤 CUENTA DE MONTAÑISTA</h1>
-      <h2>GUARDA TUS 3 PERSONAJES Y RANKING 🌎</h2>
+      <h2>PARTIDAS Y PERSONAJES EN LA NUBE 🌎</h2>
 
       <div class="tab-bar">
         <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">🔑 INICIAR SESIÓN</button>
@@ -732,12 +733,20 @@
       </div>
 
       <div id="auth-form-area">
-        <input type="text" id="auth-username" placeholder="NOMBRE DE USUARIO" maxlength="24" oninput="this.value = this.value.toUpperCase()">
-        <input type="password" id="auth-password" placeholder="CONTRASEÑA" maxlength="24" oninput="this.value = this.value.toUpperCase()">
+        <input type="text" id="auth-username" placeholder="NOMBRE DEL MONTAÑISTA (SOLO AL REGISTRARSE)" maxlength="24" autocomplete="nickname" style="display:none">
+        <input type="email" id="auth-email" placeholder="CORREO ELECTRÓNICO" maxlength="120" autocomplete="email" style="text-transform:none">
+        <input type="password" id="auth-password" placeholder="CONTRASEÑA" maxlength="128" autocomplete="current-password" style="text-transform:none">
         <div class="status-badge" id="auth-msg-box">Ingresa tu usuario y contraseña para sincronizar tus datos.</div>
 
         <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ INICIAR SESIÓN</button>
-        <button class="menu-btn" style="background:#2e86de;" onclick="forceCloudSyncNow()">🔄 SINCRONIZAR NUBE AHORA</button>
+        <button class="menu-btn" style="background:#2e86de;" onclick="forceCloudSyncNow()">🔄 RECARGAR DATOS DE LA NUBE</button>
+        <button class="diff-btn" id="cloud-password-reset" onclick="recoverCloudPassword()" style="margin-top:8px;">🔐 RECUPERAR CONTRASEÑA POR CORREO</button>
+        <div id="legacy-import-area" style="display:none;border:2px solid #5b82a8;padding:10px;margin-top:12px;">
+          <p style="font-size:9px;line-height:1.7;margin-bottom:8px;">¿TENÍAS UNA CUENTA DE LA V25 ANTERIOR EN ESTE DISPOSITIVO? IMPÓRTALA UNA SOLA VEZ.</p>
+          <input type="text" id="legacy-import-username" placeholder="USUARIO ANTERIOR" maxlength="24" autocomplete="off">
+          <input type="password" id="legacy-import-password" placeholder="CONTRASEÑA ANTERIOR" maxlength="24" autocomplete="off" style="text-transform:none">
+          <button class="menu-btn" style="background:#2e86de;" onclick="importLegacyAccountData()">📦 IMPORTAR MI PROGRESO ANTERIOR</button>
+        </div>
         <button class="menu-btn" style="background:#f97316; display:none;" id="auth-logout-btn" onclick="logoutAccount()">🚪 CERRAR SESIÓN ACTUAL</button>
       </div>
 
@@ -997,14 +1006,20 @@
       <p id="end-score-text" style="font-size:14px; color:#facc15; margin:10px 0;">PUNTAJE TOTAL: 0</p>
       <div class="status-badge" id="end-account-status"></div>
       <input type="text" id="player-name-input" placeholder="INGRESA TU NOMBRE" maxlength="24" oninput="this.value = this.value.toUpperCase()">
-      <button class="menu-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING (LOCAL + MUNDIAL)</button>
-      <button class="menu-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING MUNDIAL</button>
+      <button class="menu-btn" id="end-submit-score-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING (LOCAL + MUNDIAL)</button>
+      <button class="menu-btn" id="end-signin-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING MUNDIAL</button>
+      <!-- V25: Botones exclusivos para derrota; la victoria sigue con su menú original. -->
+      <div id="end-defeat-actions" style="display:none;">
+        <button class="menu-btn" style="background:#2e86de;" onclick="retryDefeatedStoryLevel()">🔁 REINTENTAR NIVEL</button>
+        <button class="menu-btn" onclick="openDefeatRanking()">🏆 VER RANKING</button>
+        <button class="menu-btn" style="background:#ee5253;" onclick="returnToMainMenu()">🚪 SALIR DE LA PARTIDA</button>
+      </div>
       <div id="summit-finish-actions" style="display:none;">
         <button class="menu-btn" style="background:#10ac84;" onclick="saveFinishedGameProgress()">💾 GUARDAR PARTIDA FINAL</button>
         <button class="menu-btn" onclick="replayLevelFive()">🔁 REPETIR NIVEL 5</button>
         <button class="menu-btn" onclick="openFinishRanking()">🏆 VER RANKINGS</button>
       </div>
-      <button class="menu-btn" onclick="returnToMainMenu()">🏠 MENÚ PRINCIPAL</button>
+      <button class="menu-btn" id="end-mainmenu-btn" onclick="returnToMainMenu()">🏠 MENÚ PRINCIPAL</button>
     </div>
   </div>
 
@@ -1089,7 +1104,8 @@ let currentTheme = localStorage.getItem("apus_menu_theme") || "dark";
 
 function applyTheme(theme) {
   currentTheme = theme;
-  localStorage.setItem("apus_menu_theme", theme);
+  if(currentUser?.uid) cloudSavePreferences({theme});
+  else localStorage.setItem("apus_menu_theme", theme);
   const isLight = (theme === "light");
   document.body.classList.toggle("theme-light", isLight);
   sendApusBingoTheme();
@@ -1380,23 +1396,87 @@ function ensureSlotDefaults(slots) {
 /* ============================================================================
    SISTEMA DE CUENTAS
    ============================================================================ */
-const CLOUD_FALLBACK_URL = "https://api.npoint.io/4d8e2c9f1a7b3e5d9c0a";
-
+// ===================== NUBE APUS: CONFIGURACIÓN =====================
+// 1) Crea un proyecto en https://console.firebase.google.com/
+// 2) Activa Authentication > Correo/contraseña y Firestore.
+// 3) Registra una app WEB y pega los valores de "firebaseConfig" aquí.
+// Esta configuración WEB no es una contraseña. NO pegues llaves privadas.
+const APUS_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAjTrd2k6IUMciCVcpQTXLzzBbwYmWWBa0",
+  authDomain: "apus-iliniza-sur.firebaseapp.com",
+  projectId: "apus-iliniza-sur",
+  storageBucket: "apus-iliniza-sur.firebasestorage.app",
+  messagingSenderId: "538357981273",
+  appId: "1:538357981273:web:5bda2f464bc5c2d9a71148",
+  measurementId: "G-SSJLDDPC7M"
+};
+const APUS_USER_COLLECTION = "apusUsers";
+const APUS_RANKING_COLLECTION = "apusRankings";
+const APUS_DEFAULT_PROFILE = () => ({
+  username: "MONTAÑISTA", customChars: getDefaultCustomSlots(), saves: [],
+  progress: {}, scores: [], preferences: {theme:"dark",difficultyIndex:1,selectedCharacter:"JORDY"}
+});
+let apusFirebaseAuth = null;
+let apusFirebaseDb = null;
+let cloudProfile = null;
+let cloudAuthUser = null;
+let cloudSaveQueue = Promise.resolve();
+let cloudReady = false;
+let cloudRestoringPreferences = false;
+let cloudInitPromise = null;
+// Evita dos lecturas/escrituras del perfil durante el primer registro o login.
+let cloudAuthOperationInProgress = false;
 let currentUser = null;
 let authMode = "login";
 let currentRankingTab = "local";
 let returnToGameOverAfterAuth = false;
+let pendingRegistrationName = "";
 
-const DEFAULT_WORLD_RANKING = [
-  { name: "IVAN VALLEJO", char: "JORDY", diff: "IVÁN VALLEJO", score: 2450 },
-  { name: "CARLA PEREZ", char: "CHUGO", diff: "IVÁN VALLEJO", score: 2190 },
-  { name: "JORDY APUS", char: "JORDY", diff: "DIFÍCIL", score: 1840 },
-  { name: "CHUGO ANDES", char: "CHUGO", diff: "DIFÍCIL", score: 1620 },
-  { name: "MILLER QUITO", char: "JORDY", diff: "NORMAL", score: 1390 },
-  { name: "CUMBRE SUR", char: "CHUGO", diff: "NORMAL", score: 1120 }
-];
-
+function isCloudConfigured() {
+  return !!(APUS_FIREBASE_CONFIG.apiKey &&
+    !APUS_FIREBASE_CONFIG.apiKey.includes('PEGA_AQUI') &&
+    APUS_FIREBASE_CONFIG.projectId &&
+    APUS_FIREBASE_CONFIG.projectId !== 'TU_PROJECT_ID' &&
+    APUS_FIREBASE_CONFIG.appId &&
+    !APUS_FIREBASE_CONFIG.appId.includes('PEGA_AQUI'));
+}
+function cloudAvailable() {
+  return cloudReady && !!apusFirebaseAuth && !!apusFirebaseDb;
+}
+function requireCloudConfigured() {
+  if (cloudAvailable()) return true;
+  const status = document.getElementById('auth-msg-box');
+  if (status) {
+    status.style.color = '#facc15';
+    status.textContent = isCloudConfigured()
+      ? '⚠️ NO SE PUDO CONECTAR A FIREBASE. REVISA INTERNET Y LA CONFIGURACIÓN.'
+      : '⚠️ NUBE SIN ACTIVAR: CONFIGURA TU PROYECTO FIREBASE EN EL HTML.';
+  }
+  return false;
+}
+function makeSafeProfile(data, username) {
+  const fallback = APUS_DEFAULT_PROFILE();
+  const input = data && typeof data === 'object' ? data : {};
+  const validSlots = Array.isArray(input.customChars) && input.customChars.length === 3;
+  return {
+    username: String(username || input.username || fallback.username).trim().slice(0,24).toUpperCase(),
+    customChars: validSlots ? ensureSlotDefaults(input.customChars) : fallback.customChars,
+    saves: Array.isArray(input.saves) ? input.saves.slice(0,8) : [],
+    progress: input.progress && typeof input.progress === 'object' && !Array.isArray(input.progress) ? input.progress : {},
+    scores: Array.isArray(input.scores) ? input.scores.slice(-30) : [],
+    preferences: input.preferences && typeof input.preferences === 'object' && !Array.isArray(input.preferences)
+      ? input.preferences : fallback.preferences
+  };
+}
+function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
+function cloudSavePreferences(patch) {
+  if(!currentUser?.uid || !cloudProfile || cloudRestoringPreferences)return;
+  cloudProfile.preferences={...cloudProfile.preferences,...patch};
+  cloudCommitProfile().catch(flagCloudWriteFailure);
+}
 function simpleHash(str) {
+  // Solo para comprobar credenciales LEGADAS localmente durante la importación.
+  // Las cuentas nuevas usan Firebase Authentication (nunca este hash).
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
@@ -1404,287 +1484,275 @@ function simpleHash(str) {
   }
   return (h >>> 0).toString(16);
 }
-
-function ensureStoreStructure(store) {
-  if (!store || typeof store !== "object") store = {};
-  if (!store.users) store.users = {};
-  if (!Array.isArray(store.worldRanking)) store.worldRanking = [...DEFAULT_WORLD_RANKING];
-  return store;
-}
-
 function getLocalCloudStore() {
+  // SOLO importación de cuentas anteriores; no se usa para autenticar.
   try {
-    const raw = localStorage.getItem("apus_iliniza_cloud_clean");
-    if (raw) return ensureStoreStructure(JSON.parse(raw));
-  } catch (e) {}
-  return ensureStoreStructure({ users: {}, worldRanking: [...DEFAULT_WORLD_RANKING] });
+    const raw = localStorage.getItem('apus_iliniza_cloud_clean');
+    const old = JSON.parse(raw || '{}');
+    if (old && typeof old === 'object') return old;
+  } catch(e) {}
+  return {users:{}};
 }
-
-function saveLocalCloudStore(data) {
-  localStorage.setItem("apus_iliniza_cloud_clean", JSON.stringify(ensureStoreStructure(data)));
-}
-
-async function fetchWorldCloudData() {
-  const localStore = getLocalCloudStore();
+async function hydrateCloudUser(user) {
+  if (!user || !apusFirebaseDb) return;
+  cloudAuthUser = user;
+  const docRef = apusFirebaseDb.collection(APUS_USER_COLLECTION).doc(user.uid);
+  const docSnap = await docRef.get();
+  if (cloudAuthUser?.uid !== user.uid) return;
+  const fromAuth = pendingRegistrationName || (user.displayName || user.email?.split('@')[0] || 'MONTAÑISTA');
+  const existing = docSnap.exists ? docSnap.data() : null;
+  cloudProfile = makeSafeProfile(existing, existing?.username || fromAuth);
+  currentUser = { uid:user.uid, username:cloudProfile.username, email:user.email || '' };
+  if (!docSnap.exists) await docRef.set({...deepCopy(cloudProfile), updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  loadCustomCharsFromStorage();
+  cloudRestoringPreferences = true;
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2400);
-    const resp = await fetch(CLOUD_FALLBACK_URL, {
-      method: "GET",
-      headers: { "Accept": "application/json" },
-      signal: controller.signal
-    }).catch(() => null);
-    clearTimeout(timer);
-
-    if (resp && resp.ok) {
-      const remote = await resp.json();
-      if (remote && typeof remote === "object") {
-        const mergedUsers = { ...localStore.users, ...(remote.users || {}) };
-        const combinedRank = [...(localStore.worldRanking || []), ...(remote.worldRanking || [])];
-        const map = new Map();
-        combinedRank.forEach((r) => {
-          const k = `${r.name}_${r.char}_${r.diff}`;
-          if (!map.has(k) || map.get(k).score < r.score) map.set(k, r);
-        });
-        const mergedRanking = Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, 10);
-        const finalStore = ensureStoreStructure({ users: mergedUsers, worldRanking: mergedRanking });
-        saveLocalCloudStore(finalStore);
-        return finalStore;
-      }
+    const prefs = cloudProfile.preferences || {};
+    if(prefs.theme === 'light' || prefs.theme === 'dark') applyTheme(prefs.theme);
+    if(Number.isInteger(prefs.difficultyIndex) && prefs.difficultyIndex >= 0 && prefs.difficultyIndex < DIFFICULTIES.length) {
+      diffIndex=prefs.difficultyIndex;updateDiffLabel();
     }
-  } catch (e) {}
-  return localStore;
+    if(['JORDY','CHUGO','CUSTOM'].includes(prefs.selectedCharacter)) selectedCharacter=prefs.selectedCharacter;
+  } finally {cloudRestoringPreferences=false;}
+  updateUserStatusUI();
+  renderCustomCardPreview();
+  sendApusBingoAccount();
 }
-
-async function pushWorldCloudData(storeData) {
-  saveLocalCloudStore(storeData);
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2400);
-    await fetch(CLOUD_FALLBACK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(storeData),
-      signal: controller.signal
-    }).catch(() => null);
-    clearTimeout(timer);
-  } catch (e) {}
+function loadFirebaseSDK() {
+  if(window.firebase?.auth && window.firebase?.firestore) return Promise.resolve();
+  const urls=[
+    'https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js',
+    'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js'
+  ];
+  return urls.reduce((chain,url)=>chain.then(()=>new Promise((resolve,reject)=>{
+    const script=document.createElement('script');script.src=url;script.async=false;
+    script.onload=resolve;script.onerror=()=>reject(new Error('No se pudo cargar SDK Firebase'));
+    document.head.appendChild(script);
+  })),Promise.resolve());
 }
-
+async function initializeCloudAccounts() {
+  if(!isCloudConfigured()) {
+    console.info('APUS: faltan los datos de Firebase; los invitados pueden seguir jugando offline.');
+    updateUserStatusUI();return;
+  }
+  if(cloudReady)return;
+  if(cloudInitPromise)return cloudInitPromise;
+  cloudInitPromise=(async()=>{
+    await loadFirebaseSDK();
+    if(!window.firebase?.initializeApp || !window.firebase?.auth || !window.firebase?.firestore)
+      throw new Error('No se cargaron las bibliotecas de Firebase');
+    if(!firebase.apps?.length)firebase.initializeApp(APUS_FIREBASE_CONFIG);
+    apusFirebaseAuth=firebase.auth();apusFirebaseDb=firebase.firestore();
+    cloudReady=true;
+    apusFirebaseAuth.onAuthStateChanged(async user=>{
+      // Durante un registro/login manual, handleAuthSubmit hidrata el perfil.
+      // Así evitamos carreras entre el observador y el formulario.
+      if (cloudAuthOperationInProgress) return;
+      if(user) {
+        try{await hydrateCloudUser(user);}
+        catch(err){console.error('Error leyendo datos de Firebase:',err);
+          cloudProfile=null;currentUser=null;updateUserStatusUI();}
+      } else {
+        cloudAuthUser=null;cloudProfile=null;currentUser=null;
+        loadCustomCharsFromStorage();updateUserStatusUI();
+        renderCustomCardPreview();sendApusBingoAccount();
+      }
+    });
+  })().catch(err=>{
+    console.warn('APUS: el servidor de cuentas no está disponible:',err);
+    cloudReady=false;updateUserStatusUI();
+  }).finally(()=>{cloudInitPromise=null;});
+  return cloudInitPromise;
+}
+function cloudCommitProfile() {
+  if (!cloudAvailable() || !cloudAuthUser || !cloudProfile || !currentUser) {
+    return Promise.reject(new Error('Sin sesión cloud activa'));
+  }
+  const uid = cloudAuthUser.uid;
+  const snapshot = deepCopy(makeSafeProfile(cloudProfile,currentUser.username));
+  const task = cloudSaveQueue.catch(()=>{}).then(async () => {
+    if (cloudAuthUser?.uid !== uid) throw new Error('La sesión cambió durante el guardado');
+    await apusFirebaseDb.collection(APUS_USER_COLLECTION).doc(uid)
+      .set({...snapshot, updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  });
+  cloudSaveQueue = task;
+  return task;
+}
+function flagCloudWriteFailure(error) {
+  console.error('Error al guardar datos en la nube',error);
+  alert('⚠️ No se pudieron guardar tus cambios en la nube. Revisa tu conexión e inténtalo de nuevo antes de cerrar el juego.');
+}
 function loadCustomCharsFromStorage() {
-  const store = getLocalCloudStore();
-  const storageKey = currentUser && currentUser.username
-    ? `apus_custom_chars_${currentUser.username}` : "apus_custom_chars_guest";
-
-  try {
-    const rawLocal = localStorage.getItem(storageKey);
-    if (rawLocal) {
-      const parsed = JSON.parse(rawLocal);
-      if (Array.isArray(parsed) && parsed.length === 3) {
-        customCharSlots = ensureSlotDefaults(parsed);
-        return;
-      }
-    }
-  } catch (e) {}
-
-  if (currentUser && currentUser.username && store.users[currentUser.username]) {
-    const uChars = store.users[currentUser.username].customChars;
-    if (Array.isArray(uChars) && uChars.length === 3) {
-      customCharSlots = ensureSlotDefaults(uChars);
-      return;
-    }
+  if (currentUser?.uid) {
+    customCharSlots = cloudProfile?.customChars ? ensureSlotDefaults(deepCopy(cloudProfile.customChars)) : getDefaultCustomSlots();
+    return;
   }
-  customCharSlots = getDefaultCustomSlots();
+  try {
+    const parsed=JSON.parse(localStorage.getItem('apus_custom_chars_guest') || 'null');
+    customCharSlots = Array.isArray(parsed) && parsed.length===3 ? ensureSlotDefaults(parsed) : getDefaultCustomSlots();
+  } catch(e){customCharSlots=getDefaultCustomSlots();}
 }
-
 async function saveCustomCharsToAccount() {
-  const storageKey = currentUser && currentUser.username
-    ? `apus_custom_chars_${currentUser.username}` : "apus_custom_chars_guest";
-  localStorage.setItem(storageKey, JSON.stringify(customCharSlots));
-
-  if (currentUser && currentUser.username) {
-    const store = getLocalCloudStore();
-    if (!store.users[currentUser.username]) store.users[currentUser.username] = {};
-    store.users[currentUser.username].customChars = customCharSlots;
-    store.users[currentUser.username].updatedAt = Date.now();
-    await pushWorldCloudData(store);
+  if (currentUser?.uid) {
+    cloudProfile.customChars=deepCopy(customCharSlots);
+    await cloudCommitProfile();
+  } else {
+    localStorage.setItem('apus_custom_chars_guest',JSON.stringify(customCharSlots));
   }
 }
-
-async function syncUserAccountAfterLogin(username) {
-  const store = await fetchWorldCloudData();
-  const uData = store.users[username];
-  if (uData) {
-    if (Array.isArray(uData.customChars) && uData.customChars.length === 3) {
-      customCharSlots = ensureSlotDefaults(uData.customChars);
-      localStorage.setItem(`apus_custom_chars_${username}`, JSON.stringify(customCharSlots));
-    }
-    if (Array.isArray(uData.saves) && uData.saves.length > 0) {
-      localStorage.setItem(`apus_iliniza_saves_${username}`, JSON.stringify(uData.saves));
-    }
-  }
-  renderCustomCardPreview();
-}
-
 async function forceCloudSyncNow() {
-  const msgBox = document.getElementById("auth-msg-box");
-  if (!currentUser || !currentUser.username) {
-    msgBox.style.color = "#facc15";
-    msgBox.textContent = "⚠️ INICIA SESIÓN PRIMERO.";
-    return;
-  }
-  msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ SINCRONIZANDO...";
-  await saveCustomCharsToAccount();
-  await syncUserAccountAfterLogin(currentUser.username);
-  sound.playSFX("sfx_checkpoint");
-  msgBox.style.color = "#22c55e";
-  msgBox.textContent = `✅ ¡CUENTA ${currentUser.username} SINCRONIZADA!`;
-}
-
-function loadSavedSession() {
+  const msg = document.getElementById('auth-msg-box');
+  if (!currentUser?.uid || !cloudAvailable()) { requireCloudConfigured(); return; }
   try {
-    const saved = localStorage.getItem("apus_iliniza_active_session");
-    currentUser = saved ? JSON.parse(saved) : null;
-  } catch (e) {
-    currentUser = null;
-  }
-  loadCustomCharsFromStorage();
-  updateUserStatusUI();
-  if (currentUser && currentUser.username) {
-    syncUserAccountAfterLogin(currentUser.username);
+    msg.textContent='⏳ RECARGANDO DATOS DEL SERVIDOR...'; msg.style.color='#38bdf8';
+    await cloudSaveQueue;
+    await hydrateCloudUser(apusFirebaseAuth.currentUser);
+    msg.textContent='✅ DATOS DE TU CUENTA DESCARGADOS DESDE LA NUBE'; msg.style.color='#22c55e';
+  } catch(e) {
+    msg.textContent='⚠️ NO SE PUDO DESCARGAR DESDE LA NUBE'; msg.style.color='#ef4444';
   }
 }
-
+function loadSavedSession() {
+  // Las cuentas nuevas NO confían en una sesión de localStorage: Firebase valida el token.
+  loadCustomCharsFromStorage(); updateUserStatusUI(); initializeCloudAccounts();
+}
 function updateUserStatusUI() {
-  const label = document.getElementById("menu-user-label");
-  const logoutBtn = document.getElementById("auth-logout-btn");
-  if (currentUser && currentUser.username) {
-    label.innerHTML = `✅ CUENTA: <strong style="color:#facc15;">${currentUser.username}</strong>`;
-    if (logoutBtn) logoutBtn.style.display = "block";
-  } else {
-    label.innerHTML = `👤 SESIÓN: <span style="color:#94a3b8;">INVITADO</span>`;
-    if (logoutBtn) logoutBtn.style.display = "none";
-  }
+  const label=document.getElementById('menu-user-label');
+  const logoutBtn=document.getElementById('auth-logout-btn');
+  const migration=document.getElementById('legacy-import-area');
+  if (label) label.textContent=currentUser?.uid
+    ? `✅ CUENTA NUBE: ${currentUser.username}`
+    : (isCloudConfigured() ? '👤 SESIÓN: INVITADO' : '👤 INVITADO · NUBE SIN CONFIGURAR');
+  if (logoutBtn) logoutBtn.style.display=currentUser?.uid ? 'block' : 'none';
+  if (migration) migration.style.display=currentUser?.uid ? 'block' : 'none';
 }
-
 function openAuthModal() {
-  returnToGameOverAfterAuth = false;
-  switchAuthTab("login");
-  document.getElementById("auth-username").value =
-    (currentUser && currentUser.username) ? currentUser.username : "";
-  document.getElementById("auth-password").value = "";
-  showOverlay("auth-overlay");
+  returnToGameOverAfterAuth=false;
+  switchAuthTab('login');
+  document.getElementById('auth-email').value=currentUser?.email || '';
+  document.getElementById('auth-password').value='';
+  document.getElementById('auth-msg-box').textContent = currentUser?.uid
+    ? `✅ SESIÓN ACTIVA: ${currentUser.username}`
+    : (isCloudConfigured() ? 'INGRESA CON EL CORREO DE TU CUENTA FIREBASE.' : '⚠️ HAY QUE CONFIGURAR FIREBASE PARA ACTIVAR CUENTAS ONLINE.');
+  showOverlay('auth-overlay');
 }
-
 function openAuthModalFromGameOver() {
-  returnToGameOverAfterAuth = true;
-  switchAuthTab("login");
-  document.getElementById("auth-username").value =
-    (currentUser && currentUser.username) ? currentUser.username : "";
-  document.getElementById("auth-password").value = "";
-  showOverlay("auth-overlay");
+  openAuthModal();returnToGameOverAfterAuth=true;
 }
-
 function switchAuthTab(mode) {
-  authMode = mode;
-  document.getElementById("tab-login-btn").classList.toggle("active", mode === "login");
-  document.getElementById("tab-register-btn").classList.toggle("active", mode === "register");
-  document.getElementById("auth-submit-btn").textContent =
-    mode === "login" ? "✅ INICIAR SESIÓN" : "📝 CREAR CUENTA Y ENTRAR";
-  document.getElementById("auth-msg-box").textContent =
-    mode === "login"
-      ? "Ingresa tu usuario y contraseña para cargar tus datos."
-      : "Elige un nombre de usuario y contraseña para crear tu cuenta.";
+  authMode=mode;
+  const reset=document.getElementById('cloud-password-reset');
+  if(reset)reset.style.display=mode==='register'?'none':'inline-block';
+  document.getElementById('tab-login-btn').classList.toggle('active',mode==='login');
+  document.getElementById('tab-register-btn').classList.toggle('active',mode==='register');
+  document.getElementById('auth-username').style.display=mode==='register'?'block':'none';
+  document.getElementById('auth-submit-btn').textContent=mode==='login'?'✅ INICIAR SESIÓN':'📝 CREAR CUENTA ONLINE';
+  document.getElementById('auth-msg-box').textContent=mode==='login'
+    ? 'INICIA SESIÓN CON TU CORREO Y CONTRASEÑA.'
+    : 'ESCRIBE TU APODO, CORREO Y UNA CONTRASEÑA NUEVA (MÍNIMO 6 CARACTERES).';
 }
-
 async function handleAuthSubmit() {
-  const userInp = document.getElementById("auth-username");
-  const passInp = document.getElementById("auth-password");
-  const msgBox = document.getElementById("auth-msg-box");
-
-  const username = (userInp.value || "").toUpperCase().trim().replace(/\s+/g, " ");
-  const password = (passInp.value || "").toUpperCase().trim();
-
-  if (username.length < 3) {
-    msgBox.style.color = "#ef4444";
-    msgBox.textContent = "⚠️ EL USUARIO DEBE TENER AL MENOS 3 LETRAS.";
-    return;
+  const msg=document.getElementById('auth-msg-box');
+  if (!cloudAvailable() && isCloudConfigured()) await initializeCloudAccounts();
+  if (!requireCloudConfigured()) return;
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  const pass=document.getElementById('auth-password').value;
+  const username=document.getElementById('auth-username').value.toUpperCase().trim().replace(/\s+/g,' ');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || pass.length<6) {
+    msg.textContent='⚠️ USA UN CORREO VÁLIDO Y CONTRASEÑA DE 6+ CARACTERES.';msg.style.color='#ef4444'; return;
   }
-  if (password.length < 4) {
-    msgBox.style.color = "#ef4444";
-    msgBox.textContent = "⚠️ LA CONTRASEÑA DEBE TENER AL MENOS 4 CARACTERES.";
-    return;
+  if (authMode==='register' && username.length<3) {
+    msg.textContent='⚠️ ESCRIBE UN APODO DE AL MENOS 3 LETRAS.';msg.style.color='#ef4444';return;
   }
-
-  msgBox.style.color = "#38bdf8";
-  msgBox.textContent = "⏳ VERIFICANDO CUENTA...";
-
-  const store = await fetchWorldCloudData();
-  const passHash = simpleHash(username + ":" + password);
-
-  if (authMode === "register") {
-    if (store.users[username] && store.users[username].passHash && store.users[username].passHash !== passHash) {
-      msgBox.style.color = "#ef4444";
-      msgBox.textContent = "⚠️ ESE USUARIO YA EXISTE.";
-      return;
+  msg.textContent='⏳ VERIFICANDO CUENTA SEGURA...';msg.style.color='#38bdf8';
+  pendingRegistrationName=authMode==='register'?username:'';
+  cloudAuthOperationInProgress = true;
+  try {
+    const result=authMode==='register'
+      ? await apusFirebaseAuth.createUserWithEmailAndPassword(email,pass)
+      : await apusFirebaseAuth.signInWithEmailAndPassword(email,pass);
+    if(authMode==='register') {
+      await result.user.updateProfile({displayName:username});
+      cloudProfile=makeSafeProfile(null,username);
+      await apusFirebaseDb.collection(APUS_USER_COLLECTION).doc(result.user.uid).set({...deepCopy(cloudProfile),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     }
-    store.users[username] = {
-      passHash,
-      customChars: customCharSlots,
-      saves: getSavesList(),
-      scores: [],
-      updatedAt: Date.now()
-    };
-    await pushWorldCloudData(store);
-  } else {
-    if (!store.users[username]) {
-      store.users[username] = {
-        passHash,
-        customChars: customCharSlots,
-        saves: getSavesList(),
-        scores: [],
-        updatedAt: Date.now()
-      };
-      await pushWorldCloudData(store);
-    } else if (store.users[username].passHash && store.users[username].passHash !== passHash) {
-      msgBox.style.color = "#ef4444";
-      msgBox.textContent = "❌ CONTRASEÑA INCORRECTA.";
-      return;
-    }
+    await hydrateCloudUser(result.user);
+    pendingRegistrationName='';
+    msg.textContent=`✅ SESIÓN EN LA NUBE: ${currentUser.username}`;msg.style.color='#22c55e';
+    document.getElementById('auth-password').value='';
+    sound.playSFX('sfx_checkpoint');
+    setTimeout(()=>showOverlay(returnToGameOverAfterAuth?'gameover-overlay':'menu-overlay'),400);
+    if (returnToGameOverAfterAuth) prepareGameOverModal();
+  } catch(error) {
+    pendingRegistrationName='';
+    console.warn('Firebase login failed',error);
+    msg.textContent=({
+      'auth/email-already-in-use':'❌ YA EXISTE UNA CUENTA CON ESE CORREO.',
+      'auth/invalid-credential':'❌ CORREO O CONTRASEÑA INCORRECTOS.',
+      'auth/weak-password':'❌ NECESITAS UNA CONTRASEÑA MÁS SEGURA.',
+      'auth/network-request-failed':'❌ SIN INTERNET. LA CUENTA ONLINE NO ESTÁ DISPONIBLE.',
+      'permission-denied':'❌ REVISA LAS REGLAS DE SEGURIDAD DE FIRESTORE.'
+    }[error.code] || '❌ NO SE PUDO INICIAR SESIÓN. REVISA FIREBASE Y LAS REGLAS.');
+    msg.style.color='#ef4444';
+  } finally {
+    cloudAuthOperationInProgress = false;
   }
-
-  currentUser = { username };
-  localStorage.setItem("apus_iliniza_active_session", JSON.stringify(currentUser));
-  await syncUserAccountAfterLogin(username);
-  sound.playSFX("sfx_checkpoint");
-
-  msgBox.style.color = "#22c55e";
-  msgBox.textContent = `✅ ¡SESIÓN INICIADA!`;
-  passInp.value = "";
-  updateUserStatusUI();
-  renderCustomCardPreview();
-
-  setTimeout(() => {
-    if (returnToGameOverAfterAuth) {
-      prepareGameOverModal();
-      showOverlay("gameover-overlay");
-    } else {
-      showOverlay("menu-overlay");
-    }
-  }, 500);
 }
-
-function logoutAccount() {
-  currentUser = null;
-  localStorage.removeItem("apus_iliniza_active_session");
-  loadCustomCharsFromStorage();
-  updateUserStatusUI();
-  renderCustomCardPreview();
-  document.getElementById("auth-username").value = "";
-  document.getElementById("auth-password").value = "";
-  document.getElementById("auth-msg-box").style.color = "#facc15";
-  document.getElementById("auth-msg-box").textContent = "SESIÓN CERRADA.";
+async function recoverCloudPassword() {
+  const msg=document.getElementById('auth-msg-box');
+  if(!cloudAvailable() && isCloudConfigured()) await initializeCloudAccounts();
+  if(!requireCloudConfigured())return;
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  if(!email.includes('@')) {msg.textContent='⚠️ ESCRIBE TU CORREO ARRIBA.';return;}
+  try {
+    await apusFirebaseAuth.sendPasswordResetEmail(email);
+    msg.style.color='#22c55e';msg.textContent='✅ SI EL CORREO ESTÁ REGISTRADO, RECIBIRÁS INSTRUCCIONES.';
+  } catch(error) {msg.style.color='#ef4444';msg.textContent='⚠️ NO SE PUDO ENVIAR EL CORREO. REVISA FIREBASE.';}
+}
+async function logoutAccount() {
+  if (cloudAvailable()) {
+    try {await cloudSaveQueue.catch(()=>{});await apusFirebaseAuth.signOut();}
+    catch(e){alert('No se pudo cerrar la sesión.');return;}
+  }
+  cloudAuthUser=null;cloudProfile=null;currentUser=null;
+  loadCustomCharsFromStorage();updateUserStatusUI();renderCustomCardPreview();sendApusBingoAccount();
+  document.getElementById('auth-msg-box').textContent='✅ SESIÓN CERRADA.';
+}
+async function importLegacyAccountData() {
+  const msg=document.getElementById('auth-msg-box');
+  if (!currentUser?.uid) {msg.textContent='INICIA SESIÓN EN LA NUBE PRIMERO.';return;}
+  const username=(document.getElementById('legacy-import-username').value||'').toUpperCase().trim().replace(/\s+/g,' ');
+  const password=(document.getElementById('legacy-import-password').value||'').toUpperCase().trim();
+  const legacyStore=getLocalCloudStore();
+  const old=legacyStore.users && legacyStore.users[username];
+  if (!old || !old.passHash || old.passHash!==simpleHash(username+':'+password)) {
+    msg.textContent='❌ NO SE ENCONTRÓ ESA CUENTA ANTERIOR EN ESTE NAVEGADOR O LA CONTRASEÑA NO COINCIDE.';
+    msg.style.color='#ef4444';return;
+  }
+  if (!confirm(`¿Importar partidas, personajes y niveles de la cuenta anterior ${username} a ${currentUser.username}? Tus datos anteriores NO se borrarán.`)) return;
+  const parseOld=(key)=>{try{return JSON.parse(localStorage.getItem(key)||'null');}catch(e){return null;}};
+  const oldChars=parseOld(`apus_custom_chars_${username}`);
+  const oldSaves=parseOld(`apus_iliniza_saves_${username}`);
+  const oldProgress=parseOld(`apus_iliniza_story_progress_${username}`);
+  const merged=makeSafeProfile(cloudProfile,currentUser.username);
+  if (Array.isArray(oldChars) && oldChars.length===3) merged.customChars=ensureSlotDefaults(oldChars);
+  else if(Array.isArray(old.customChars) && old.customChars.length===3) merged.customChars=ensureSlotDefaults(old.customChars);
+  const importedSaves=Array.isArray(oldSaves)?oldSaves:(Array.isArray(old.saves)?old.saves:[]);
+  merged.saves=[...importedSaves,...merged.saves].slice(0,8);
+  if(oldProgress && typeof oldProgress==='object') {
+    merged.progress={...oldProgress,...merged.progress,
+      unlocked:Math.max(Number(oldProgress.unlocked)||1,Number(merged.progress.unlocked)||1),
+      finished:!!(oldProgress.finished||merged.progress.finished)};
+  }
+  // No se importan puntuaciones viejas al ranking público: eran editables localmente.
+  cloudProfile=merged;
+  try {
+    await cloudCommitProfile();loadCustomCharsFromStorage();renderCustomCardPreview();
+    document.getElementById('legacy-import-password').value='';
+    msg.style.color='#22c55e';
+    msg.textContent='✅ DATOS ANTERIORES IMPORTADOS A TU CUENTA ONLINE. SE CONSERVA LA COPIA LOCAL.';
+  } catch(e) {flagCloudWriteFailure(e);}
 }
 
 /* ============================================================================
@@ -2264,7 +2332,8 @@ function refreshCreatorUI() {
 async function saveAndUseCustomChar() {
   const nameVal = (document.getElementById("custom-char-name").value || "").toUpperCase().trim();
   customCharSlots[activeCustomSlot].name = nameVal || `MONTANISTA ${activeCustomSlot + 1}`;
-  await saveCustomCharsToAccount();
+  try {await saveCustomCharsToAccount();}
+  catch(error){flagCloudWriteFailure(error);return;}
   renderCustomCardPreview();
   selectChar("CUSTOM");
   sound.playSFX("sfx_checkpoint");
@@ -2339,6 +2408,7 @@ function updateDiffLabel() {
 function changeDifficulty(dir) {
   diffIndex = (diffIndex + dir + DIFFICULTIES.length) % DIFFICULTIES.length;
   updateDiffLabel();
+  cloudSavePreferences({difficultyIndex:diffIndex});
   sound.playSFX("sfx_jump");
 }
 
@@ -2369,6 +2439,7 @@ function selectChar(name) {
   if (cJordy) cJordy.classList.toggle("selected", name === "JORDY");
   if (cChugo) cChugo.classList.toggle("selected", name === "CHUGO");
   if (cCustom) cCustom.classList.toggle("selected", name === "CUSTOM");
+  cloudSavePreferences({selectedCharacter:name});
   sound.playSFX("sfx_jump");
 }
 
@@ -2410,16 +2481,18 @@ function cancelOnlineAndBack() {
 }
 
 function getSavesKey() {
-  return currentUser && currentUser.username
-    ? `apus_iliniza_saves_${currentUser.username}` : "apus_iliniza_saves";
+  return "apus_iliniza_saves"; // Solo partidas de INVITADO; cuentas en Firestore.
 }
 
 function getSavesList() {
-  try {
-    return JSON.parse(localStorage.getItem(getSavesKey()) || "[]");
-  } catch (e) {
-    return [];
-  }
+  if(currentUser?.uid) return Array.isArray(cloudProfile?.saves) ? deepCopy(cloudProfile.saves) : [];
+  try {return JSON.parse(localStorage.getItem(getSavesKey()) || '[]');}
+  catch(e){return [];}
+}
+async function writeSavesList(saves) {
+  const list=deepCopy(saves.slice(0,8));
+  if(currentUser?.uid){cloudProfile.saves=list;await cloudCommitProfile();}
+  else localStorage.setItem(getSavesKey(),JSON.stringify(list));
 }
 
 async function saveCurrentProgress() {
@@ -2439,23 +2512,22 @@ async function saveCurrentProgress() {
   };
   saves.unshift(newSave);
   const trimmed = saves.slice(0, 8);
-  localStorage.setItem(getSavesKey(), JSON.stringify(trimmed));
-  sound.playSFX("sfx_checkpoint");
-  alert("¡Partida guardada exitosamente!");
+  try {
+    await writeSavesList(trimmed);
+    sound.playSFX("sfx_checkpoint");
+    alert("¡Partida guardada exitosamente!" + (currentUser?.uid ? " (NUBE)" : " (INVITADO, SOLO EN ESTE DISPOSITIVO)"));
+  } catch(error) {flagCloudWriteFailure(error);}
 }
 
 // V24: desbloqueo persistente por usuario (o por dispositivo si es invitado).
 function getStoryProgressKey() {
-  return currentUser && currentUser.username
-    ? `apus_iliniza_story_progress_${currentUser.username}`
-    : "apus_iliniza_story_progress_guest";
+  return "apus_iliniza_story_progress_guest"; // Solo INVITADO.
 }
 
 function readStoryProgress() {
-  try {
-    const data = JSON.parse(localStorage.getItem(getStoryProgressKey()) || "{}");
-    return data && typeof data === "object" ? data : {};
-  } catch (e) { return {}; }
+  if (currentUser?.uid) return cloudProfile?.progress ? deepCopy(cloudProfile.progress) : {};
+  try { const data=JSON.parse(localStorage.getItem(getStoryProgressKey())||'{}');return data&&typeof data==='object'?data:{}; }
+  catch(e){return {};}
 }
 
 function getUnlockedStoryLevel() {
@@ -2490,7 +2562,12 @@ function recordStoryLevelCompletion(completedLevelIdx) {
   } else {
     progress.finished = true;
   }
-  try { localStorage.setItem(getStoryProgressKey(), JSON.stringify(progress)); } catch (e) {}
+  if (currentUser?.uid) {
+    cloudProfile.progress=deepCopy(progress);
+    cloudCommitProfile().catch(flagCloudWriteFailure);
+  } else {
+    try {localStorage.setItem(getStoryProgressKey(),JSON.stringify(progress));} catch(e) {}
+  }
 }
 
 function continueGame() {
@@ -2558,7 +2635,7 @@ function continueAfterCheckpoint() {
   initStoryLevel(nextLevelIdx, false);
 }
 
-function saveCheckpointProgress() {
+async function saveCheckpointProgress() {
   if (gameState !== "CHECKPOINT" || storyData.levelIdx >= LEVELS.length - 1) return;
   const saves = getSavesList();
   saves.unshift({
@@ -2569,15 +2646,15 @@ function saveCheckpointProgress() {
     maxHearts: DIFFICULTIES[diffIndex].hearts
   });
   try {
-    localStorage.setItem(getSavesKey(), JSON.stringify(saves.slice(0, 8)));
+    await writeSavesList(saves);
     sound.playSFX("sfx_checkpoint");
     showOverlay("checkpoint-saved-overlay");
   } catch (e) {
-    alert("No fue posible guardar la partida en este dispositivo.");
+    flagCloudWriteFailure(e);
   }
 }
 
-function saveFinishedGameProgress() {
+async function saveFinishedGameProgress() {
   if (gameState !== "SUMMIT" || !player.celebrating || storyData.levelIdx !== 4) return;
   const saves = getSavesList();
   saves.unshift({
@@ -2587,11 +2664,11 @@ function saveFinishedGameProgress() {
     maxHearts: storyData.maxHearts
   });
   try {
-    localStorage.setItem(getSavesKey(), JSON.stringify(saves.slice(0, 8)));
+    await writeSavesList(saves);
     sound.playSFX("sfx_checkpoint");
     alert("¡Partida guardada! Puedes repetir el nivel 5 desde Continuar partida.");
   } catch (e) {
-    alert("No fue posible guardar la partida en este dispositivo.");
+    flagCloudWriteFailure(e);
   }
 }
 
@@ -2672,7 +2749,7 @@ function openFinishRanking() {
 }
 
 function returnFromRanking() {
-  if (rankingReturnToGameOver && summitCelebrationActive) {
+  if (rankingReturnToGameOver && (summitCelebrationActive || gameState === "SUMMIT")) {
     rankingReturnToGameOver = false;
     showOverlay("gameover-overlay");
   } else {
@@ -2682,92 +2759,120 @@ function returnFromRanking() {
 }
 
 async function switchRankingTab(tab) {
-  currentRankingTab = tab;
-  const tLocal = document.getElementById("tab-rank-local");
-  const tWorld = document.getElementById("tab-rank-world");
-  if (tLocal) tLocal.classList.toggle("active", tab === "local");
-  if (tWorld) tWorld.classList.toggle("active", tab === "world");
-
-  const statusMsg = document.getElementById("ranking-status-msg");
-  const tbody = document.getElementById("ranking-tbody");
-
-  if (tab === "local") {
-    if (statusMsg) statusMsg.textContent = "📱 Mostrando los mejores puntajes de este dispositivo.";
-    const list = getLocalRankingList().slice(0, 10);
-    renderRankingRows(tbody, list);
-  } else {
-    if (statusMsg) statusMsg.textContent = "🌎 Sincronizando Ranking Mundial...";
-    const store = await fetchWorldCloudData();
-    const worldList = (store.worldRanking || DEFAULT_WORLD_RANKING).slice(0, 10);
-    renderRankingRows(tbody, worldList);
+  currentRankingTab=tab;
+  document.getElementById('tab-rank-local')?.classList.toggle('active',tab==='local');
+  document.getElementById('tab-rank-world')?.classList.toggle('active',tab==='world');
+  const status=document.getElementById('ranking-status-msg');
+  const tbody=document.getElementById('ranking-tbody');
+  if(tab==='local'){
+    if(status) status.textContent='📱 MEJORES PUNTAJES DE ESTE DISPOSITIVO (INVITADOS).';
+    renderRankingRows(tbody,getLocalRankingList().slice(0,10));
+    return;
+  }
+  if(status) status.textContent='🌎 DESCARGANDO RANKING ONLINE REAL...';
+  if(!cloudAvailable()) {
+    if(status) status.textContent='⚠️ EL RANKING ONLINE NECESITA FIREBASE CONFIGURADO E INTERNET.';
+    renderRankingRows(tbody,[]);return;
+  }
+  try {
+    const snapshot=await apusFirebaseDb.collection(APUS_RANKING_COLLECTION)
+      .orderBy('score','desc').limit(10).get();
+    const list=snapshot.docs.map(d=>d.data());
+    renderRankingRows(tbody,list);
+    if(status) status.textContent=`🌎 ${list.length} MEJORES PUNTAJES ONLINE.`;
+  } catch(e) {
+    console.warn(e);if(status)status.textContent='⚠️ NO SE PUDO CONSULTAR EL RANKING. REVISA INTERNET Y REGLAS.';
+    renderRankingRows(tbody,[]);
   }
 }
-
-function renderRankingRows(tbody, list) {
-  if (!tbody) return;
-  tbody.innerHTML = list.map((r, i) => {
-    const isMe = currentUser && r.name === currentUser.username;
-    const rowStyle = isMe ? "background:rgba(247, 147, 30, 0.25);" : "";
-    return `
-      <tr style="${rowStyle}">
-        <td>${i + 1}</td>
-        <td>${r.name} ${isMe ? "⭐" : ""}</td>
-        <td>${r.char}</td>
-        <td>${r.diff}</td>
-        <td style="color:#facc15;">${r.score}</td>
-      </tr>
-    `;
-  }).join("");
+function escapeRankingHTML(value) {
+  return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
+function renderRankingRows(tbody,list) {
+  if(!tbody)return;
+  tbody.innerHTML=list.map((r,i)=>{
+    const isMe=currentUser?.uid && r.uid===currentUser.uid;
+    return `<tr style="${isMe?'background:rgba(247,147,30,.25);':''}">
+      <td>${i+1}</td><td>${escapeRankingHTML(r.name)} ${isMe?'⭐':''}</td>
+      <td>${escapeRankingHTML(r.char)}</td><td>${escapeRankingHTML(r.diff)}</td>
+      <td style="color:#facc15;">${Number(r.score)||0}</td></tr>`;
+  }).join('');
+}
 async function refreshWorldRanking() {
-  sound.playSFX("sfx_jump");
-  await switchRankingTab("world");
+  sound.playSFX('sfx_jump');await switchRankingTab('world');
 }
-
-function prepareGameOverModal() {
-  const defeatMessage = document.getElementById("end-defeat-message");
-  if (defeatMessage) defeatMessage.style.display = player.celebrating ? "none" : "block";
-  const finishActions = document.getElementById("summit-finish-actions");
-  if (finishActions) finishActions.style.display =
-    player.celebrating && storyData.levelIdx === LEVELS.length - 1 ? "block" : "none";
-  const nameInput = document.getElementById("player-name-input");
-  const statusEl = document.getElementById("end-account-status");
-  if (currentUser && currentUser.username) {
-    if (nameInput) {
-      nameInput.value = currentUser.username;
-      nameInput.readOnly = true;
-    }
-    if (statusEl) {
-      statusEl.style.color = "#22c55e";
-      statusEl.textContent = `✅ Sesión activa como ${currentUser.username}`;
-    }
-  } else {
-    if (nameInput) {
-      nameInput.value = "";
-      nameInput.readOnly = false;
-    }
-    if (statusEl) {
-      statusEl.style.color = "#facc15";
-      statusEl.textContent = "⚠️ Inicia sesión para guardar en tu cuenta.";
-    }
+async function publishSignedInScore(entry) {
+  if(!currentUser?.uid || !cloudAvailable()) throw new Error('Sin cuenta online');
+  const uid=currentUser.uid;
+  const clean={uid,name:currentUser.username,
+    char:String(entry.char).slice(0,20),diff:String(entry.diff).slice(0,40),
+    score:Math.max(0,Math.floor(Number(entry.score)||0))};
+  cloudProfile.scores=Array.isArray(cloudProfile.scores)?cloudProfile.scores:[];
+  cloudProfile.scores.push({...clean,at:new Date().toISOString()});
+  cloudProfile.scores=cloudProfile.scores.slice(-30);
+  await cloudCommitProfile();
+  const ref=apusFirebaseDb.collection(APUS_RANKING_COLLECTION).doc(uid);
+  const old=await ref.get();
+  if(!old.exists || (Number(old.data().score)||0) < clean.score) {
+    await ref.set({...clean,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   }
 }
-
+let defeatScoreSavedAutomatically=false;
+function saveSignedInDefeatScoreOnce() {
+  if(defeatScoreSavedAutomatically||!currentUser?.uid)return;
+  defeatScoreSavedAutomatically=true;
+  const entry={name:currentUser.username,char:selectedCharacter,
+    diff:DIFFICULTIES[diffIndex].name,score:storyData.score};
+  publishSignedInScore(entry).catch(flagCloudWriteFailure);
+}
+function retryDefeatedStoryLevel() {
+  if(gameState!=='SUMMIT'||player.celebrating)return;
+  stopSummitCelebration();storyData.score=Math.max(0,Number(storyData.levelStartScore)||0);
+  storyData.hearts=DIFFICULTIES[diffIndex].hearts;
+  showOverlay(null);initStoryLevel(storyData.levelIdx,true);
+}
+function openDefeatRanking() {
+  if(gameState!=='SUMMIT'||player.celebrating)return;
+  openRanking('local');rankingReturnToGameOver=true;
+}
+function prepareGameOverModal() {
+  const defeated=!player.celebrating;
+  const loggedIn=!!currentUser?.uid;
+  const defeatMessage=document.getElementById('end-defeat-message');
+  if(defeatMessage)defeatMessage.style.display=defeated?'block':'none';
+  const finishActions=document.getElementById('summit-finish-actions');
+  if(finishActions)finishActions.style.display=!defeated&&storyData.levelIdx===LEVELS.length-1?'block':'none';
+  const defeatActions=document.getElementById('end-defeat-actions');
+  if(defeatActions)defeatActions.style.display=defeated?'block':'none';
+  const saveBtn=document.getElementById('end-submit-score-btn');
+  const signInBtn=document.getElementById('end-signin-btn');
+  const mainMenuBtn=document.getElementById('end-mainmenu-btn');
+  const nameInput=document.getElementById('player-name-input');
+  const statusEl=document.getElementById('end-account-status');
+  if(saveBtn)saveBtn.style.display=defeated?'none':'block';
+  if(signInBtn)signInBtn.style.display=!loggedIn?'block':'none';
+  if(mainMenuBtn)mainMenuBtn.style.display=defeated?'none':'block';
+  if(nameInput){nameInput.value=loggedIn?currentUser.username:'';
+    nameInput.readOnly=loggedIn;nameInput.style.display=defeated||loggedIn?'none':'block';}
+  if(statusEl){statusEl.style.color=loggedIn?'#22c55e':'#facc15';
+    statusEl.textContent=loggedIn
+     ? `✅ ${currentUser.username} · ${defeated?'GUARDANDO PUNTAJE EN LA NUBE':'CUENTA ONLINE'}`
+     : '⚠️ INICIA SESIÓN PARA GUARDAR Y CONSULTAR TU RANKING.';}
+  if(defeated&&loggedIn)saveSignedInDefeatScoreOnce();
+}
 async function submitScore() {
-  const input = document.getElementById("player-name-input");
-  const name = (currentUser ? currentUser.username : (input.value || "MONTANISTA")).toUpperCase().trim();
-  const totalScore = storyData.score;
-  const entry = {
-    name, char: selectedCharacter, diff: DIFFICULTIES[diffIndex].name, score: totalScore
-  };
-
-  const localList = getLocalRankingList();
-  localList.push(entry);
-  localList.sort((a, b) => b.score - a.score);
-  localStorage.setItem("apus_iliniza_ranking", JSON.stringify(localList.slice(0, 10)));
-  openRanking("local");
-  if (summitCelebrationActive && player.celebrating) rankingReturnToGameOver = true;
+  const input=document.getElementById('player-name-input');
+  const name=(currentUser?.uid?currentUser.username:(input.value||'MONTANISTA')).toUpperCase().trim();
+  const entry={name,char:selectedCharacter,diff:DIFFICULTIES[diffIndex].name,score:storyData.score};
+  if(currentUser?.uid){
+    try {await publishSignedInScore(entry);openRanking('world');}
+    catch(e){flagCloudWriteFailure(e);return;}
+  } else {
+    const local=getLocalRankingList();local.push(entry);local.sort((a,b)=>b.score-a.score);
+    localStorage.setItem('apus_iliniza_ranking',JSON.stringify(local.slice(0,10)));
+    openRanking('local');
+  }
+  if(summitCelebrationActive&&player.celebrating)rankingReturnToGameOver=true;
 }
 
 /* ============================================================================
@@ -3353,6 +3458,7 @@ function defeatStoryByCrevasse() {
 }
 
 function initStoryLevel(lvlIdx, resetHearts = false) {
+  defeatScoreSavedAutomatically = false;
   storyData.levelIdx = lvlIdx;
   storyData.levelStartScore = storyData.score;
   storyData.levelScore = 0;
