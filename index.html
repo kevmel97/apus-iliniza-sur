@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.21</title>
+<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.23</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <style>
@@ -670,7 +670,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VERSIÓN 0.21</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 0.23</div>
     </div>
   </div>
 
@@ -3723,6 +3723,437 @@ function drawHeartsHUD(x, y, hearts, maxHearts) {
   }
 }
 
+function storyTerrainHash(value, seed = 0) {
+  const raw = Math.sin(value * 127.1 + seed * 311.7) * 43758.5453123;
+  return raw - Math.floor(raw);
+}
+
+function storyTerrainNoise(worldX, seed = 0) {
+  const cell = Math.floor(worldX / 28);
+  const t0 = (worldX / 28) - cell;
+  const t = t0 * t0 * (3 - 2 * t0);
+  const a = storyTerrainHash(cell, seed);
+  const b = storyTerrainHash(cell + 1, seed);
+  return a + (b - a) * t;
+}
+
+function storyTerrainAscentLift(lvl, inFlatSection) {
+  if (inFlatSection) return 0;
+  const progress = Math.min(1, storyData.distance / lvl.totalDistance);
+  const overallProgress = (storyData.levelIdx + progress) / LEVELS.length;
+  return overallProgress * (isPortrait ? 34 : 62);
+}
+
+function getStoryTerrainSlopeAngle(lvl, inFlatSection) {
+  // La inclinación visual se reinicia en cada nivel y crece progresivamente
+  // desde 12° hasta aproximadamente 60° al completar ese nivel.
+  if (inFlatSection) return 0;
+  const progress = Math.max(0, Math.min(1, storyData.distance / lvl.totalDistance));
+  const easedProgress = progress * progress * (3 - 2 * progress);
+  const degrees = 12 + 48 * easedProgress;
+  return degrees * Math.PI / 180;
+}
+
+function getStoryTerrainSurfaceY(x, floorTop, lvl, inFlatSection) {
+  // La superficie queda a la altura de las botas del sprite, no a mitad del cuerpo.
+  const baseY = floorTop + 14;
+  const travel = storyData.distance * 0.72;
+  const worldX = x + travel;
+  const noise = storyTerrainNoise(worldX, lvl.level + 13);
+
+  // El tutorial inicial conserva el suelo casi plano.
+  if (inFlatSection) {
+    return baseY
+      + Math.sin(worldX * 0.027 + lvl.level * 0.83) * 1.1
+      + (noise - 0.5) * 1.4;
+  }
+
+  // La cámara toma al montañista como ancla: así el camino asciende bajo sus
+  // botas sin desaparecer de pantalla cuando la pendiente se aproxima a 60°.
+  const anchorX = (typeof player !== 'undefined' && Number.isFinite(player.x))
+    ? player.x
+    : (isPortrait ? 170 : 300);
+  const slope = Math.tan(getStoryTerrainSlopeAngle(lvl, inFlatSection));
+  const rise = storyTerrainAscentLift(lvl, inFlatSection);
+  const roughness = (noise - 0.5) * 8
+    + Math.sin(worldX * 0.031 + lvl.level * 1.37) * 2.8
+    + Math.sin(worldX * 0.009 + lvl.level * 1.91) * 2.1;
+  return baseY - rise + (anchorX - x) * slope + roughness;
+}
+function getStoryTerrainVisualOffset(x, floorTop, lvl, inFlatSection) {
+  if (inFlatSection) return 0;
+  return getStoryTerrainSurfaceY(x, floorTop, lvl, inFlatSection) - (floorTop + 14);
+}
+
+function drawStoryMountainTerrain(floorTop, lvl, inFlatSection) {
+  // Solo dibujo: la geometría física, colisiones y posiciones reales del juego no cambian.
+  const travel = storyData.distance * 0.72;
+  const surfaceY = (x) => getStoryTerrainSurfaceY(x, floorTop, lvl, inFlatSection);
+  const palette = lvl.storm
+    ? { base: '#101927', mid: '#222f43', light: '#46576c', shade: '#080e18', ridge: '#90a6bd', snow: '#dbeafe', ice: '#7dd3fc' }
+    : { base: '#202a3a', mid: '#34465a', light: '#62758a', shade: '#141d2b', ridge: '#9aafc2', snow: '#f8fafc', ice: '#93c5fd' };
+
+  // Perfil de suelo irregular, con una pendiente ascendente y contorno rocoso.
+  const points = [];
+  for (let x = -20; x <= GW + 24; x += 12) {
+    const y = surfaceY(x);
+    points.push([x, Math.round(y / 2) * 2]);
+  }
+
+  ctx.save();
+  ctx.lineJoin = 'bevel';
+  ctx.lineCap = 'square';
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1]);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+  ctx.lineTo(GW + 24, GH + 24);
+  ctx.lineTo(-20, GH + 24);
+  ctx.closePath();
+  const rockGradient = ctx.createLinearGradient(0, floorTop - 20, 0, GH);
+  rockGradient.addColorStop(0, palette.mid);
+  rockGradient.addColorStop(0.36, palette.base);
+  rockGradient.addColorStop(1, palette.shade);
+  ctx.fillStyle = rockGradient;
+  ctx.fill();
+
+  // Rocas de tamaños, alturas y formas variadas. Los detalles se generan por
+  // coordenada de mundo, así que el patrón avanza de forma continua sin mosaicos repetidos.
+  const cellSize = 57;
+  const firstCell = Math.floor((travel - 115) / cellSize);
+  const lastCell = Math.ceil((travel + GW + 115) / cellSize);
+  for (let cell = firstCell; cell <= lastCell; cell++) {
+    const seed = cell + lvl.level * 37;
+    const worldLeft = cell * cellSize;
+    const x = worldLeft - travel;
+    const width = 39 + storyTerrainHash(seed, 4) * 34;
+    const height = 52 + storyTerrainHash(seed, 8) * 112;
+    const variation = storyTerrainHash(seed, 12);
+    const topA = surfaceY(x + 4) + 8 + variation * 5;
+    const topB = surfaceY(x + width * 0.27) + 7 + storyTerrainHash(seed, 18) * 10;
+    const topC = surfaceY(x + width * 0.58) + 5 + storyTerrainHash(seed, 24) * 12;
+    const topD = surfaceY(x + width - 2) + 8 + storyTerrainHash(seed, 28) * 7;
+
+    // Bloque base irregular, con silueta distinta en cada tramo.
+    ctx.beginPath();
+    ctx.moveTo(x, topA);
+    ctx.lineTo(x + width * 0.14, topA - 1 + variation * 6);
+    ctx.lineTo(x + width * 0.28, topB);
+    ctx.lineTo(x + width * 0.45, topB + 7 + storyTerrainHash(seed, 31) * 8);
+    ctx.lineTo(x + width * 0.61, topC);
+    ctx.lineTo(x + width * 0.78, topC + 4 + storyTerrainHash(seed, 34) * 9);
+    ctx.lineTo(x + width, topD);
+    ctx.lineTo(x + width - 3, topD + height * 0.55);
+    ctx.lineTo(x + width * 0.73, topD + height * 0.82);
+    ctx.lineTo(x + width * 0.42, topA + height);
+    ctx.lineTo(x + width * 0.13, topA + height * 0.78);
+    ctx.closePath();
+    ctx.fillStyle = storyTerrainHash(seed, 40) > 0.52 ? palette.mid : palette.base;
+    ctx.fill();
+    ctx.strokeStyle = palette.shade;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Facetas quebradas, no uniformes, para dar volumen a cada roca.
+    ctx.beginPath();
+    ctx.moveTo(x + width * 0.07, topA + 17);
+    ctx.lineTo(x + width * (0.23 + variation * 0.12), topB + 16);
+    ctx.lineTo(x + width * (0.35 + variation * 0.10), topA + height * 0.52);
+    ctx.lineTo(x + width * 0.18, topA + height * 0.67);
+    ctx.closePath();
+    ctx.fillStyle = palette.light;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(x + width * 0.52, topC + 15);
+    ctx.lineTo(x + width * 0.91, topD + 21);
+    ctx.lineTo(x + width * 0.79, topD + height * (0.58 + variation * 0.12));
+    ctx.lineTo(x + width * 0.58, topA + height * 0.7);
+    ctx.closePath();
+    ctx.fillStyle = palette.shade;
+    ctx.fill();
+
+    // Fracturas finas y vetas minerales de longitud distinta.
+    if (storyTerrainHash(seed, 46) > 0.18) {
+      const crackX = x + width * (0.25 + storyTerrainHash(seed, 47) * 0.48);
+      const crackY = surfaceY(crackX) + 28 + storyTerrainHash(seed, 48) * 18;
+      ctx.strokeStyle = palette.shade;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(crackX, crackY);
+      ctx.lineTo(crackX - 3 + storyTerrainHash(seed, 49) * 7, crackY + 10 + storyTerrainHash(seed, 50) * 11);
+      ctx.lineTo(crackX - 7 + storyTerrainHash(seed, 51) * 11, crackY + 18 + storyTerrainHash(seed, 52) * 12);
+      ctx.stroke();
+    }
+    if (storyTerrainHash(seed, 56) > 0.42) {
+      ctx.fillStyle = palette.ridge;
+      ctx.fillRect(x + width * 0.12, topA + 45 + storyTerrainHash(seed, 58) * 20, 7 + storyTerrainHash(seed, 59) * 13, 2);
+      ctx.fillStyle = palette.ice;
+      ctx.fillRect(x + width * 0.66, topC + 52 + storyTerrainHash(seed, 60) * 20, 4 + storyTerrainHash(seed, 61) * 8, 2);
+    }
+
+    // Parches de nieve de anchura y forma variables; algunos tramos quedan solo en roca.
+    if (storyTerrainHash(seed, 66) > (inFlatSection ? 0.38 : 0.22)) {
+      const patchX = x + 2 + storyTerrainHash(seed, 67) * Math.max(5, width * 0.18);
+      const patchW = 12 + storyTerrainHash(seed, 68) * Math.max(12, width * 0.72);
+      const patchY = surfaceY(patchX);
+      const patchMid = surfaceY(patchX + patchW * 0.48);
+      const patchEnd = surfaceY(patchX + patchW);
+      ctx.beginPath();
+      ctx.moveTo(patchX, patchY + 1);
+      ctx.lineTo(patchX + patchW * 0.16, patchY - 2);
+      ctx.lineTo(patchX + patchW * 0.31, patchY + 1 + storyTerrainHash(seed, 69) * 4);
+      ctx.lineTo(patchX + patchW * 0.48, patchMid - 2);
+      ctx.lineTo(patchX + patchW * 0.7, patchMid + 2);
+      ctx.lineTo(patchX + patchW, patchEnd + 1);
+      ctx.lineTo(patchX + patchW * 0.82, patchEnd + 5);
+      ctx.lineTo(patchX + patchW * 0.55, patchMid + 7);
+      ctx.lineTo(patchX + patchW * 0.25, patchY + 7);
+      ctx.closePath();
+      ctx.fillStyle = palette.snow;
+      ctx.fill();
+      ctx.fillStyle = palette.ice;
+      ctx.fillRect(patchX + patchW * 0.21, patchY + 5, Math.max(4, patchW * 0.33), 3);
+      if (storyTerrainHash(seed, 70) > 0.5) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(patchX + patchW * 0.48, patchMid + 1, Math.max(4, patchW * 0.2), 2);
+      }
+    }
+  }
+
+  // Nieve y hielo en fragmentos irregulares, nunca como una línea continua.
+  // Los parches siguen la pendiente y cambian de forma a lo largo del recorrido.
+  const edgeStep = 19;
+  for (let edgeX = -20; edgeX < GW + 12; edgeX += edgeStep) {
+    const worldCell = Math.floor((edgeX + travel) / edgeStep);
+    const seed = worldCell + lvl.level * 103;
+    if (storyTerrainHash(seed, 901) < (inFlatSection ? 0.46 : 0.24)) continue;
+
+    const patchX = edgeX + storyTerrainHash(seed, 902) * 5;
+    const patchW = 7 + storyTerrainHash(seed, 903) * (inFlatSection ? 10 : 19);
+    const yA = surfaceY(patchX);
+    const yM = surfaceY(patchX + patchW * 0.48);
+    const yB = surfaceY(patchX + patchW);
+    ctx.beginPath();
+    ctx.moveTo(patchX, yA + 1);
+    ctx.lineTo(patchX + patchW * 0.18, yA - 2);
+    ctx.lineTo(patchX + patchW * 0.39, yA + 0.5);
+    ctx.lineTo(patchX + patchW * 0.53, yM - 1.5);
+    ctx.lineTo(patchX + patchW * 0.76, yM + 1.5);
+    ctx.lineTo(patchX + patchW, yB + 1);
+    ctx.lineTo(patchX + patchW * 0.77, yB + 4);
+    ctx.lineTo(patchX + patchW * 0.43, yM + 4);
+    ctx.lineTo(patchX + patchW * 0.2, yA + 5);
+    ctx.closePath();
+    ctx.fillStyle = storyTerrainHash(seed, 904) > 0.52 ? palette.snow : palette.ridge;
+    ctx.fill();
+
+    if (storyTerrainHash(seed, 905) > 0.44) {
+      ctx.fillStyle = palette.ice;
+      ctx.beginPath();
+      ctx.moveTo(patchX + patchW * 0.32, yA + 5);
+      ctx.lineTo(patchX + patchW * 0.56, yM + 5);
+      ctx.lineTo(patchX + patchW * 0.7, yM + 7);
+      ctx.lineTo(patchX + patchW * 0.44, yM + 7);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  // Pequeños bloques de roca suelta y hielo en el primer plano, también variados.
+  for (let cell = firstCell; cell <= lastCell; cell++) {
+    const seed = cell + lvl.level * 91;
+    if (storyTerrainHash(seed, 80) < 0.28) continue;
+    const x = cell * cellSize - travel + 5 + storyTerrainHash(seed, 81) * 18;
+    const y = surfaceY(x) + 24 + storyTerrainHash(seed, 82) * 34;
+    const size = 5 + storyTerrainHash(seed, 83) * 12;
+    ctx.fillStyle = storyTerrainHash(seed, 84) > 0.5 ? palette.light : palette.shade;
+    ctx.beginPath();
+    ctx.moveTo(x, y + size * 0.25);
+    ctx.lineTo(x + size * 0.55, y);
+    ctx.lineTo(x + size, y + size * 0.42);
+    ctx.lineTo(x + size * 0.72, y + size * 0.9);
+    ctx.lineTo(x + size * 0.16, y + size);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+function drawStoryClimbingWall(floorTop, lvl) {
+  // Pared de roca del modo historia. Su textura se desplaza hacia arriba según
+  // avanza la distancia, en un bucle continuo; no interviene en físicas ni colisiones.
+  const wallBaseX = isPortrait ? 275 : 520;
+  const wallTopX = isPortrait ? 390 : 680;
+  const wallBottomY = floorTop + 20;
+  const palette = lvl.storm
+    ? { base: '#101927', mid: '#202e42', light: '#42546b', bright: '#65778c', shade: '#080e18', snow: '#c9d9e8', ice: '#78b9d8', snowShade: '#7794ad' }
+    : { base: '#182536', mid: '#293b50', light: '#435a70', bright: '#6d8296', shade: '#0b1422', snow: '#f1f7fc', ice: '#8ecbeb', snowShade: '#a7bfd2' };
+
+  const cellW = isPortrait ? 43 : 58;
+  const cellH = isPortrait ? 49 : 57;
+  const worldScrollY = storyData.distance * (isPortrait ? 0.76 : 0.84);
+  const scrollY = worldScrollY % cellH;
+  const firstWorldRow = Math.floor(worldScrollY / cellH);
+  const scrollX = (storyData.distance * 0.11) % cellW;
+
+  ctx.save();
+  // Recorte con la misma silueta inclinada de la pared para que no invada el cielo.
+  ctx.beginPath();
+  ctx.moveTo(wallBaseX - 2, wallBottomY);
+  ctx.lineTo(wallTopX, 85);
+  ctx.lineTo(GW + 8, 85);
+  ctx.lineTo(GW + 8, wallBottomY + 8);
+  ctx.closePath();
+  ctx.clip();
+
+  const wallGradient = ctx.createLinearGradient(wallTopX, 85, GW, wallBottomY);
+  wallGradient.addColorStop(0, palette.light);
+  wallGradient.addColorStop(0.35, palette.mid);
+  wallGradient.addColorStop(1, palette.base);
+  ctx.fillStyle = wallGradient;
+  ctx.fillRect(wallBaseX - 5, 78, GW - wallBaseX + 15, wallBottomY - 70);
+
+  const rowCount = Math.ceil((wallBottomY - 78) / cellH) + 3;
+  const colStart = -2;
+  const colEnd = Math.ceil((GW - wallBaseX) / cellW) + 3;
+  for (let row = -1; row < rowCount; row++) {
+    const worldRow = firstWorldRow + row;
+    const rowY = 82 + row * cellH - scrollY;
+    for (let col = colStart; col < colEnd; col++) {
+      const seed = worldRow * 173 + col * 47 + lvl.level * 131;
+      const x = wallBaseX - 28 + col * cellW - scrollX;
+      const y = rowY + (storyTerrainHash(seed, 1) - 0.5) * 9;
+      const w = cellW * (0.88 + storyTerrainHash(seed, 2) * 0.26);
+      const h = cellH * (0.84 + storyTerrainHash(seed, 3) * 0.25);
+      const rockColorPick = storyTerrainHash(seed, 4);
+      ctx.beginPath();
+      ctx.moveTo(x - 3, y + h * 0.13);
+      ctx.lineTo(x + w * 0.12, y + h * 0.02);
+      ctx.lineTo(x + w * 0.34, y + h * 0.12);
+      ctx.lineTo(x + w * 0.57, y - 2 + storyTerrainHash(seed, 5) * 8);
+      ctx.lineTo(x + w * 0.82, y + h * 0.15);
+      ctx.lineTo(x + w + 3, y + h * 0.36);
+      ctx.lineTo(x + w * 0.91, y + h * 0.69);
+      ctx.lineTo(x + w * 0.66, y + h + 3);
+      ctx.lineTo(x + w * 0.4, y + h * 0.88);
+      ctx.lineTo(x + w * 0.18, y + h * 0.98);
+      ctx.lineTo(x - 2, y + h * 0.67);
+      ctx.closePath();
+      ctx.fillStyle = rockColorPick > 0.66 ? palette.mid : (rockColorPick > 0.31 ? palette.base : palette.light);
+      ctx.fill();
+      ctx.strokeStyle = palette.shade;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Faceta iluminada y sombra profunda, con diagonales distintas por roca.
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.08, y + h * 0.18);
+      ctx.lineTo(x + w * (0.36 + storyTerrainHash(seed, 6) * 0.12), y + h * 0.2);
+      ctx.lineTo(x + w * 0.31, y + h * 0.59);
+      ctx.lineTo(x + w * 0.12, y + h * 0.7);
+      ctx.closePath();
+      ctx.fillStyle = palette.bright;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.55, y + h * 0.32);
+      ctx.lineTo(x + w * 0.94, y + h * 0.4);
+      ctx.lineTo(x + w * 0.72, y + h * 0.88);
+      ctx.lineTo(x + w * 0.5, y + h * 0.73);
+      ctx.closePath();
+      ctx.fillStyle = palette.shade;
+      ctx.fill();
+
+      // Grietas cortas y vetas: se generan por coordenada para no parpadear.
+      if (storyTerrainHash(seed, 7) > 0.36) {
+        const cx = x + w * (0.25 + storyTerrainHash(seed, 8) * 0.45);
+        const cy = y + h * (0.32 + storyTerrainHash(seed, 9) * 0.26);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx - 3 + storyTerrainHash(seed, 10) * 8, cy + 7 + storyTerrainHash(seed, 11) * 7);
+        ctx.lineTo(cx - 8 + storyTerrainHash(seed, 12) * 12, cy + 14 + storyTerrainHash(seed, 13) * 8);
+        ctx.strokeStyle = palette.shade;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Nieve acumulada en cornisas irregulares (no una cuadrícula de hielo repetida).
+      if (storyTerrainHash(seed, 14) > (lvl.storm ? 0.68 : 0.5)) {
+        const sx = x + 2 + storyTerrainHash(seed, 15) * (w * 0.42);
+        const sy = y + 3 + storyTerrainHash(seed, 16) * (h * 0.48);
+        const sw = 12 + storyTerrainHash(seed, 17) * (w * 0.72);
+        const sh = 4 + storyTerrainHash(seed, 18) * 7;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy + 2);
+        ctx.lineTo(sx + sw * 0.17, sy - 2);
+        ctx.lineTo(sx + sw * 0.38, sy + 1);
+        ctx.lineTo(sx + sw * 0.58, sy - 1 + storyTerrainHash(seed, 19) * 3);
+        ctx.lineTo(sx + sw, sy + 2);
+        ctx.lineTo(sx + sw * 0.84, sy + sh);
+        ctx.lineTo(sx + sw * 0.48, sy + sh - 1);
+        ctx.lineTo(sx + sw * 0.22, sy + sh + 2);
+        ctx.closePath();
+        ctx.fillStyle = palette.snowShade;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(sx + 1, sy);
+        ctx.lineTo(sx + sw * 0.17, sy - 2);
+        ctx.lineTo(sx + sw * 0.38, sy + 0.5);
+        ctx.lineTo(sx + sw * 0.58, sy - 1);
+        ctx.lineTo(sx + sw - 1, sy + 1);
+        ctx.lineTo(sx + sw * 0.7, sy + 3);
+        ctx.lineTo(sx + sw * 0.3, sy + 2);
+        ctx.closePath();
+        ctx.fillStyle = palette.snow;
+        ctx.fill();
+        ctx.fillStyle = palette.ice;
+        if (storyTerrainHash(seed, 20) > 0.48) {
+          ctx.fillRect(sx + sw * 0.58, sy + sh, 3, 5 + storyTerrainHash(seed, 21) * 8);
+        }
+      }
+
+      // Pequeñas vetas de hielo y carámbanos, colocados con menos frecuencia.
+      if (storyTerrainHash(seed, 22) > 0.76) {
+        const ix = x + w * (0.18 + storyTerrainHash(seed, 23) * 0.7);
+        const iy = y + h * (0.2 + storyTerrainHash(seed, 24) * 0.5);
+        ctx.fillStyle = palette.ice;
+        ctx.beginPath();
+        ctx.moveTo(ix, iy);
+        ctx.lineTo(ix + 4, iy + 1);
+        ctx.lineTo(ix + 3, iy + 9 + storyTerrainHash(seed, 25) * 10);
+        ctx.lineTo(ix + 1, iy + 5);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+  }
+
+  // Una pocas repisas nevadas largas rompen el patrón de bloques y refuerzan la pared.
+  const ledgeCount = Math.ceil((wallBottomY - 80) / 96) + 2;
+  for (let i = -1; i < ledgeCount; i++) {
+    const worldRow = firstWorldRow + i;
+    const y = 88 + i * 96 - (worldScrollY % 96);
+    const seed = worldRow + lvl.level * 59;
+    if (storyTerrainHash(seed, 31) < 0.52) continue;
+    const x = wallBaseX + 30 + storyTerrainHash(seed, 32) * Math.max(10, GW - wallBaseX - 90);
+    const w = 22 + storyTerrainHash(seed, 33) * 66;
+    ctx.beginPath();
+    ctx.moveTo(x, y + 4);
+    ctx.lineTo(x + w * 0.18, y);
+    ctx.lineTo(x + w * 0.56, y + 2);
+    ctx.lineTo(x + w, y + 5);
+    ctx.lineTo(x + w * 0.82, y + 10);
+    ctx.lineTo(x + w * 0.42, y + 8);
+    ctx.closePath();
+    ctx.fillStyle = palette.snow;
+    ctx.fill();
+    ctx.fillStyle = palette.ice;
+    ctx.fillRect(x + w * 0.28, y + 8, Math.max(5, w * 0.26), 3);
+  }
+
+  ctx.restore();
+}
+
 function renderStoryMode() {
   const lvl = LEVELS[storyData.levelIdx];
   const progress = Math.min(1, storyData.distance / lvl.totalDistance);
@@ -3739,37 +4170,12 @@ function renderStoryMode() {
   const scrollX = (storyData.distance * 0.8) % 120;
   const floorTop = groundY + 25;
 
-  ctx.fillStyle = "#1e293b";
-  ctx.fillRect(0, floorTop, GW, GH - floorTop);
-  ctx.fillStyle = "#334155";
-  ctx.fillRect(0, floorTop, GW, 75);
-  ctx.fillStyle = "#e2e8f0";
-  ctx.fillRect(0, floorTop - 5, GW, 18);
+  // El perfil rocoso de abajo cubre el terreno hasta el borde visible; no se
+  // dibuja una franja horizontal que contradiga la inclinación de la cornisa.
 
-  ctx.fillStyle = "#0f172a";
-  for (let rx = 0; rx < GW; rx += 90) {
-    ctx.fillRect((rx - scrollX + GW) % GW, floorTop + 32, 46, 10);
-    ctx.fillRect((rx + 40 - scrollX + GW) % GW, floorTop + 65, 55, 12);
-  }
-
-  if (!inFlatSection) {
-    const wallBaseX = isPortrait ? 275 : 520;
-    const wallTopX = isPortrait ? 390 : 680;
-    ctx.fillStyle = "#1e293b";
-    ctx.beginPath();
-    ctx.moveTo(wallBaseX, floorTop + 20);
-    ctx.lineTo(wallTopX, 85);
-    ctx.lineTo(GW, 85);
-    ctx.lineTo(GW, floorTop + 20);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = "#bae6fd";
-    for (let i = 0; i < 6; i++) {
-      const ry = ((i * 85 + scrollX) % (floorTop - 100)) + 90;
-      ctx.fillRect(wallTopX - (ry - 85) * 0.22, ry, 42, 15);
-    }
-  } else {
+  // La pared lateral se elimina: durante la escalada solo se ve el terreno
+  // ascendente, con su perfil de roca, nieve y hielo. El tutorial sigue igual.
+  if (inFlatSection) {
     const boxW = isPortrait ? 490 : 390;
     const boxX = isPortrait ? (GW - boxW) / 2 : 25;
     const boxY = groundY - 125;
@@ -3784,19 +4190,37 @@ function renderStoryMode() {
     ctx.fillText("LUEGO INICIA LA ESCALADA AL ILINIZA", boxX + 16, boxY + 39);
   }
 
+  drawStoryMountainTerrain(floorTop, lvl, inFlatSection);
+
+  // Desplazamiento exclusivamente visual de cámara: acompaña al montañista
+  // sobre la pendiente sin modificar su posición lógica ni las colisiones.
+  const cameraYOffset = getStoryTerrainVisualOffset(player.x, floorTop, lvl, inFlatSection);
+
   obstacles.forEach((ob) => {
+    const isGroundObstacle = ob.type === "ICEBLOCK" || ob.type === "PILSENER";
+    const drawY = isGroundObstacle
+      ? getStoryTerrainSurfaceY(ob.x, floorTop, lvl, inFlatSection) - 16
+      : ob.y + cameraYOffset;
     if (ob.type === "ICEBLOCK") {
+      // El cubo se apoya en la superficie y rota con la pendiente; solo cambia
+      // su dibujo, no su posición física ni las colisiones.
+      const iceSurfaceY = drawY + 16;
+      const iceAngle = getStoryTerrainSlopeAngle(lvl, inFlatSection);
+      ctx.save();
+      ctx.translate(ob.x, iceSurfaceY);
+      ctx.rotate(-iceAngle);
       ctx.fillStyle = "#38bdf8";
-      ctx.fillRect(ob.x - 24, ob.y - 36, 48, 52);
+      ctx.fillRect(-24, -52, 48, 52);
       ctx.fillStyle = "#e0f2fe";
-      ctx.fillRect(ob.x - 20, ob.y - 32, 40, 14);
+      ctx.fillRect(-20, -48, 40, 14);
       ctx.strokeStyle = "#0284c7";
       ctx.lineWidth = 3;
-      ctx.strokeRect(ob.x - 24, ob.y - 36, 48, 52);
+      ctx.strokeRect(-24, -52, 48, 52);
+      ctx.restore();
     } else if (ob.type === "SNOWBALL") {
       ctx.fillStyle = "#f8fafc";
       ctx.beginPath();
-      ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2);
+      ctx.arc(ob.x, drawY, ob.r, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = "#94a3b8";
       ctx.lineWidth = 3;
@@ -3804,17 +4228,26 @@ function renderStoryMode() {
     } else if (ob.type === "ROCK") {
       ctx.fillStyle = "#475569";
       ctx.beginPath();
-      ctx.arc(ob.x, ob.y, ob.r, 0, Math.PI * 2);
+      ctx.arc(ob.x, drawY, ob.r, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = "#0f172a";
       ctx.lineWidth = 3;
       ctx.stroke();
     } else if (ob.type === "PILSENER") {
-      drawBottlePilsener(ob.x, ob.y, 0);
+      drawBottlePilsener(ob.x, drawY, 0);
     }
   });
 
-  drawMountaineerSprite(ctx, selectedCharacter, player.x, player.y, {
+  // Al avanzar por la pendiente el personaje se eleva visualmente y se inclina
+  // hacia delante cuando escala. La animación se limita al modo historia.
+  const climbingInput = !inFlatSection && (
+    player.huggingWall || keys.up || keys.right || joyState.dy < -0.25 || joyState.dx > 0.25
+  );
+  const visualPlayerY = player.y + cameraYOffset;
+  ctx.save();
+  ctx.translate(player.x, visualPlayerY);
+  if (climbingInput) ctx.rotate(0.105 + Math.sin(player.animFrame * 0.22) * 0.018);
+  drawMountaineerSprite(ctx, selectedCharacter, 0, 0, {
     scale: isPortrait ? 1.45 : 1.35,
     facing: player.facing,
     anim: player.animFrame,
@@ -3825,6 +4258,7 @@ function renderStoryMode() {
     celebrating: player.celebrating,
     hurt: player.invulnTimer > 0
   });
+  ctx.restore();
 
   ctx.fillStyle = "#ffffff";
   snowParticles.forEach((p) => {
@@ -3833,8 +4267,8 @@ function renderStoryMode() {
 
   if (lvl.night && storyData.summitSunriseProgress < 0.5) {
     const darkness = ctx.createRadialGradient(
-      player.x, player.y - 20, 75,
-      player.x, player.y - 20, 320
+      player.x, player.y + cameraYOffset - 20, 75,
+      player.x, player.y + cameraYOffset - 20, 320
     );
     darkness.addColorStop(0, "rgba(5, 8, 18, 0.1)");
     darkness.addColorStop(1, "rgba(5, 8, 18, 0.86)");
@@ -3845,7 +4279,7 @@ function renderStoryMode() {
   floatingTexts.forEach((ft) => {
     ctx.fillStyle = ft.color;
     ctx.font = "13px 'Press Start 2P'";
-    ctx.fillText(ft.text, ft.x - 20, ft.y);
+    ctx.fillText(ft.text, ft.x - 20, ft.y + cameraYOffset);
   });
 
   const hudW = isPortrait ? 305 : 470;
