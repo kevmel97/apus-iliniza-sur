@@ -2986,6 +2986,8 @@ function returnToMainMenu() {
    ONLINE P2P
    ============================================================================ */
 function cleanupPeerConnection() {
+  clearVersusConnectWatchdog();
+  if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
   if (peerConn) {
     try { peerConn.close(); } catch (e) {}
     peerConn = null;
@@ -3034,6 +3036,21 @@ const PEER_ICE_CONFIG = {
 };
 
 let helloRetryInterval = null;
+let versusConnectWatchdog = null;
+function clearVersusConnectWatchdog() {
+  if (versusConnectWatchdog) clearTimeout(versusConnectWatchdog);
+  versusConnectWatchdog = null;
+}
+function setVersusConnectWatchdog(statusElement, roomCode) {
+  clearVersusConnectWatchdog();
+  versusConnectWatchdog = setTimeout(() => {
+    if (peerConn && peerConn.open) return;
+    if (statusElement) statusElement.textContent =
+      "❌ No se abrió la conexión con la sala " + roomCode +
+      ". Comprueba el código e internet de ambos jugadores y vuelve a intentar.";
+    cleanupPeerConnection();
+  }, 20000);
+}
 
 function createOnlineRoom() {
   if (typeof Peer === "undefined") {
@@ -3063,7 +3080,8 @@ function createOnlineRoom() {
     peerConn = conn;
     isOnlineHost = true;
     vsIsOnline = true;
-    if (hostStatus) hostStatus.textContent = "🔗 ¡Conectado! Entrando a la pelea...";
+    if (hostStatus) hostStatus.textContent = "🔗 Jugador localizado. Abriendo conexión...";
+    setVersusConnectWatchdog(hostStatus, currentRoomCode);
     setupOnlineHandlers();
   });
 
@@ -3106,10 +3124,12 @@ function joinOnlineRoom() {
     peerConn = conn;
     isOnlineHost = false;
     vsIsOnline = true;
+    setVersusConnectWatchdog(joinStatus, currentRoomCode);
     setupOnlineHandlers();
   });
 
   peerInstance.on("error", (err) => {
+    clearVersusConnectWatchdog();
     if (joinStatus) joinStatus.textContent = "❌ Sala no encontrada o sin conexión (" + (err ? err.type : "") + ").";
   });
 }
@@ -3127,6 +3147,9 @@ function setupOnlineHandlers() {
   };
 
   const onChannelReady = () => {
+    clearVersusConnectWatchdog();
+    const statusElement = document.getElementById(isOnlineHost ? "host-status-text" : "join-status-text");
+    if (statusElement) statusElement.textContent = "✅ Canal conectado. Sincronizando personajes...";
     sendHelloPacket();
     if (helloRetryInterval) clearInterval(helloRetryInterval);
     helloRetryInterval = setInterval(() => {
@@ -3146,8 +3169,9 @@ function setupOnlineHandlers() {
     if (!data || !data.type) return;
 
     if (data.type === "HELLO_FIGHTER") {
-      sendHelloPacket(); // Asegura que el otro jugador también reciba mis datos
       if (!matchStarted) {
+        // Confirmar una única vez: responder a todos los HELLO creaba un bucle infinito.
+        sendHelloPacket();
         matchStarted = true;
         if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
         sound.playSFX("sfx_checkpoint");
@@ -3179,7 +3203,14 @@ function setupOnlineHandlers() {
     }
   });
 
+  peerConn.on("error", (err) => {
+    clearVersusConnectWatchdog();
+    const target = document.getElementById(isOnlineHost ? "host-status-text" : "join-status-text");
+    if (target) target.textContent = "❌ Falló el canal P2P (" + (err && (err.type || err.message) || "red") + "). Reintenta.";
+  });
+
   peerConn.on("close", () => {
+    clearVersusConnectWatchdog();
     if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
     if (gameState === "MINIGAME" && vsIsOnline) {
       alert("El otro jugador se desconectó.");
