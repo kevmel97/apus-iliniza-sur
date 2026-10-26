@@ -2985,18 +2985,36 @@ function returnToMainMenu() {
 /* ============================================================================
    ONLINE P2P
    ============================================================================ */
+// V25: Enlace P2P reversible. Si el canal invitado -> anfitrión se queda
+// esperando ICE, el anfitrión inicia otro canal hacia el invitado, sin cambiar
+// quién es anfitrión ni ninguna regla del combate. No es un servidor TURN.
+let vsLinkCandidates = [];
+let vsReverseTimer = null;
+let vsRemotePeerId = null;
+let vsPeerGeneration = 0;
+let vsMatchStarted = false;
+let versusRoomRetries = 0;
+
 function cleanupPeerConnection() {
+  vsPeerGeneration++;
   clearVersusConnectWatchdog();
+  if (vsReverseTimer) { clearTimeout(vsReverseTimer); vsReverseTimer = null; }
   if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
-  if (peerConn) {
-    try { peerConn.close(); } catch (e) {}
-    peerConn = null;
+  const closing = [...vsLinkCandidates];
+  if (peerConn && !closing.includes(peerConn)) closing.push(peerConn);
+  vsLinkCandidates = [];
+  peerConn = null;
+  for (const conn of closing) {
+    try { conn.close(); } catch (e) {}
   }
   if (peerInstance) {
     try { peerInstance.destroy(); } catch (e) {}
     peerInstance = null;
   }
+  vsRemotePeerId = null;
+  vsMatchStarted = false;
   vsIsOnline = false;
+  isOnlineHost = false;
 }
 
 function generateShortCode() {
@@ -3041,56 +3059,133 @@ function clearVersusConnectWatchdog() {
   if (versusConnectWatchdog) clearTimeout(versusConnectWatchdog);
   versusConnectWatchdog = null;
 }
+function getVersusStatusElement() {
+  return document.getElementById(isOnlineHost ? "host-status-text" : "join-status-text");
+}
+function setVersusStatus(text) {
+  const el = getVersusStatusElement();
+  if (el) el.textContent = text;
+}
 function setVersusConnectWatchdog(statusElement, roomCode) {
   clearVersusConnectWatchdog();
+  const generation = vsPeerGeneration;
   versusConnectWatchdog = setTimeout(() => {
-    if (peerConn && peerConn.open) return;
+    if (generation !== vsPeerGeneration || vsMatchStarted) return;
     if (statusElement) statusElement.textContent =
-      "❌ No se abrió la conexión con la sala " + roomCode +
-      ". Comprueba el código e internet de ambos jugadores y vuelve a intentar.";
+      "❌ La sala " + roomCode + " fue localizada, pero los dispositivos no lograron abrir el canal de juego. " +
+      "Prueben intercambiar anfitrión o cambiar de Wi-Fi a datos móviles. " +
+      "Si el problema continúa, la red necesita un servidor TURN.";
     cleanupPeerConnection();
-  }, 20000);
+  }, 35000);
 }
 
-function createOnlineRoom() {
+// El evento PeerJS 'connection' confirma que se recibió la oferta por el
+// servidor de señalización, no que WebRTC haya abierto el canal de datos.
+function addVersusCandidate(conn) {
+  if (!conn || vsLinkCandidates.includes(conn)) return;
+  const generation = vsPeerGeneration;
+  vsLinkCandidates.push(conn);
+
+  const tryUseChannel = () => {
+    if (generation !== vsPeerGeneration) { try { conn.close(); } catch (e) {} return; }
+    if (vsMatchStarted || (peerConn && peerConn !== conn && peerConn.open)) {
+      try { conn.close(); } catch (e) {}
+      return;
+    }
+    if (!conn.open) return;
+    peerConn = conn;
+    vsIsOnline = true;
+    if (vsReverseTimer) { clearTimeout(vsReverseTimer); vsReverseTimer = null; }
+    clearVersusConnectWatchdog();
+    setVersusStatus("✅ Canal de juego abierto. Sincronizando luchadores...");
+    setupOnlineHandlers(conn, generation);
+    // El handshake se hace solo cuando PeerJS ha confirmado conn.open.
+  };
+
+  conn.on("open", tryUseChannel);
+  if (conn.open) tryUseChannel();
+  conn.on("error", (err) => {
+    if (generation !== vsPeerGeneration) return;
+    console.warn("APUS P2P: error en candidato", err);
+    if (!vsMatchStarted && !peerConn?.open) {
+      setVersusStatus("⚠️ Un intento falló. Buscando otra ruta de conexión...");
+    }
+  });
+  conn.on("close", () => {
+    if (generation !== vsPeerGeneration) return;
+    vsLinkCandidates = vsLinkCandidates.filter(x => x !== conn);
+    if (peerConn === conn) {
+      peerConn = null;
+      if (gameState === "MINIGAME" && vsIsOnline) {
+        alert("El otro jugador se desconectó.");
+        returnToMainMenu();
+      } else if (!vsMatchStarted) {
+        setVersusStatus("⏳ Canal cerrado. Esperando el enlace alternativo...");
+      }
+    }
+  });
+}
+
+// Solo el anfitrión intenta el enlace inverso, dirigido al mismo Peer ID
+// del invitado. No intercambiamos quién es anfitrión de la partida.
+function scheduleReverseVersusLink(remoteId) {
+  if (vsReverseTimer || !isOnlineHost || !remoteId) return;
+  const generation = vsPeerGeneration;
+  vsReverseTimer = setTimeout(() => {
+    vsReverseTimer = null;
+    if (generation !== vsPeerGeneration || !peerInstance || vsMatchStarted || peerConn?.open) return;
+    setVersusStatus("🔄 Jugador detectado. Probando conexión inversa entre dispositivos...");
+    try {
+      const alternate = peerInstance.connect(remoteId, { reliable:true, serialization:"json" });
+      addVersusCandidate(alternate);
+    } catch (err) {
+      console.warn("APUS P2P: enlace inverso", err);
+    }
+  }, 1800);
+}
+
+function createOnlineRoom(retryCount = 0) {
   if (typeof Peer === "undefined") {
     alert("Cargando servidor Online, intenta en 2 segundos...");
     return;
   }
   cleanupPeerConnection();
-  if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
-
   currentRoomCode = generateShortCode();
   const fullPeerId = "APUS-ILINIZA-" + currentRoomCode;
+  const generation = vsPeerGeneration;
+  isOnlineHost = true;
 
   const area = document.getElementById("host-room-area");
   if (area) area.style.display = "block";
   const display = document.getElementById("room-code-display");
   if (display) display.textContent = currentRoomCode;
-  const hostStatus = document.getElementById("host-status-text");
-  if (hostStatus) hostStatus.textContent = "⏳ Creando sala " + currentRoomCode + "...";
+  setVersusStatus("⏳ Creando sala " + currentRoomCode + "...");
 
   peerInstance = new Peer(fullPeerId, PEER_ICE_CONFIG);
-
   peerInstance.on("open", () => {
-    if (hostStatus) hostStatus.textContent = "✅ Sala lista. Comparte el código con tu amigo...";
+    if (generation !== vsPeerGeneration) return;
+    setVersusStatus("✅ Sala lista. Comparte el código con tu amigo...");
   });
-
   peerInstance.on("connection", (conn) => {
-    peerConn = conn;
-    isOnlineHost = true;
-    vsIsOnline = true;
-    if (hostStatus) hostStatus.textContent = "🔗 Jugador localizado. Abriendo conexión...";
-    setVersusConnectWatchdog(hostStatus, currentRoomCode);
-    setupOnlineHandlers();
-  });
-
-  peerInstance.on("error", (err) => {
-    if (err && err.type === "unavailable-id") {
-      createOnlineRoom();
+    if (generation !== vsPeerGeneration) { try { conn.close(); } catch (e) {} return; }
+    if (vsRemotePeerId && conn.peer !== vsRemotePeerId) {
+      try { conn.close(); } catch (e) {}
       return;
     }
-    if (hostStatus) hostStatus.textContent = "❌ Error de red (" + (err ? err.type : "") + "). Intenta de nuevo.";
+    if (vsMatchStarted) { try { conn.close(); } catch (e) {} return; }
+    vsRemotePeerId = conn.peer;
+    setVersusStatus("🔗 Jugador localizado. Abriendo canal de juego...");
+    setVersusConnectWatchdog(getVersusStatusElement(), currentRoomCode);
+    addVersusCandidate(conn);
+    scheduleReverseVersusLink(conn.peer);
+  });
+  peerInstance.on("error", (err) => {
+    if (generation !== vsPeerGeneration) return;
+    if (err && err.type === "unavailable-id" && retryCount < 3) {
+      createOnlineRoom(retryCount + 1);
+      return;
+    }
+    setVersusStatus("❌ Error del servidor de salas (" + (err ? err.type : "red") + "). Reintenta.");
   });
 }
 
@@ -3101,83 +3196,74 @@ function joinOnlineRoom() {
   }
   const inputEl = document.getElementById("join-code-input");
   const inputCode = (inputEl ? inputEl.value : "").toUpperCase().trim();
-  const joinStatus = document.getElementById("join-status-text");
-
-  if (inputCode.length < 4) {
-    if (joinStatus) joinStatus.textContent = "⚠️ Ingresa las 4 letras del código.";
+  if (!/^[A-HJ-NP-Z2-9]{4}$/.test(inputCode)) {
+    const target = document.getElementById("join-status-text");
+    if (target) target.textContent = "⚠️ Ingresa las 4 letras o números del código.";
     return;
   }
-
   cleanupPeerConnection();
-  if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
-
   currentRoomCode = inputCode;
-  if (joinStatus) joinStatus.textContent = "⏳ Conectando a la sala " + currentRoomCode + "...";
+  const generation = vsPeerGeneration;
+  isOnlineHost = false;
+  vsRemotePeerId = "APUS-ILINIZA-" + currentRoomCode;
+  setVersusStatus("⏳ Buscando la sala " + currentRoomCode + "...");
 
   peerInstance = new Peer(PEER_ICE_CONFIG);
-
-  peerInstance.on("open", () => {
-    const conn = peerInstance.connect("APUS-ILINIZA-" + currentRoomCode, {
-      reliable: true,
-      serialization: "json"
-    });
-    peerConn = conn;
-    isOnlineHost = false;
-    vsIsOnline = true;
-    setVersusConnectWatchdog(joinStatus, currentRoomCode);
-    setupOnlineHandlers();
+  // El invitado TAMBIÉN acepta un enlace inverso iniciado por el anfitrión.
+  peerInstance.on("connection", (conn) => {
+    if (generation !== vsPeerGeneration || conn.peer !== vsRemotePeerId || vsMatchStarted) {
+      try { conn.close(); } catch (e) {}
+      return;
+    }
+    setVersusStatus("🔄 Anfitrión localizado. Abriendo canal alternativo...");
+    addVersusCandidate(conn);
   });
-
+  peerInstance.on("open", () => {
+    if (generation !== vsPeerGeneration) return;
+    const conn = peerInstance.connect(vsRemotePeerId, { reliable:true, serialization:"json" });
+    setVersusStatus("⏳ Sala encontrada. Negociando conexión directa...");
+    addVersusCandidate(conn);
+    setVersusConnectWatchdog(getVersusStatusElement(), currentRoomCode);
+  });
   peerInstance.on("error", (err) => {
-    clearVersusConnectWatchdog();
-    if (joinStatus) joinStatus.textContent = "❌ Sala no encontrada o sin conexión (" + (err ? err.type : "") + ").";
+    if (generation !== vsPeerGeneration) return;
+    const type = err ? err.type : "red";
+    if (type === "peer-unavailable") setVersusStatus("❌ Código incorrecto o anfitrión sin sala abierta.");
+    else setVersusStatus("❌ Error de señalización (" + type + "). Vuelve a intentar.");
   });
 }
 
-function setupOnlineHandlers() {
-  if (!peerConn) return;
+function setupOnlineHandlers(conn, generation) {
+  if (!conn || generation !== vsPeerGeneration || conn !== peerConn || !conn.open) return;
   let matchStarted = false;
-
   const sendHelloPacket = () => {
-    if (peerConn && peerConn.open) {
-      try {
-        peerConn.send({ type: "HELLO_FIGHTER", fighterInfo: getMyFighterPayload() });
-      } catch (e) {}
+    if (generation === vsPeerGeneration && conn.open && conn === peerConn) {
+      try { conn.send({ type:"HELLO_FIGHTER", fighterInfo:getMyFighterPayload() }); } catch (e) {}
+    }
+  };
+  const startFightOnce = (remotePayload) => {
+    if (matchStarted || generation !== vsPeerGeneration || conn !== peerConn) return;
+    matchStarted = true;
+    vsMatchStarted = true;
+    if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
+    clearVersusConnectWatchdog();
+    sound.playSFX("sfx_checkpoint");
+    showOverlay(null);
+    startVersusMiniGame(true, remotePayload);
+    // Cerrar el canal no elegido SIN cancelar la conexión ganadora.
+    for (const extra of [...vsLinkCandidates]) {
+      if (extra !== conn) { try { extra.close(); } catch (e) {} }
     }
   };
 
-  const onChannelReady = () => {
-    clearVersusConnectWatchdog();
-    const statusElement = document.getElementById(isOnlineHost ? "host-status-text" : "join-status-text");
-    if (statusElement) statusElement.textContent = "✅ Canal conectado. Sincronizando personajes...";
-    sendHelloPacket();
-    if (helloRetryInterval) clearInterval(helloRetryInterval);
-    helloRetryInterval = setInterval(() => {
-      if (matchStarted || !peerConn || !peerConn.open) {
-        clearInterval(helloRetryInterval);
-        helloRetryInterval = null;
-        return;
-      }
-      sendHelloPacket();
-    }, 350);
-  };
-
-  peerConn.on("open", onChannelReady);
-  if (peerConn.open) onChannelReady();
-
-  peerConn.on("data", (data) => {
-    if (!data || !data.type) return;
-
+  conn.on("data", (data) => {
+    if (generation !== vsPeerGeneration || conn !== peerConn || !data?.type) return;
     if (data.type === "HELLO_FIGHTER") {
-      if (!matchStarted) {
-        // Confirmar una única vez: responder a todos los HELLO creaba un bucle infinito.
-        sendHelloPacket();
-        matchStarted = true;
-        if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
-        sound.playSFX("sfx_checkpoint");
-        showOverlay(null);
-        startVersusMiniGame(true, data.fighterInfo);
-      }
+      // ACK distinto de HELLO para evitar el bucle de respuestas infinito.
+      try { conn.send({ type:"HELLO_ACK", fighterInfo:getMyFighterPayload() }); } catch (e) {}
+      startFightOnce(data.fighterInfo);
+    } else if (data.type === "HELLO_ACK") {
+      startFightOnce(data.fighterInfo);
     } else if (data.type === "STATE" && fighters.length === 2) {
       const remote = fighters[1];
       remote.x = data.nx * FIGHT_STAGE_W;
@@ -3202,21 +3288,17 @@ function setupOnlineHandlers() {
       startVersusMiniGame(true, lastRemoteFighterInfo);
     }
   });
-
-  peerConn.on("error", (err) => {
-    clearVersusConnectWatchdog();
-    const target = document.getElementById(isOnlineHost ? "host-status-text" : "join-status-text");
-    if (target) target.textContent = "❌ Falló el canal P2P (" + (err && (err.type || err.message) || "red") + "). Reintenta.";
-  });
-
-  peerConn.on("close", () => {
-    clearVersusConnectWatchdog();
-    if (helloRetryInterval) { clearInterval(helloRetryInterval); helloRetryInterval = null; }
-    if (gameState === "MINIGAME" && vsIsOnline) {
-      alert("El otro jugador se desconectó.");
-      returnToMainMenu();
+  // Registrar el manejador antes de enviar HELLO evita perder respuestas rápidas.
+  sendHelloPacket();
+  if (helloRetryInterval) clearInterval(helloRetryInterval);
+  helloRetryInterval = setInterval(() => {
+    if (matchStarted || generation !== vsPeerGeneration || !conn.open || conn !== peerConn) {
+      clearInterval(helloRetryInterval);
+      helloRetryInterval = null;
+      return;
     }
-  });
+    sendHelloPacket();
+  }, 450);
 }
 
 /* ============================================================================
