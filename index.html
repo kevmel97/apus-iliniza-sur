@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Apus Iliniza Sur - versión 0.26.3: DESCENSO EXTRA -->
+<!-- Apus Iliniza Sur - versión 0.27: ROCAS MEJORADAS Y CUENTA LEGACY OCULTA -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.26.3</title>
+<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.27.6</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
@@ -426,6 +426,46 @@
   /* La línea gris de los controles se oculta SOLO durante el ascenso. */
   #touch-controls.story-ascent-ui { border-top: 0 !important; }
 
+  /* TORNEO: cuadros compactos y compatibles con los temas del juego. */
+  /* El cuadro debe estar por encima de los controles tactiles (z-index:25). */
+  #tournament-lobby-overlay, #tournament-end-overlay { z-index:60; }
+  @media (orientation:portrait) {
+    #tournament-hud { bottom:calc(clamp(195px, 28dvh, 245px) + 10px) !important; }
+    #tour-bracket-toggle { font-size:8px !important; padding:7px 9px !important; }
+  }
+  @media (orientation:landscape) {
+    #tournament-hud { bottom:calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
+  }
+  /* Selector de 4/8 participantes: botones pixel-art iguales al menú principal. */
+  .tour-size-options { display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0 14px; }
+  .tour-size-option { min-width:0;min-height:88px;margin:0;padding:12px 7px;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;
+    background:#2b3954;border:3px solid #6b82a8;border-radius:4px;
+    color:#fff;font-family:inherit;font-size:11px;font-weight:bold;
+    text-shadow:2px 2px 0 #000;cursor:pointer;line-height:1.5;text-align:center; }
+  .tour-size-option small {font-size:8px;color:#cbd5e1;line-height:1.6;font-weight:normal;}
+  .tour-size-option[aria-pressed="true"] {background:#854d0e;border-color:#facc15;box-shadow:inset 0 0 0 2px #f7931e;}
+  .tour-size-option:focus-visible {outline:3px solid #facc15;outline-offset:2px;}
+  @media (max-width:390px) {
+    .tour-size-options {gap:6px;}
+    .tour-size-option {font-size:10px;padding:10px 4px;min-height:92px;}
+    .tour-size-option small {font-size:7px;}
+  }
+  body.theme-light .tour-size-option {background:#e2e8f0;color:#0f172a;border-color:#94a3b8;text-shadow:none;}
+  body.theme-light .tour-size-option small {color:#475569;}
+  body.theme-light .tour-size-option[aria-pressed="true"] {background:#fef3c7;border-color:#b45309;box-shadow:inset 0 0 0 2px #f59e0b;}
+  .tour-player { padding:8px;margin:5px 0;background:#13253b;border:1px solid #63839d;
+    border-radius:5px;font-size:10px;line-height:1.55;overflow-wrap:anywhere; }
+  .tour-match {margin:7px 0;padding:9px;background:#111e34;border:2px solid #4a5d80;
+    border-radius:7px;font-size:9px;line-height:1.8;overflow-wrap:anywhere;}
+  .tour-match strong {display:block;color:#facc15;margin-bottom:4px;font-size:9px;}
+  .tour-match small {display:block;color:#4ade80;font-size:9px;}
+  .tour-current {border-color:#facc15;background:#24354e;}
+  .tour-medal {background:#172e45;border:2px solid #facc15;margin:10px 0;padding:14px 8px;
+    border-radius:7px;line-height:1.8;font-size:11px;overflow-wrap:anywhere;}
+  body.theme-light .tour-player,body.theme-light .tour-match,body.theme-light .tour-medal {
+    background:#f8fafc;color:#0f172a;border-color:#93c5fd;}
+
   /* LIST TABLES & INPUTS */
   table {
     width: 100%;
@@ -439,7 +479,7 @@
     text-align: left;
   }
   th { background: #141c2b; color: #f7931e; }
-  input[type="text"], input[type="password"] {
+  input[type="text"], input[type="email"], input[type="password"] {
     width: 100%;
     padding: 11px;
     font-family: inherit;
@@ -478,6 +518,27 @@
     color: #a0aec0;
     margin-top: 8px;
     line-height: 1.5;
+  }
+
+  .auth-box {
+    max-width: 580px;
+  }
+  .auth-field {
+    display: block;
+    width: 100%;
+    max-width: 520px;
+    margin: 8px auto;
+    padding: 13px 14px;
+    font-size: 12px;
+    border-width: 3px;
+    box-shadow: inset 0 0 0 2px rgba(148,163,184,0.18);
+  }
+  #auth-email.auth-field, #auth-password.auth-field {
+    text-align: left;
+    letter-spacing: 0.3px;
+  }
+  body.theme-light .auth-field {
+    box-shadow: inset 0 0 0 2px rgba(59,130,246,0.12);
   }
 
   /* =========================================================
@@ -572,6 +633,7 @@
     color: #b45309;
   }
   body.theme-light input[type="text"],
+  body.theme-light input[type="email"],
   body.theme-light input[type="password"] {
     background: #ffffff;
     border-color: #3b82f6;
@@ -663,7 +725,7 @@
       <button class="menu-btn" onclick="openCharSelect('story')">⛏️ INICIAR PARTIDA</button>
       <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
-      <button class="menu-btn" onclick="openRanking('local')">🏆 RANKING (LOCAL Y MUNDIAL)</button>
+      <button class="menu-btn" onclick="openRanking()">🏆 RANKING GLOBAL</button>
       <button class="menu-btn" onclick="showOverlay('minigames-hub-overlay')">🎮 MINI JUEGOS</button>
       <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
@@ -675,7 +737,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 0.26.3</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 0.27.6</div>
     </div>
   </div>
 
@@ -684,9 +746,22 @@
     <div class="retro-box" style="max-width:440px">
       <h1>🎮 MINI JUEGOS</h1>
       <h2>ELIGE TU AVENTURA</h2>
-      <button class="menu-btn" onclick="openCharSelect('minigame')">🥊 CHUGO VS JORDY</button>
+      <button class="menu-btn" onclick="showOverlay('versus-selection-overlay')">🥊 CHUGO VS JORDY</button>
       <button class="menu-btn" style="background:#137b7f;" onclick="openBingoCamping()">🏕️ BINGO CAMPING (CPU / ONLINE)</button>
       <button class="menu-btn" style="background:#ee5253" onclick="showOverlay('menu-overlay')">🔙 VOLVER AL MENÚ</button>
+    </div>
+  </div>
+
+  <!-- V27.6: selector previo a Chugo vs. Jordy; no altera el modo 1 VS 1 existente. -->
+  <div id="versus-selection-overlay" class="overlay">
+    <div class="retro-box" style="max-width:465px">
+      <h1>🥊 CHUGO VS JORDY</h1>
+      <h2>SELECCIONA EL MODO DE JUEGO</h2>
+      <button class="menu-btn" style="background:#2e86de" onclick="openCharSelect('minigame')">👤 MODO UN JUGADOR (1 VS 1)</button>
+      <p class="controls-hint" style="margin:3px 0 12px">Juega contra la CPU sin internet o reta a un amigo online.</p>
+      <button class="menu-btn" style="background:#854d0e;border-color:#facc15" onclick="openCharSelect('tournament')">🏆 MODO TORNEO (4 U 8 JUGADORES)</button>
+      <p class="controls-hint" style="margin:3px 0 12px">Cuartos, semifinales, final y tercer lugar; offline u online.</p>
+      <button class="menu-btn" style="background:#ee5253" onclick="showOverlay('minigames-hub-overlay')">🔙 VOLVER A MINI JUEGOS</button>
     </div>
   </div>
 
@@ -724,7 +799,7 @@
 
   <!-- MODAL DE CUENTA -->
   <div id="auth-overlay" class="overlay">
-    <div class="retro-box">
+    <div class="retro-box auth-box">
       <h1>👤 CUENTA DE MONTAÑISTA</h1>
       <h2>PARTIDAS Y PERSONAJES EN LA NUBE 🌎</h2>
 
@@ -734,9 +809,9 @@
       </div>
 
       <div id="auth-form-area">
-        <input type="text" id="auth-username" placeholder="NOMBRE DEL MONTAÑISTA (SOLO AL REGISTRARSE)" maxlength="24" autocomplete="nickname" style="display:none">
-        <input type="email" id="auth-email" placeholder="CORREO ELECTRÓNICO" maxlength="120" autocomplete="email" style="text-transform:none">
-        <input type="password" id="auth-password" placeholder="CONTRASEÑA" maxlength="128" autocomplete="current-password" style="text-transform:none">
+        <input class="auth-field" type="text" id="auth-username" placeholder="NOMBRE DEL MONTAÑISTA (SOLO AL REGISTRARSE)" maxlength="24" autocomplete="nickname" style="display:none">
+        <input class="auth-field" type="email" id="auth-email" placeholder="CORREO ELECTRÓNICO" maxlength="120" autocomplete="email" style="text-transform:none">
+        <input class="auth-field" type="password" id="auth-password" placeholder="CONTRASEÑA" maxlength="128" autocomplete="current-password" style="text-transform:none">
         <label id="auth-remember-area" style="display:flex;align-items:center;justify-content:center;gap:9px;margin:10px 0;font-size:10px;line-height:1.6;cursor:pointer;">
           <input id="auth-remember" type="checkbox" checked style="width:19px;height:19px;accent-color:#2e86de;">
           🔐 RECUÉRDAME EN ESTE DISPOSITIVO
@@ -746,12 +821,7 @@
         <button class="menu-btn" style="background:#10ac84;" id="auth-submit-btn" onclick="handleAuthSubmit()">✅ INICIAR SESIÓN</button>
         <button class="menu-btn" style="background:#2e86de;" onclick="forceCloudSyncNow()">🔄 RECARGAR DATOS DE LA NUBE</button>
         <button class="diff-btn" id="cloud-password-reset" onclick="recoverCloudPassword()" style="margin-top:8px;">🔐 RECUPERAR CONTRASEÑA POR CORREO</button>
-        <div id="legacy-import-area" style="display:none;border:2px solid #5b82a8;padding:10px;margin-top:12px;">
-          <p style="font-size:9px;line-height:1.7;margin-bottom:8px;">¿TENÍAS UNA CUENTA DE LA V25 ANTERIOR EN ESTE DISPOSITIVO? IMPÓRTALA UNA SOLA VEZ.</p>
-          <input type="text" id="legacy-import-username" placeholder="USUARIO ANTERIOR" maxlength="24" autocomplete="off">
-          <input type="password" id="legacy-import-password" placeholder="CONTRASEÑA ANTERIOR" maxlength="24" autocomplete="off" style="text-transform:none">
-          <button class="menu-btn" style="background:#2e86de;" onclick="importLegacyAccountData()">📦 IMPORTAR MI PROGRESO ANTERIOR</button>
-        </div>
+        <!-- V27: opción de recuperar/importar cuenta anterior retirada -->
         <button class="menu-btn" style="background:#f97316; display:none;" id="auth-logout-btn" onclick="logoutAccount()">🚪 CERRAR SESIÓN ACTUAL</button>
       </div>
 
@@ -790,7 +860,7 @@
 
       <div style="display:flex; gap:10px; margin-top:8px;">
         <button class="menu-btn" style="background:#10ac84;" onclick="confirmCharSelect()">✅ ACEPTAR</button>
-        <button class="menu-btn" style="background:#ee5253;" onclick="showOverlay('menu-overlay')">🔙 ATRÁS</button>
+        <button class="menu-btn" style="background:#ee5253;" onclick="backFromCharacterSelection()">🔙 ATRÁS</button>
       </div>
     </div>
   </div>
@@ -832,6 +902,7 @@
           <div class="opt-row">
             <span class="opt-label">3. TIPO Y COLOR DE CABELLO:</span>
             <div class="opt-buttons" style="margin-bottom:6px;">
+              <button class="chip-btn" id="hlen-CALVO" onclick="updateCreatorConfig('hairLength', 'CALVO')">👨‍🦲 CALVO</button>
               <button class="chip-btn" id="hlen-CORTO" onclick="updateCreatorConfig('hairLength', 'CORTO')">✂️ CORTO</button>
               <button class="chip-btn" id="hlen-MEDIO" onclick="updateCreatorConfig('hairLength', 'MEDIO')">🧑 MEDIO</button>
               <button class="chip-btn" id="hlen-LARGO" onclick="updateCreatorConfig('hairLength', 'LARGO')">👩 LARGO</button>
@@ -907,6 +978,10 @@
             <div class="opt-buttons">
               <button class="chip-btn" id="axe-PETZL" onclick="updateCreatorConfig('axeBrand', 'PETZL')">🟧 PETZL (NARANJA)</button>
               <button class="chip-btn" id="axe-BD" onclick="updateCreatorConfig('axeBrand', 'BD')">⬜ BLACK DIAMOND (GRIS)</button>
+              <button class="chip-btn" id="axe-SIMOND" onclick="updateCreatorConfig('axeBrand', 'SIMOND')">🟦 SIMOND (AZUL)</button>
+              <button class="chip-btn" id="axe-SINGING_ROCK" onclick="updateCreatorConfig('axeBrand', 'SINGING_ROCK')">🟨 SINGING ROCK (AMARILLO)</button>
+              <button class="chip-btn" id="axe-EDELRID" onclick="updateCreatorConfig('axeBrand', 'EDELRID')">🟩 EDELRID (VERDE)</button>
+              <button class="chip-btn" id="axe-GRIVEL" onclick="updateCreatorConfig('axeBrand', 'GRIVEL')">🟥 GRIVEL (ROJO)</button>
             </div>
           </div>
         </div>
@@ -923,6 +998,7 @@
   <div id="minigame-mode-overlay" class="overlay">
     <div class="retro-box">
       <h1>🥊 MINI JUEGO CHUGO VS JORDY</h1>
+      <p class="controls-hint" style="margin:4px 0 10px">⌨️ J DEFENDER · K PIOLET (-8) · H CRAMPONAZO (-6) · L PILSENER (-10)</p>
       <h2 id="vs-chosen-char-label">PELEADOR: JORDY</h2>
       <button class="menu-btn" style="background:#10ac84;" onclick="openCpuOpponentSelect()">🤖 JUGAR VS CPU (OFFLINE)</button>
 
@@ -947,6 +1023,63 @@
 
       <button class="menu-btn" style="background:#ee5253; margin-top:10px;" onclick="cancelOnlineAndBack()">🔙 VOLVER</button>
     </div>
+  </div>
+
+  <!-- TORNEO COMPETITIVO: completamente independiente de la conexión 1 VS 1. -->
+  <div id="tournament-setup-overlay" class="overlay">
+    <div class="retro-box" style="max-width:540px">
+      <h1>🏆 TORNEO COMPETITIVO</h1>
+      <h2>CHUGO VS JORDY · 4 / 8 PARTICIPANTES</h2>
+      <p class="controls-hint">CUARTOS (SI SON 8), SEMIFINALES, TERCER LUGAR Y FINAL. LOS DEMÁS JUGADORES OBSERVAN EN VIVO.</p>
+      <label for="tournament-size" style="display:block;font-size:10px;color:#facc15;margin:12px 0 6px">CANTIDAD DE PARTICIPANTES</label>
+      <select id="tournament-size" style="display:none" aria-hidden="true" tabindex="-1">
+        <option value="4">4 JUGADORES · SEMIFINAL + FINAL</option>
+        <option value="8">8 JUGADORES · CUARTOS + SEMI + FINAL</option>
+      </select>
+      <div class="tour-size-options" role="group" aria-label="Cantidad de participantes">
+        <button type="button" class="tour-size-option" id="tour-size-4" aria-pressed="true" onclick="tourSetSize(4)">4 JUGADORES<small>SEMIFINAL + FINAL</small></button>
+        <button type="button" class="tour-size-option" id="tour-size-8" aria-pressed="false" onclick="tourSetSize(8)">8 JUGADORES<small>CUARTOS + SEMI + FINAL</small></button>
+      </div>
+      <button class="menu-btn" style="background:#10ac84" onclick="tourOffline()">🤖 INICIAR TORNEO OFFLINE (1 JUGADOR + CPU)</button>
+      <button class="menu-btn" style="background:#2e86de" onclick="tourCreateOnline()">📡 CREAR TORNEO ONLINE</button>
+      <div style="border:2px solid #6b82a8;padding:10px;margin-top:10px;border-radius:8px">
+        <p class="controls-hint">¿UN AMIGO CREÓ UN TORNEO? INGRESA SU CÓDIGO:</p>
+        <input id="tournament-join-code" type="text" maxlength="4" placeholder="CÓDIGO DE 4 CARACTERES" oninput="this.value=this.value.toUpperCase()" autocomplete="off">
+        <button class="menu-btn" style="background:#f7931e" onclick="tourJoinOnline()">🔗 UNIRSE AL TORNEO</button>
+      </div>
+      <div class="status-badge" id="tournament-status">Selecciona 4 u 8 jugadores.</div>
+      <button class="menu-btn" onclick="showOverlay('versus-selection-overlay')">🔙 VOLVER A MODOS CHUGO VS JORDY</button>
+    </div>
+  </div>
+  <div id="tournament-lobby-overlay" class="overlay">
+    <div class="retro-box" style="max-width:620px">
+      <h1>🏆 SALA Y CUADRO DEL TORNEO</h1>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">
+        <div class="room-code-box" id="tournament-code-display">----</div>
+        <button class="diff-btn" onclick="tourCopyCode()">📋 COPIAR</button>
+      </div>
+      <h2 id="tournament-count">0 / 4 PARTICIPANTES</h2>
+      <div id="tournament-players-list"></div>
+      <div class="status-badge" id="tournament-lobby-hint">Comparte el código hasta completar la sala.</div>
+      <button class="menu-btn" id="tournament-host-start" style="background:#10ac84" onclick="tourStartBracket()">🥊 COMENZAR TORNEO</button>
+      <h2 style="margin-top:14px">🏅 ENFRENTAMIENTOS</h2>
+      <div id="tournament-bracket"></div>
+      <button class="menu-btn" id="tournament-return-to-fight" style="background:#2e86de" onclick="tourResumeSpectate()">↩️ VOLVER AL COMBATE</button>
+      <button class="menu-btn" style="background:#ee5253" onclick="tourLeave()">🚪 SALIR DEL TORNEO</button>
+    </div>
+  </div>
+  <div id="tournament-end-overlay" class="overlay">
+    <div class="retro-box" style="max-width:560px">
+      <h1>🏆 TORNEO FINALIZADO</h1>
+      <h2>CLASIFICACIÓN FINAL</h2>
+      <div id="tournament-podium"></div>
+      <button class="menu-btn" style="background:#2e86de" onclick="tourShowBracket()">📋 VER CUADRO COMPLETO</button>
+      <button class="menu-btn" style="background:#ee5253" onclick="tourLeave()">🏠 VOLVER A MINI JUEGOS</button>
+    </div>
+  </div>
+  <!-- Control compacto bajo la pelea; deja libres nombres, salud y escudo. -->
+  <div id="tournament-hud" style="display:none;position:absolute;z-index:39;left:50%;bottom:12px;transform:translateX(-50%);pointer-events:auto">
+    <button type="button" id="tour-bracket-toggle" class="diff-btn" onclick="tourShowBracket()" style="background:#233854;color:#facc15;border:2px solid #facc15;border-radius:7px;font-size:9px;padding:7px 10px;box-shadow:0 3px 8px #0008">📋 VER CUADRO</button>
   </div>
 
   <!-- SELECTOR DE RIVAL CPU: SOLO MODO OFFLINE -->
@@ -979,12 +1112,8 @@
   <!-- RANKING -->
   <div id="ranking-overlay" class="overlay">
     <div class="retro-box">
-      <h1>🏆 RANKING CUMBRE ILINIZA SUR</h1>
-      <div class="tab-bar">
-        <button class="tab-btn active" id="tab-rank-local" onclick="switchRankingTab('local')">📱 RANKING LOCAL</button>
-        <button class="tab-btn" id="tab-rank-world" onclick="switchRankingTab('world')">🌎 RANKING MUNDIAL</button>
-      </div>
-      <div class="status-badge" id="ranking-status-msg">Mostrando los 10 mejores puntajes.</div>
+      <h1>🏆 RANKING GLOBAL ILINIZA SUR</h1>
+      <div class="status-badge" id="ranking-status-msg">🌎 RANKING GLOBAL · MEJOR PUNTAJE DE CADA JUGADOR.</div>
       <table>
         <thead>
           <tr><th>#</th><th>JUGADOR</th><th>PERS.</th><th>DIF.</th><th>PTS</th></tr>
@@ -1020,8 +1149,8 @@
       <p id="end-score-text" style="font-size:14px; color:#facc15; margin:10px 0;">PUNTAJE TOTAL: 0</p>
       <div class="status-badge" id="end-account-status"></div>
       <input type="text" id="player-name-input" placeholder="INGRESA TU NOMBRE" maxlength="24" oninput="this.value = this.value.toUpperCase()">
-      <button class="menu-btn" id="end-submit-score-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING (LOCAL + MUNDIAL)</button>
-      <button class="menu-btn" id="end-signin-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING MUNDIAL</button>
+      <button class="menu-btn" id="end-submit-score-btn" style="background:#10ac84;" onclick="submitScore()">🏆 GUARDAR EN RANKING GLOBAL</button>
+      <button class="menu-btn" id="end-signin-btn" style="background:#2e86de;" onclick="openAuthModalFromGameOver()">👤 INICIAR SESIÓN PARA RANKING GLOBAL</button>
       <!-- V25: Botones exclusivos para derrota; la victoria sigue con su menú original. -->
       <div id="end-defeat-actions" style="display:none;">
         <button class="menu-btn" style="background:#2e86de;" onclick="retryDefeatedStoryLevel()">🔁 REINTENTAR NIVEL</button>
@@ -1032,7 +1161,7 @@
         <button class="menu-btn" style="background:#0e7490; border-color:#67e8f9;" onclick="startDescentExtra()">🎁 NIVEL 6 · CONTINUAR CON EL DESCENSO</button>
         <button class="menu-btn" style="background:#10ac84;" onclick="saveFinishedGameProgress()">💾 GUARDAR PARTIDA FINAL</button>
         <button class="menu-btn" onclick="replayLevelFive()">🔁 REPETIR NIVEL 5</button>
-        <button class="menu-btn" onclick="openFinishRanking()">🏆 VER RANKINGS</button>
+        <button class="menu-btn" onclick="openFinishRanking()">🏆 VER RANKING</button>
       </div>
       <button class="menu-btn" id="end-mainmenu-btn" onclick="returnToMainMenu()">🏠 MENÚ PRINCIPAL</button>
     </div>
@@ -1049,7 +1178,7 @@
       <button class="act-btn btn-hug" id="tbtn-hug" style="grid-column: span 2; width: 176px;">🛡️ PEGARSE A MONTAÑA<br>(ESQUIVAR ROCAS)</button>
     </div>
     <div class="action-buttons" id="fight-buttons" style="display:none;">
-      <button class="act-btn btn-jump" id="fbtn-defend">🛡️<br>DEFENDER</button>
+      <button class="act-btn btn-jump" id="fbtn-defend">⛑️<br>DEFENDER</button>
       <button class="act-btn btn-axe" id="fbtn-axe">⛏️<br>PIOLET</button>
       <button class="act-btn btn-hug" id="fbtn-kick">🦵<br>CRAMPONAZO</button>
       <button class="act-btn btn-beer" id="fbtn-beer">🍺<br>PILSENER</button>
@@ -1381,6 +1510,14 @@ const HELMET_COLORS = {
   ]
 };
 
+// El color del mango identifica el piolet elegido; se conserva la forma
+// y el alcance de combate de la versión estable.
+const AXE_BRAND_COLORS = {
+  PETZL: "#f97316", BD: "#94a3b8",
+  SIMOND: "#2563eb", SINGING_ROCK: "#eab308",
+  EDELRID: "#16a34a", GRIVEL: "#dc2626"
+};
+
 const GLASSES_COLORS = [
   { id: "NEGRO",   name: "NEGRO",   hex: "#1e293b" },
   { id: "AZUL",    name: "AZUL",    hex: "#38bdf8" },
@@ -1464,7 +1601,7 @@ let returnToGameOverAfterAuth = false;
 let pendingRegistrationName = "";
 // Solo guardamos una preferencia booleana. Firebase mantiene el token,
 // nunca se guardan las contraseñas en localStorage.
-const APUS_REMEMBER_KEY = 'apus_firebase_remember_v26';
+const APUS_REMEMBER_KEY = 'apus_firebase_remember_v27';
 function rememberPreference() {
   try { return localStorage.getItem(APUS_REMEMBER_KEY) !== 'no'; } catch(e) { return true; }
 }
@@ -1669,12 +1806,10 @@ function loadSavedSession() {
 function updateUserStatusUI() {
   const label=document.getElementById('menu-user-label');
   const logoutBtn=document.getElementById('auth-logout-btn');
-  const migration=document.getElementById('legacy-import-area');
   if (label) label.textContent=currentUser?.uid
     ? `✅ CUENTA NUBE: ${currentUser.username}`
     : (isCloudConfigured() ? '👤 SESIÓN: INVITADO' : '👤 INVITADO · NUBE SIN CONFIGURAR');
   if (logoutBtn) logoutBtn.style.display=currentUser?.uid ? 'block' : 'none';
-  if (migration) migration.style.display=currentUser?.uid ? 'block' : 'none';
 }
 function openAuthModal() {
   returnToGameOverAfterAuth=false;
@@ -1850,6 +1985,7 @@ let player = {
 let obstacles = [];
 let floatingTexts = [];
 let snowParticles = [];
+let snowBreakParticles = [];
 
 let fighters = [];
 let projectiles = [];
@@ -1920,7 +2056,8 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
     celebrating = false,
     crying = false,
     hurt = false,
-    customConfig = null
+    customConfig = null,
+    helmetShield = false
   } = opts;
 
   targetCtx.save();
@@ -2033,12 +2170,23 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   // Cabeza y Color de Piel
   targetCtx.fillStyle = skinColor;
   targetCtx.fillRect(-10, -36 + yOffset, 20, 19);
+  // Al defender sin casco, el peinado CALVO muestra la cabeza redondeada
+  // del mismo tono de piel, sin huecos donde normalmente va el cabello.
+  if (hairLength === "CALVO" && helmetShield) {
+    targetCtx.fillRect(-8, -40 + yOffset, 16, 5);
+    targetCtx.fillRect(-10, -38 + yOffset, 20, 3);
+    targetCtx.fillStyle = "rgba(255,255,255,0.13)";
+    targetCtx.fillRect(-6, -39 + yOffset, 5, 2);
+  }
 
-  // Patillas / flequillo bajo el casco (visible en CORTO, MEDIO y LARGO)
-  targetCtx.fillStyle = hairColor;
-  targetCtx.fillRect(-11, -34 + yOffset, 3, 7);
-  if (hairLength !== "CORTO") {
-    targetCtx.fillRect(-11, -30 + yOffset, 3, 7);
+  // CALVO: no dibujar patillas ni mechones. En los otros tres peinados
+  // se conservan sus detalles originales debajo del casco.
+  if (hairLength !== "CALVO") {
+    targetCtx.fillStyle = hairColor;
+    targetCtx.fillRect(-11, -34 + yOffset, 3, 7);
+    if (hairLength !== "CORTO") {
+      targetCtx.fillRect(-11, -30 + yOffset, 3, 7);
+    }
   }
 
   // Ojos y Cejas según el Tipo de Mirada (FELIZ, ENOJADA, SERIA, NORMAL) o si está llorando
@@ -2135,7 +2283,35 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
     targetCtx.fillRect(5, -26 + yOffset + tearFall2, 1.5, 2);
   }
 
-  // Casco Técnico (PETZL vs BLACK DIAMOND)
+  // Bajo el casco se ve el peinado elegido; con CALVO queda la piel visible.
+  // El cabello se dibuja solo al sostener el casco en la mano.
+  if (helmetShield && hairLength !== "CALVO") {
+    targetCtx.fillStyle = hairColor;
+    if (hairLength === "LARGO") {
+      targetCtx.fillRect(-12, -43 + yOffset, 24, 8);
+      targetCtx.fillRect(-14, -38 + yOffset, 5, 19);
+      targetCtx.fillRect(9, -38 + yOffset, 5, 19);
+      targetCtx.fillRect(-9, -35 + yOffset, 6, 4); // flequillo
+    } else if (hairLength === "MEDIO") {
+      targetCtx.fillRect(-12, -42 + yOffset, 24, 8);
+      targetCtx.fillRect(-13, -37 + yOffset, 5, 11);
+      targetCtx.fillRect(9, -37 + yOffset, 4, 11);
+      targetCtx.fillRect(-6, -35 + yOffset, 6, 3); // flequillo
+    } else {
+      // Jordy y Chugo usan pelo corto; también vale para personalización CORTO.
+      targetCtx.fillRect(-11, -41 + yOffset, 22, 7);
+      targetCtx.fillRect(-9, -43 + yOffset, 14, 3);
+      targetCtx.fillRect(-12, -36 + yOffset, 4, 5);
+      targetCtx.fillRect(9, -36 + yOffset, 3, 5);
+      targetCtx.fillRect(-6, -34 + yOffset, 6, 2);
+    }
+    targetCtx.fillStyle = "rgba(255,255,255,0.13)";
+    targetCtx.fillRect(-7, -41 + yOffset, 6, 2);
+  }
+
+  // Casco Técnico: en defensa del minijuego se retira de la cabeza
+  // para sostenerlo como escudo delante del cuerpo.
+  if (!helmetShield) {
   targetCtx.fillStyle = helmetColor;
   targetCtx.fillRect(-12, -43 + yOffset, 24, 11);
   targetCtx.strokeStyle = "#0f172a";
@@ -2160,6 +2336,7 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   targetCtx.fillRect(-8, -42 + yOffset, 9, 2);
   targetCtx.fillStyle = "rgba(15,23,42,0.24)";
   targetCtx.fillRect(-11, -34 + yOffset, 22, 2);
+  }
 
   // Brazo y Piolet (Al ganar levanta el piolet hacia arriba varias veces en bucle)
   targetCtx.save();
@@ -2186,7 +2363,7 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   targetCtx.fillStyle = "#0f172a";
   targetCtx.fillRect(10, -3, 5, 7);
 
-  targetCtx.fillStyle = axeBrand === "BD" ? "#94a3b8" : "#f97316";
+  targetCtx.fillStyle = AXE_BRAND_COLORS[axeBrand] || AXE_BRAND_COLORS.PETZL;
   targetCtx.fillRect(12, -20, 4, 28);
   targetCtx.fillStyle = "#1e293b";
   targetCtx.fillRect(12, 4, 4, 4);
@@ -2299,7 +2476,7 @@ function refreshCreatorUI() {
     if (el) el.classList.toggle("active", cfg.skin === s);
   });
 
-  ["CORTO", "MEDIO", "LARGO"].forEach((hl) => {
+  ["CALVO", "CORTO", "MEDIO", "LARGO"].forEach((hl) => {
     const el = document.getElementById(`hlen-${hl}`);
     if (el) el.classList.toggle("active", (cfg.hairLength || "CORTO") === hl);
   });
@@ -2368,10 +2545,10 @@ function refreshCreatorUI() {
   buildColorSwatches("harness-color-swatches", "harnessColor", cfg.harnessColor);
   buildColorSwatches("boots-color-swatches", "bootsColor", cfg.bootsColor);
 
-  const axePetzl = document.getElementById("axe-PETZL");
-  const axeBD = document.getElementById("axe-BD");
-  if (axePetzl) axePetzl.classList.toggle("active", cfg.axeBrand === "PETZL");
-  if (axeBD) axeBD.classList.toggle("active", cfg.axeBrand === "BD");
+  ["PETZL", "BD", "SIMOND", "SINGING_ROCK", "EDELRID", "GRIVEL"].forEach((brand) => {
+    const el = document.getElementById(`axe-${brand}`);
+    if (el) el.classList.toggle("active", (cfg.axeBrand || "PETZL") === brand);
+  });
 
   const pCanvas = document.getElementById("creatorPreviewCanvas");
   if (pCanvas) {
@@ -2471,11 +2648,12 @@ function changeDifficulty(dir) {
 function openCharSelect(mode) {
   pendingMode = mode;
   const sub = document.getElementById("mode-subtitle");
-  if (sub) sub.textContent = mode === "story" ? "MODO ASCENSO AL ILINIZA SUR (5 NIVELES)" : "MINI JUEGO CHUGO VS JORDY";
+  if (sub) sub.textContent = mode === "story" ? "MODO ASCENSO AL ILINIZA SUR (5 NIVELES)"
+    : mode === "tournament" ? "TORNEO COMPETITIVO CHUGO VS JORDY" : "MINI JUEGO CHUGO VS JORDY";
 
   const customCard = document.getElementById("card-custom");
   if (customCard) {
-    if (mode === "minigame") {
+    if (mode === "minigame" || mode === "tournament") {
       customCard.style.display = "flex";
       renderCustomCardPreview();
     } else {
@@ -2485,6 +2663,11 @@ function openCharSelect(mode) {
   }
   showOverlay("char-overlay");
   sound.playBGM("bgm_menu");
+}
+
+function backFromCharacterSelection() {
+  showOverlay(pendingMode === 'minigame' || pendingMode === 'tournament'
+    ? 'versus-selection-overlay' : 'menu-overlay');
 }
 
 function selectChar(name) {
@@ -2505,6 +2688,7 @@ function confirmCharSelect() {
     showOverlay(null);
     startNewStoryGame();
   } else {
+    if (pendingMode === "tournament") { tourOpenSetup(); return; }
     const charDisplayName = selectedCharacter === "CUSTOM"
       ? `${customCharSlots[activeCustomSlot].name} (PERS. #${activeCustomSlot + 1})`
       : selectedCharacter;
@@ -2841,14 +3025,6 @@ function openSavedGames() {
     container.innerHTML = html;
   }
   container.prepend(info);
-  if (hasUnlockedDescentExtra()) {
-    const descentBtn = document.createElement('button');
-    descentBtn.className = 'menu-btn';
-    descentBtn.style.cssText = 'background:#0e7490;border-color:#67e8f9;';
-    descentBtn.textContent = '🎁 EXTRA DESBLOQUEADO · NIVEL 6: DESCENSO';
-    descentBtn.addEventListener('click', startDescentExtra);
-    container.appendChild(descentBtn);
-  }
   showOverlay("saves-overlay");
 }
 
@@ -2857,27 +3033,15 @@ function loadSaveByIndex(idx) {
   if (saves[idx]) loadSaveObject(saves[idx]);
 }
 
-function getLocalRankingList() {
-  try {
-    const raw = localStorage.getItem("apus_iliniza_ranking");
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
-  return [
-    { name: "IVAN VALLEJO", char: "JORDY", diff: "IVÁN VALLEJO", score: 1850 },
-    { name: "JORDY APUS", char: "JORDY", diff: "DIFÍCIL", score: 1420 },
-    { name: "CHUGO ANDES", char: "CHUGO", diff: "NORMAL", score: 1180 }
-  ];
-}
-
-function openRanking(tab = "local") {
+function openRanking() {
   rankingReturnToGameOver = false;
   showOverlay("ranking-overlay");
-  switchRankingTab(tab);
+  switchRankingTab("world");
 }
 
 function openFinishRanking() {
   if (!summitCelebrationActive || !player.celebrating) return;
-  openRanking("local");
+  openRanking();
   rankingReturnToGameOver = true;
 }
 
@@ -2891,31 +3055,30 @@ function returnFromRanking() {
   }
 }
 
-async function switchRankingTab(tab) {
-  currentRankingTab=tab;
-  document.getElementById('tab-rank-local')?.classList.toggle('active',tab==='local');
-  document.getElementById('tab-rank-world')?.classList.toggle('active',tab==='world');
-  const status=document.getElementById('ranking-status-msg');
-  const tbody=document.getElementById('ranking-tbody');
-  if(tab==='local'){
-    if(status) status.textContent='📱 MEJORES PUNTAJES DE ESTE DISPOSITIVO (INVITADOS).';
-    renderRankingRows(tbody,getLocalRankingList().slice(0,10));
+// La clasificación es única y pública: una entrada por UID y su mejor puntaje.
+// No usa localStorage, datos de ejemplo ni una tabla separada por dispositivo.
+async function switchRankingTab() {
+  currentRankingTab = "world";
+  const status = document.getElementById('ranking-status-msg');
+  const tbody = document.getElementById('ranking-tbody');
+  if (status) status.textContent = '🌎 CONSULTANDO EL RANKING GLOBAL...';
+  if (!cloudAvailable()) {
+    if (status) status.textContent = '⚠️ PARA VER EL RANKING GLOBAL SE NECESITA INTERNET Y FIREBASE.';
+    renderRankingRows(tbody, []);
     return;
   }
-  if(status) status.textContent='🌎 DESCARGANDO RANKING ONLINE REAL...';
-  if(!cloudAvailable()) {
-    if(status) status.textContent='⚠️ EL RANKING ONLINE NECESITA FIREBASE CONFIGURADO E INTERNET.';
-    renderRankingRows(tbody,[]);return;
-  }
   try {
-    const snapshot=await apusFirebaseDb.collection(APUS_RANKING_COLLECTION)
-      .orderBy('score','desc').limit(10).get();
-    const list=snapshot.docs.map(d=>d.data());
-    renderRankingRows(tbody,list);
-    if(status) status.textContent=`🌎 ${list.length} MEJORES PUNTAJES ONLINE.`;
-  } catch(e) {
-    console.warn(e);if(status)status.textContent='⚠️ NO SE PUDO CONSULTAR EL RANKING. REVISA INTERNET Y REGLAS.';
-    renderRankingRows(tbody,[]);
+    const snapshot = await apusFirebaseDb.collection(APUS_RANKING_COLLECTION)
+      .orderBy('score', 'desc').get();
+    const list = snapshot.docs.map(doc => doc.data());
+    renderRankingRows(tbody, list);
+    if (status) status.textContent = list.length
+      ? `🌎 ${list.length} JUGADOR${list.length === 1 ? '' : 'ES'} · MEJOR PUNTAJE DE CADA CUENTA.`
+      : '🌎 TODAVÍA NO HAY PUNTAJES. ¡SÉ EL PRIMERO!';
+  } catch (error) {
+    console.warn('No se pudo consultar el ranking global:', error);
+    if (status) status.textContent = '⚠️ NO SE PUDO CONSULTAR EL RANKING. REVISA TU CONEXIÓN.';
+    renderRankingRows(tbody, []);
   }
 }
 function escapeRankingHTML(value) {
@@ -2932,7 +3095,7 @@ function renderRankingRows(tbody,list) {
   }).join('');
 }
 async function refreshWorldRanking() {
-  sound.playSFX('sfx_jump');await switchRankingTab('world');
+  sound.playSFX('sfx_jump');await switchRankingTab();
 }
 async function publishSignedInScore(entry) {
   if(!currentUser?.uid || !cloudAvailable()) throw new Error('Sin cuenta online');
@@ -2966,7 +3129,7 @@ function retryDefeatedStoryLevel() {
 }
 function openDefeatRanking() {
   if(gameState!=='SUMMIT'||player.celebrating)return;
-  openRanking('local');rankingReturnToGameOver=true;
+  openRanking();rankingReturnToGameOver=true;
 }
 function prepareGameOverModal() {
   const defeated=!player.celebrating;
@@ -2997,14 +3160,14 @@ async function submitScore() {
   const input=document.getElementById('player-name-input');
   const name=(currentUser?.uid?currentUser.username:(input.value||'MONTANISTA')).toUpperCase().trim();
   const entry={name,char:selectedCharacter,diff:DIFFICULTIES[diffIndex].name,score:storyData.score};
-  if(currentUser?.uid){
-    try {await publishSignedInScore(entry);openRanking('world');}
-    catch(e){flagCloudWriteFailure(e);return;}
-  } else {
-    const local=getLocalRankingList();local.push(entry);local.sort((a,b)=>b.score-a.score);
-    localStorage.setItem('apus_iliniza_ranking',JSON.stringify(local.slice(0,10)));
-    openRanking('local');
+  if(!currentUser?.uid){
+    openAuthModalFromGameOver();
+    return;
   }
+  try {
+    await publishSignedInScore(entry);
+    openRanking();
+  } catch(e){ flagCloudWriteFailure(e); return; }
   if(summitCelebrationActive&&player.celebrating)rankingReturnToGameOver=true;
 }
 
@@ -3062,7 +3225,7 @@ function toggleTouchUI() {
 
 function updateTouchControlsVisibility() {
   const tc = document.getElementById("touch-controls");
-  const activePlay = (gameState === "STORY" || gameState === "MINIGAME");
+  const activePlay = (gameState === "STORY" || (gameState === "MINIGAME" && !tournament?.cpuAutoplay));
   if (tc) {
     tc.classList.toggle("story-ascent-ui", gameState === "STORY");
     if (activePlay && forceTouchUI) {
@@ -3084,6 +3247,7 @@ document.getElementById("btn-sound").addEventListener("click", (e) => {
 
 document.getElementById("btn-settings").addEventListener("click", (e) => {
   e.stopPropagation();
+  if (tournament?.status === 'playing') { tourShowBracket(); return; }
   sound.initContext();
   // Guardar solo corresponde al ascenso; nunca ofrecerlo en Chugo vs Jordy.
   const storySaveBtn = document.getElementById("settings-story-save-btn");
@@ -3108,6 +3272,7 @@ function resumeFromSettings() {
 }
 
 function returnToMainMenu() {
+  if (tournament) tourLeave(true);
   if (descentExtraActive) closeDescentExtra();
   cleanupPeerConnection();
   gameState = "MENU";
@@ -3504,6 +3669,7 @@ window.addEventListener("keydown", (e) => {
   if (introActive) { finishIntroAndOpenMenu(); return; }
   if (document.activeElement && document.activeElement.tagName === "INPUT") return;
   const code = e.code;
+  if (gameState === "MINIGAME" && tournament?.cpuAutoplay) return;
   if (code === "ArrowLeft" || code === "KeyA") keys.left = true;
   if (code === "ArrowRight" || code === "KeyD") keys.right = true;
   if (code === "ArrowUp" || code === "KeyW") {
@@ -3524,8 +3690,8 @@ window.addEventListener("keydown", (e) => {
       triggerJump();
     }
   }
-  // Teclado del ascenso: W/↑/J saltar, K piolet, L protección contra rocas.
-  // El mapeo ORIGINAL del minijuego (J piolet, K patada, L cerveza) se conserva.
+  // Ascenso: J saltar, K piolet, L protección. Combate: J defender,
+  // K piolet (-8), H cramponazo (-6 + empuje), L Pilsener (-10).
   if (gameState === "STORY") {
     if (code === "KeyJ") {
       keys.jump = true;
@@ -3533,15 +3699,19 @@ window.addEventListener("keydown", (e) => {
     }
     if (code === "KeyZ" || code === "KeyK") { keys.axe = true; if (!e.repeat) triggerAxe(); }
     if (code === "KeyX" || code === "KeyL") keys.hug = true;
-  } else {
-    if (code === "KeyZ" || code === "KeyJ") { keys.axe = true; triggerAxe(); }
-    if (code === "KeyX" || code === "KeyK") {
-      keys.hug = true; keys.kick = true;
-      if (gameState === "MINIGAME") triggerKick();
+  } else if (gameState === "MINIGAME") {
+    if (code === "KeyJ") keys.defend = true;
+    if (code === "KeyZ" || code === "KeyK") {
+      keys.axe = true;
+      if (!e.repeat) triggerFighterAxe();
+    }
+    if (code === "KeyH") {
+      keys.kick = true;
+      if (!e.repeat) triggerKick();
     }
     if (code === "KeyC" || code === "KeyL") {
       keys.beer = true;
-      if (gameState === "MINIGAME") triggerBeerThrow();
+      if (!e.repeat) triggerBeerThrow();
     }
   }
 });
@@ -3558,9 +3728,10 @@ window.addEventListener("keyup", (e) => {
     if (code === "KeyJ") keys.jump = false;
     if (code === "KeyZ" || code === "KeyK") keys.axe = false;
     if (code === "KeyX" || code === "KeyL") keys.hug = false;
-  } else {
-    if (code === "KeyZ" || code === "KeyJ") keys.axe = false;
-    if (code === "KeyX" || code === "KeyK") { keys.hug = false; keys.kick = false; }
+  } else if (gameState === "MINIGAME") {
+    if (code === "KeyJ") keys.defend = false;
+    if (code === "KeyZ" || code === "KeyK") keys.axe = false;
+    if (code === "KeyH") keys.kick = false;
     if (code === "KeyC" || code === "KeyL") keys.beer = false;
   }
 });
@@ -3636,11 +3807,18 @@ bindTouchButton("tbtn-hug", () => { keys.hug = true; }, () => { keys.hug = false
 bindTouchButton("fbtn-defend", () => {
   if (!vsWinner) {
     keys.defend = true;
-    if (fighters[0]) fighters[0].blocking = true;
+    if (fighters[0]) {
+      fighters[0].guardPose = fighters[0].onGround;
+      fighters[0].blocking = fighters[0].guardPose &&
+        fighters[0].shieldCooldown <= 0 && fighters[0].shieldBlocks < 3;
+    }
   }
 }, () => {
   keys.defend = false;
-  if (fighters[0]) fighters[0].blocking = false;
+  if (fighters[0]) {
+    fighters[0].blocking = false;
+    fighters[0].guardPose = false;
+  }
 });
 bindTouchButton("fbtn-axe", () => { triggerFighterAxe(); }, null);
 bindTouchButton("fbtn-kick", () => { triggerKick(); }, null);
@@ -3788,6 +3966,7 @@ function initStoryLevel(lvlIdx, resetHearts = false) {
 
   obstacles = [];
   floatingTexts = [];
+  snowBreakParticles = [];
   initSnowParticles();
 
   gameState = "STORY";
@@ -3808,6 +3987,25 @@ function initSnowParticles() {
 
 function addFloatingScore(x, y, text = "+10", color = "#facc15") {
   floatingTexts.push({ x, y, text, color, life: 55 });
+}
+
+function spawnSnowBreakEffect(x, y, r = 20) {
+  const shardCount = 9 + ((Math.random() * 4) | 0);
+  for (let i = 0; i < shardCount; i++) {
+    const angle = (Math.PI * 2 * i) / shardCount + Math.random() * 0.35;
+    const speed = 1.4 + Math.random() * 2.8;
+    snowBreakParticles.push({
+      kind: i % 3 === 0 ? "puff" : "shard",
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.9,
+      size: (i % 3 === 0 ? r * 0.32 : r * (0.18 + Math.random() * 0.12)),
+      life: 18 + ((Math.random() * 10) | 0),
+      maxLife: 26,
+      rot: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.28
+    });
+  }
 }
 
 function maybeSpawnPilsener(x, y) {
@@ -3864,6 +4062,9 @@ function triggerAxe() {
           addFloatingScore(ob.x, ob.y - 20, "+10", "#facc15");
           sound.playSFX("sfx_axe");
 
+          if (ob.type === "SNOWBALL") {
+            spawnSnowBreakEffect(ob.x, ob.y, ob.r || 20);
+          }
           if (ob.type === "ICEBLOCK") {
             maybeSpawnPilsener(ob.x, ob.y);
           }
@@ -4014,13 +4215,17 @@ function updateStoryMode() {
       });
     }
     if (Math.random() < lvl.rockRate) {
+      const rockSizes = [13, 17, 21];
+      const rockRadius = rockSizes[(Math.random() * rockSizes.length) | 0];
+      const rockVariant = (Math.random() * 3) | 0;
       obstacles.push({
         type: "ROCK",
         x: (isPortrait ? 70 : 150) + Math.random() * (GW - 110),
         y: isPortrait ? 75 : -35,
         vx: -1.3 - Math.random() * 1.4,
         vy: 4.0 + Math.random() * 2.8,
-        r: 22,
+        r: rockRadius,
+        variant: rockVariant,
         dead: false
       });
     }
@@ -4053,8 +4258,10 @@ function updateStoryMode() {
         ob.dead = true;
         storyData.levelScore += 10;
         addFloatingScore(ob.x, ob.y, "+10", "#facc15");
+        spawnSnowBreakEffect(ob.x, ob.y, ob.r || 20);
       } else {
         ob.dead = true;
+        spawnSnowBreakEffect(ob.x, ob.y, ob.r || 20);
         damagePlayer(0.5);
       }
     } else if (ob.type === "ROCK" && distToPlayer < 34) {
@@ -4083,11 +4290,27 @@ function updateStoryMode() {
     if (p.y > GH) { p.y = 0; p.x = Math.random() * GW; }
   });
 
+  snowBreakParticles.forEach((p) => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx *= 0.98;
+    p.vy += 0.08;
+    p.rot += p.spin;
+    p.size *= 0.985;
+    p.life--;
+  });
+  snowBreakParticles = snowBreakParticles.filter((p) => p.life > 0 && p.size > 0.7);
+
   if (gameState === "STORY" && storyData.distance >= lvl.totalDistance) {
     storyData.score += storyData.levelScore;
     storyData.levelScore = 0;
     sound.playSFX("sfx_checkpoint");
 
+    // Publicar el mejor progreso en la clasificación de todos los jugadores.
+    if (currentUser?.uid) {
+      publishSignedInScore({name:currentUser.username, char:selectedCharacter,
+        diff:DIFFICULTIES[diffIndex].name, score:storyData.score}).catch(flagCloudWriteFailure);
+    }
     recordStoryLevelCompletion(storyData.levelIdx);
     if (storyData.levelIdx < LEVELS.length - 1) {
       gameState = "CHECKPOINT";
@@ -4119,6 +4342,16 @@ const FIGHT_GRAVITY = 0.7;
 const FIGHT_JUMP_SPEED = -12;
 const BEER_DAMAGE = 10;
 const BEER_SPEED = 9;
+const AXE_DAMAGE = 8;
+const KICK_DAMAGE = 6;
+const SHIELD_BLOCK_LIMIT = 3;
+const SHIELD_RECHARGE_MS = 3000; // 3 segundos reales, incluso en pantallas rápidas.
+const SHIELD_RECHARGE_FRAMES = 180; // HUD a 60 FPS (el reloj usa milisegundos).
+const WEAK_SHIELD_PUSH_FRAMES = 6;
+const WEAK_SHIELD_PUSH_PER_FRAME = 4; // 24 unidades, mucho menos que el cramponazo.
+const KICK_PUSH_FRAMES = 14;
+const KICK_PUSH_PER_FRAME = 12; // ~168 unidades: al alcance de una Pilsener.
+
 
 function stageXToCanvasX(stageX) {
   return (stageX / FIGHT_STAGE_W) * GW;
@@ -4133,6 +4366,11 @@ function addVsFloater(x, y, text, color) {
 }
 
 function sendOnline(msg) {
+  // La sala tradicional conserva exactamente su envío; el torneo usa otro Peer.
+  if (tournament && tournament.status === 'playing' && tournament.mode === 'online') {
+    tourSendCombat(msg);
+    return;
+  }
   if (vsIsOnline && peerConn && peerConn.open) {
     try { peerConn.send(msg); } catch (e) {}
   }
@@ -4165,13 +4403,17 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
       char: myInfo.char, displayName: myInfo.displayName, customConfig: myInfo.customConfig,
       isAI: false, x: p1StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350, hpGhost: 350,
       facing: p1StartX < p2StartX ? 1 : -1, onGround: true, blocking: false,
-      action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0
+      action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0,
+      shieldBlocks: 0, shieldCooldown: 0, shieldReadyAt: 0, shieldAnim: 0, guardPose: false,
+      knockbackFrames: 0, knockbackDir: 0, knockbackPerFrame: KICK_PUSH_PER_FRAME
     },
     {
       char: p2Char, displayName: p2DisplayName, customConfig: p2CustomConfig,
       isAI: !onlineMode, x: p2StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350, hpGhost: 350,
       facing: p2StartX < p1StartX ? 1 : -1, onGround: true, blocking: false,
-      action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0
+      action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0,
+      shieldBlocks: 0, shieldCooldown: 0, shieldReadyAt: 0, shieldAnim: 0, guardPose: false,
+      knockbackFrames: 0, knockbackDir: 0, knockbackPerFrame: KICK_PUSH_PER_FRAME
     }
   ];
   projectiles = [];
@@ -4187,7 +4429,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
 
 function updateVersusResultActions() {
   const actions=document.getElementById('vs-end-actions');
-  if(actions) actions.style.display=gameState==='MINIGAME' && !!vsWinner && vsEndAnimTimer<=0?'flex':'none';
+  if(actions) actions.style.display=(!tournament && gameState==='MINIGAME' && !!vsWinner && vsEndAnimTimer<=0)?'flex':'none';
   if(actions) actions.style.flexDirection='column';
 }
 function returnToVersusCharacterSelect() {
@@ -4212,7 +4454,7 @@ function triggerFighterJump() {
   if (gameState !== "MINIGAME" || fighters.length < 2) return;
   if (vsWinner) return;
   const f = fighters[0];
-  if (f && f.onGround && !f.blocking) {
+  if (f && f.onGround && !f.blocking && !f.guardPose) {
     f.vy = FIGHT_JUMP_SPEED;
     f.onGround = false;
     sound.playSFX("sfx_jump");
@@ -4220,7 +4462,7 @@ function triggerFighterJump() {
 }
 
 function canFighterAct(f) {
-  return gameState === "MINIGAME" && fighters.length === 2 && f && f.cooldown <= 0 && !f.blocking && !vsWinner;
+  return gameState === "MINIGAME" && fighters.length === 2 && f && f.cooldown <= 0 && !f.blocking && !f.guardPose && !vsWinner;
 }
 
 function triggerFighterAxe() {
@@ -4230,8 +4472,8 @@ function triggerFighterAxe() {
   f.actionTimer = 16;
   f.cooldown = 22;
   sound.playSFX("sfx_axe");
-  sendOnline({ type: "MELEE_ATTACK", dmg: 6 });
-  checkMeleeHit(f, fighters[1], 6);
+  sendOnline({ type: "MELEE_ATTACK", dmg: AXE_DAMAGE });
+  checkMeleeHit(f, fighters[1], AXE_DAMAGE);
 }
 
 function triggerKick() {
@@ -4241,8 +4483,8 @@ function triggerKick() {
   f.actionTimer = 18;
   f.cooldown = 26;
   sound.playSFX("sfx_kick");
-  sendOnline({ type: "MELEE_ATTACK", dmg: 8 });
-  checkMeleeHit(f, fighters[1], 8);
+  sendOnline({ type: "MELEE_ATTACK", dmg: KICK_DAMAGE });
+  checkMeleeHit(f, fighters[1], KICK_DAMAGE);
 }
 
 function spawnBeer(ownerIdx) {
@@ -4253,7 +4495,7 @@ function spawnBeer(ownerIdx) {
     x: f.x + f.facing * 36,
     y: f.y - 28,
     vx: f.facing * BEER_SPEED,
-    vy: -5,
+    vy: -3.2,
     rot: 0,
     life: 150
   });
@@ -4279,6 +4521,7 @@ function declareVersusWinner(idx) {
   vsEndAnimTimer = 180;
   projectiles = [];
   sound.playSFX("sfx_checkpoint");
+  if (tournament && tournament.status === 'playing') tourNotifyWin(idx);
 }
 
 /* Aplica daño (o lo bloquea) y muestra el número flotante.
@@ -4290,12 +4533,41 @@ function dealDamage(attacker, defender, dmg) {
   if (defender.blocking) {
     addVsFloater(defender.x, defender.y - 78, "BLOQUEO", "#38bdf8");
     sound.playSFX("sfx_axe");
+    // Cada combatiente cuenta sus bloqueos en su propio dispositivo.
+    if (!remoteTarget) {
+      defender.shieldBlocks = (defender.shieldBlocks || 0) + 1;
+      if (defender.shieldBlocks >= SHIELD_BLOCK_LIMIT) {
+        defender.shieldBlocks = SHIELD_BLOCK_LIMIT;
+        defender.shieldCooldown = SHIELD_RECHARGE_FRAMES;
+        defender.shieldReadyAt = performance.now() + SHIELD_RECHARGE_MS;
+        defender.blocking = false;
+        addVsFloater(defender.x, defender.y - 110, "RECARGA 3s", "#facc15");
+      }
+    }
     return false;
   }
 
   if (!remoteTarget) {
     defender.hp = Math.max(0, defender.hp - dmg);
-    defender.vx = (defender.x >= attacker.x ? 1 : -1) * 7;
+    const hitDirection = defender.x >= attacker.x ? 1 : -1;
+    const weakShield = defender.shieldCooldown > 0 &&
+      (defender.guardPose || defender.action === "GUARD_WEAK");
+    if (dmg === KICK_DAMAGE) {
+      // El cramponazo conserva su empuje fuerte, incluso con el casco descargado.
+      defender.knockbackFrames = KICK_PUSH_FRAMES;
+      defender.knockbackDir = hitDirection;
+      defender.knockbackPerFrame = KICK_PUSH_PER_FRAME;
+      defender.vx = 0;
+    } else if (weakShield) {
+      // En recarga, defender NO bloquea daño: solo amortigua el impacto con retroceso leve.
+      defender.knockbackFrames = WEAK_SHIELD_PUSH_FRAMES;
+      defender.knockbackDir = hitDirection;
+      defender.knockbackPerFrame = WEAK_SHIELD_PUSH_PER_FRAME;
+      defender.vx = 0;
+      addVsFloater(defender.x, defender.y - 112, "SIN ESCUDO", "#facc15");
+    } else {
+      defender.vx = hitDirection * 7;
+    }
   }
   defender.hurtTimer = 18;
   addVsFloater(defender.x, defender.y - 78, "-" + dmg, "#ef4444");
@@ -4345,6 +4617,20 @@ function updateVersusMiniGame() {
   fighters.forEach((f, i) => {
     if (f.cooldown > 0) f.cooldown--;
     if (f.hurtTimer > 0) f.hurtTimer--;
+    // En online solo el propio cliente decide cuándo termina la recarga.
+    if (!(vsIsOnline && i === 1) && f.shieldCooldown > 0) {
+      // Tiempo real: 3 segundos independientemente de Hz o FPS.
+      const remainingMs = Math.max(0, (f.shieldReadyAt || 0) - performance.now());
+      f.shieldCooldown = Math.ceil(remainingMs * 60 / 1000);
+      if (remainingMs === 0) {
+        f.shieldCooldown = 0;
+        f.shieldBlocks = 0;
+        f.shieldReadyAt = 0;
+      }
+    }
+    const shieldTarget = (f.blocking || f.guardPose || f.action === "GUARD_WEAK") ? 1 : 0;
+    f.shieldAnim = Math.max(0, Math.min(1,
+      (f.shieldAnim || 0) + (shieldTarget ? 0.14 : -0.16)));
     f.hpGhost = f.hpGhost > f.hp ? Math.max(f.hp, f.hpGhost - 1.4) : f.hp;
     const isRemote = vsIsOnline && i === 1; // su acción llega por STATE
     if (!isRemote && f.actionTimer > 0) {
@@ -4376,18 +4662,29 @@ function updateVersusMiniGame() {
   const p2 = fighters[1];
 
   // --- Jugador local ---
-  p1.blocking = p1.onGround && (keys.defend || joyState.dy > 0.45);
-  if ((keys.up || joyState.dy < -0.55) && p1.onGround && !p1.blocking) {
+  const requestedGuard = keys.defend || joyState.dy > 0.45;
+  p1.guardPose = p1.onGround && requestedGuard;
+  p1.blocking = p1.guardPose && p1.shieldCooldown <= 0
+    && p1.shieldBlocks < SHIELD_BLOCK_LIMIT;
+  if ((keys.up || joyState.dy < -0.55) && p1.onGround && !p1.guardPose) {
     triggerFighterJump();
   }
 
-  p1.vx *= 0.8;
-  if (!p1.blocking) {
-    if (keys.left || joyState.dx < -0.25) { p1.vx = -FIGHT_MOVE_SPEED; p1.anim++; }
-    if (keys.right || joyState.dx > 0.25) { p1.vx = FIGHT_MOVE_SPEED; p1.anim++; }
+  if (p1.knockbackFrames > 0) {
+    p1.vx = 0;
+    p1.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65,
+      p1.x + p1.knockbackDir * (p1.knockbackPerFrame || KICK_PUSH_PER_FRAME)));
+    p1.knockbackFrames--;
+    p1.anim++;
+  } else {
+    p1.vx *= 0.8;
+    if (!p1.guardPose) {
+      if (keys.left || joyState.dx < -0.25) { p1.vx = -FIGHT_MOVE_SPEED; p1.anim++; }
+      if (keys.right || joyState.dx > 0.25) { p1.vx = FIGHT_MOVE_SPEED; p1.anim++; }
+    }
+    p1.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p1.x + p1.vx));
   }
   p1.facing = p2.x >= p1.x ? 1 : -1;
-  p1.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p1.x + p1.vx));
 
   // Física vertical (salto con gravedad)
   p1.vy += FIGHT_GRAVITY;
@@ -4407,7 +4704,11 @@ function updateVersusMiniGame() {
     p2.blocking = false;
     p2.facing = p1.x >= p2.x ? 1 : -1;
     const dist = Math.abs(p1.x - p2.x);
-    if (dist > 82) {
+    if (p2.knockbackFrames > 0) {
+      p2.vx = p2.knockbackDir * (p2.knockbackPerFrame || KICK_PUSH_PER_FRAME);
+      p2.knockbackFrames--;
+      p2.anim++;
+    } else if (dist > 82) {
       p2.vx = p2.facing * FIGHT_MOVE_SPEED;
       p2.anim++;
       if (dist > 230 && p2.cooldown <= 0 && Math.random() < 0.012) {
@@ -4423,13 +4724,13 @@ function updateVersusMiniGame() {
         p2.actionTimer = 18;
         p2.cooldown = 55;
         sound.playSFX("sfx_kick");
-        checkMeleeHit(p2, p1, 8);
+        checkMeleeHit(p2, p1, KICK_DAMAGE);
       } else {
         p2.action = "AXE";
         p2.actionTimer = 15;
         p2.cooldown = 48;
         sound.playSFX("sfx_axe");
-        checkMeleeHit(p2, p1, 6);
+        checkMeleeHit(p2, p1, AXE_DAMAGE);
       }
     }
     p2.x = Math.max(65, Math.min(FIGHT_STAGE_W - 65, p2.x + p2.vx));
@@ -4448,7 +4749,7 @@ function updateVersusMiniGame() {
     jumpOffset: groundY - p1.y,
     facing: p1.facing,
     blocking: p1.blocking,
-    action: p1.action,
+    action: p1.guardPose && !p1.blocking ? "GUARD_WEAK" : p1.action,
     anim: p1.anim,
     myHp: p1.hp,
     customConfig: p1.customConfig
@@ -5190,13 +5491,7 @@ function renderStoryMode() {
       ctx.lineWidth = 3;
       ctx.stroke();
     } else if (ob.type === "ROCK") {
-      ctx.fillStyle = "#475569";
-      ctx.beginPath();
-      ctx.arc(ob.x, drawY, ob.r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 3;
-      ctx.stroke();
+      drawFallingRockShape(ctx, ob.x, drawY, ob.r, ob.variant || 0);
     } else if (ob.type === "PILSENER") {
       drawBottlePilsener(ob.x, drawY, 0);
     }
@@ -5223,6 +5518,33 @@ function renderStoryMode() {
     hurt: player.invulnTimer > 0
   });
   ctx.restore();
+
+  snowBreakParticles.forEach((p) => {
+    const alpha = Math.max(0, p.life / p.maxLife);
+    const py = p.y + cameraYOffset;
+    if (p.kind === "puff") {
+      ctx.fillStyle = `rgba(255,255,255,${0.78 * alpha})`;
+      ctx.beginPath();
+      ctx.arc(p.x, py, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.save();
+      ctx.translate(p.x, py);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = `rgba(240,249,255,${0.95 * alpha})`;
+      ctx.strokeStyle = `rgba(148,163,184,${0.85 * alpha})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-p.size * 0.9, -p.size * 0.35);
+      ctx.lineTo(p.size * 0.95, -p.size * 0.08);
+      ctx.lineTo(p.size * 0.36, p.size * 0.76);
+      ctx.lineTo(-p.size * 0.7, p.size * 0.34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  });
 
   ctx.fillStyle = "#ffffff";
   snowParticles.forEach((p) => {
@@ -5312,15 +5634,71 @@ function fitFont(text, maxW, startSize) {
 }
 
 function drawVsShield(f) {
-  const cx = stageXToCanvasX(f.x) + f.facing * 34;
-  const cy = f.y - 8;
+  const t = Math.max(0, Math.min(1, f.shieldAnim || 0));
+  if (t <= 0) return;
+  const baseX = stageXToCanvasX(f.x);
+  const face = f.facing || 1;
+  // La mano recorre de la cabeza al pecho, sin alejar el casco del personaje.
+  const cx = baseX + face * (3 + 27 * t);
+  const cy = f.y - 64 + 43 * t;
+  const helmetColor = f.char === 'CUSTOM' && f.customConfig
+    ? (f.customConfig.helmetColor || '#f8fafc')
+    : (f.char === 'JORDY' ? '#f8fafc' : '#f97316');
+  const jacketColor = f.char === 'CUSTOM' && f.customConfig
+    ? (f.customConfig.jacketColor || '#f97316')
+    : (f.char === 'JORDY' ? '#f97316' : '#0ea5e9');
+  const handColor = f.char === 'CUSTOM' && f.customConfig
+    ? (SKIN_TONES[f.customConfig.skin] || '#d99b66') : '#f1c27d';
+  const weakGuard = !f.blocking && (f.shieldCooldown > 0 || f.action === 'GUARD_WEAK');
+
   ctx.save();
-  ctx.fillStyle = "rgba(56, 189, 248, 0.28)";
-  ctx.strokeStyle = "#7dd3fc";
-  ctx.lineWidth = 3;
+  ctx.lineCap = 'square';
+  // Brazo hacia el casco, a una distancia natural desde el hombro.
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 12;
   ctx.beginPath();
-  ctx.ellipse(cx, cy, 16, 50, 0, 0, Math.PI * 2);
+  ctx.moveTo(baseX + face * 12, f.y - 12);
+  ctx.lineTo(cx - face * 7, cy + 5);
+  ctx.stroke();
+  ctx.strokeStyle = jacketColor;
+  ctx.lineWidth = 8;
+  ctx.stroke();
+  ctx.fillStyle = handColor;
+  ctx.fillRect(cx - 4, cy + 3, 8, 7);
+
+  ctx.translate(cx, cy);
+  ctx.scale(face, 1);
+  // Casco pixel-art curvado en la mano, con el mismo color de cada personaje.
+  ctx.fillStyle = '#101827';
+  ctx.fillRect(-14, -5, 28, 14);
+  ctx.fillRect(-11, -10, 22, 6);
+  ctx.fillRect(-7, -13, 14, 4);
+  ctx.fillStyle = helmetColor;
+  ctx.fillRect(-12, -4, 24, 12);
+  ctx.fillRect(-9, -9, 18, 6);
+  ctx.fillRect(-6, -12, 12, 5);
+  ctx.fillStyle = 'rgba(255,255,255,0.38)';
+  ctx.fillRect(-8, -9, 8, 2);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(-15, 7, 30, 4); // visera
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(-6, -5, 3, 3); // ventilaciones
+  ctx.fillRect(4, -5, 3, 3);
+
+  // Escudo luminoso clásico DELANTE del casco (no sustituye el casco).
+  // En recarga sigue visible, pero atenuado y NO bloquea daño.
+  const strength = weakGuard ? 0.32 : 1;
+  ctx.fillStyle = `rgba(56,189,248,${0.18 * strength * t})`;
+  ctx.beginPath();
+  ctx.ellipse(20, -1, 13, 24, 0, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = `rgba(125,211,252,${0.88 * strength * t})`;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(19, -1, 9, 19, 0, -Math.PI * 0.65, Math.PI * 0.65);
+  ctx.strokeStyle = `rgba(224,242,254,${0.6 * strength * t})`;
+  ctx.lineWidth = 1.8;
   ctx.stroke();
   ctx.restore();
 }
@@ -5409,6 +5787,15 @@ function drawVsHud() {
     ctx.fillText(label, x + barW / 2, barY + 14);
   });
 
+  const myShield = fighters[0];
+  const shieldLabel = myShield.shieldCooldown > 0
+    ? `CASCO: RECARGA ${Math.ceil(myShield.shieldCooldown / 60)}s`
+    : `CASCO: ${Math.max(0, SHIELD_BLOCK_LIMIT - myShield.shieldBlocks)}/3 BLOQUEOS`;
+  ctx.textAlign = "left";
+  ctx.font = "8px 'Press Start 2P', monospace";
+  ctx.fillStyle = myShield.shieldCooldown > 0 ? '#facc15' : '#bae6fd';
+  ctx.fillText(shieldLabel, margin, barY + barH + 18);
+
   ctx.textAlign = "center";
   ctx.font = "12px 'Press Start 2P', monospace";
   ctx.fillStyle = "#000000";
@@ -5438,9 +5825,10 @@ function renderVersusMiniGame() {
       celebrating: isWinner,
       crying: isLoser,
       hurt: f.hurtTimer > 0 && !vsWinner,
-      customConfig: f.customConfig
+      customConfig: f.customConfig,
+      helmetShield: !vsWinner && (f.shieldAnim || 0) > 0.03
     });
-    if (f.blocking && !vsWinner) drawVsShield(f);
+    if ((f.shieldAnim || 0) > 0 && !vsWinner) drawVsShield(f);
   });
 
   projectiles.forEach(drawBeerBottle);
@@ -5474,7 +5862,7 @@ function renderVersusMiniGame() {
     fitFont(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, boxW - 30, isPortrait ? 12 : 16);
     ctx.fillText(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, GW / 2, boxY + 50);
     ctx.fillStyle = "#fff";
-    const sub = "ELIGE REVANCHA O VOLVER A PERSONAJE";
+    const sub = tournament ? "EL TORNEO CONTINÚA..." : "ELIGE REVANCHA O VOLVER A PERSONAJE";
     fitFont(sub, boxW - 30, 10);
     ctx.fillText(sub, GW / 2, boxY + 90);
     ctx.textAlign = "left";
@@ -5616,7 +6004,15 @@ function gameLoop() {
     if (gameState === "STORY") updateStoryMode();
     renderStoryMode();
   } else if (gameState === "MINIGAME") {
-    updateVersusMiniGame();
+    const bracketPause = tournament?.mode === 'offline' &&
+      document.getElementById('tournament-lobby-overlay')?.classList.contains('active');
+    if (!bracketPause) {
+      if(tournament?.cpuAutoplay) tourCpuDrive();
+      updateVersusMiniGame();
+    }
+    renderVersusMiniGame();
+  } else if (gameState === "TOURNAMENT_WATCH") {
+    tourWatchAnimation();
     renderVersusMiniGame();
   }
 
@@ -5630,6 +6026,676 @@ canvas.addEventListener("pointerdown", () => {
     return;
   }
   // Las acciones de victoria/derrota se eligen con los dos botones de v26.
+});
+
+function drawFallingRockShape(ctx, x, y, r, variant = 0) {
+  const sizeClass = r <= 14 ? 0 : (r <= 18 ? 1 : 2);
+  const scaleBySize = [0.82, 0.98, 1.08];
+  const s = scaleBySize[sizeClass] || 1;
+  const shapes = [
+    [
+      [-0.92, -0.18], [-0.62, -0.8], [0.02, -0.96], [0.62, -0.62],
+      [0.98, -0.06], [0.76, 0.56], [0.16, 0.92], [-0.56, 0.78], [-1.0, 0.24]
+    ],
+    [
+      [-0.84, -0.4], [-0.28, -0.92], [0.42, -0.86], [0.92, -0.26],
+      [0.84, 0.34], [0.46, 0.88], [-0.14, 0.98], [-0.8, 0.56], [-0.98, 0.02]
+    ],
+    [
+      [-0.98, -0.08], [-0.76, -0.76], [-0.06, -0.9], [0.7, -0.82],
+      [0.98, -0.2], [0.88, 0.44], [0.38, 0.92], [-0.34, 0.96], [-0.86, 0.42]
+    ]
+  ];
+  const pts = shapes[Math.abs(variant) % shapes.length];
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((x * 0.011 + y * 0.008 + (variant + 1) * 0.6 + r * 0.05) % (Math.PI * 2));
+  const bodyGrad = ctx.createLinearGradient(-r, -r, r, r);
+  bodyGrad.addColorStop(0, '#a8b1bc');
+  bodyGrad.addColorStop(0.4, '#6b7280');
+  bodyGrad.addColorStop(1, '#374151');
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    const px = p[0] * r * s;
+    const py = p[1] * r * s;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.closePath();
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#111827';
+  ctx.lineWidth = Math.max(1.8, r * 0.12);
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-0.56 * r * s, -0.42 * r * s);
+  ctx.lineTo(0.12 * r * s, -0.64 * r * s);
+  ctx.lineTo(0.28 * r * s, -0.2 * r * s);
+  ctx.lineTo(-0.18 * r * s, -0.02 * r * s);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(0.02 * r * s, 0.08 * r * s);
+  ctx.lineTo(0.72 * r * s, -0.06 * r * s);
+  ctx.lineTo(0.58 * r * s, 0.52 * r * s);
+  ctx.lineTo(0.16 * r * s, 0.76 * r * s);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(15,23,42,0.24)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(-0.16 * r * s, -0.14 * r * s, Math.max(1.6, r * 0.1), 0, Math.PI * 2);
+  ctx.arc(0.26 * r * s, 0.18 * r * s, Math.max(1.4, r * 0.085), 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(226,232,240,0.14)';
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ==========================================================================
+   TORNEO COMPETITIVO V27.5 — sala PeerJS separada del 1 contra 1 original.
+   El anfitrión coordina el cuadro; los dos luchadores usan el motor VS
+   existente y transmiten su estado para los espectadores.
+   ========================================================================== */
+let tournament = null;
+let tourRoundTimer = null;
+let tourFrameTicker = 0;
+
+const TOUR_ROUND_LABELS = { q: 'CUARTOS DE FINAL', s: 'SEMIFINAL', third: 'TERCER LUGAR', final: 'FINAL' };
+const TOUR_ROOM_PREFIX = 'APUS-TORNEO-';
+const TOUR_STATE_INTERVAL = 65;
+
+function tourStatus(message) {
+  const el = document.getElementById('tournament-status');
+  if (el) el.textContent = message;
+  const lobby = document.getElementById('tournament-lobby-hint');
+  if (lobby) lobby.textContent = message;
+}
+function tourSetSize(n) {
+  const el = document.getElementById('tournament-size');
+  if (el) el.value = String(n);
+  // Únicamente actualiza el aspecto de los botones del selector.
+  for (const count of [4, 8]) {
+    const button = document.getElementById('tour-size-' + count);
+    if (button) button.setAttribute('aria-pressed', String(Number(n) === count));
+  }
+}
+function tourGetSize() {
+  return Number(document.getElementById('tournament-size').value) === 8 ? 8 : 4;
+}
+function tourOpenSetup() {
+  if (tournament) tourLeave();
+  showOverlay('tournament-setup-overlay');
+  tourStatus('Elige 4 u 8 participantes. Puedes pelear con tu personaje personalizado.');
+}
+function tourOwnInfo() {
+  const info = getMyFighterPayload();
+  return {
+    char: info.char,
+    displayName: String(info.displayName || 'MONTAÑISTA').slice(0, 32),
+    customConfig: info.customConfig || null
+  };
+}
+function tourPlayer(id, fighterInfo, cpu = false) {
+  return {
+    id, cpu, connected: true,
+    name: String(fighterInfo.displayName || 'JUGADOR').slice(0,32),
+    fighterInfo
+  };
+}
+function tourResetState(mode, size) {
+  tourLeave(true);
+  tournament = {
+    mode, size, host: true, me: mode === 'offline' ? 'LOCAL' : 'HOST',
+    code: '', status: 'lobby', peer: null, hostConn: null, peers: new Map(),
+    members: [tourPlayer(mode === 'offline' ? 'LOCAL' : 'HOST', tourOwnInfo())],
+    matches: [], current: null, third: null, winner: null, runnerUp: null,
+    cpuAutoplay: false, lastStateAt: 0, roundVersion: 0,
+    returnGameState: null, returnMatchId: null,
+    tourId: Math.random().toString(36).slice(2,11)
+  };
+  document.getElementById('tournament-host-start').style.display = 'block';
+  tourRenderLobby();
+}
+function tourOffline() {
+  const size = tourGetSize();
+  tourResetState('offline',size);
+  const names = ['JORDY','CHUGO','ANDINISTA','GUÍA','EXPLORADOR','ESCALADOR','CORDILLERA'];
+  for (let i=1;i<size;i++) {
+    const c = (i%2 === 1 ? 'CHUGO' : 'JORDY');
+    tournament.members.push(tourPlayer('CPU-'+i, {char:c,displayName:names[i-1]+' (CPU)', customConfig:null},true));
+  }
+  tourStartBracket();
+}
+function tourNewCode() { return generateShortCode(); }
+function tourCreateOnline() {
+  if (typeof Peer === 'undefined') { tourStatus('⚠️ Todavía se está cargando la conexión online.');return; }
+  tourResetState('online',tourGetSize());
+  const t=tournament, token=t.tourId;
+  t.code=tourNewCode();
+  tourStatus('⏳ Abriendo sala de torneo...');
+  showOverlay('tournament-lobby-overlay');
+  const peer = new Peer(TOUR_ROOM_PREFIX+t.code,PEER_ICE_CONFIG);
+  t.peer=peer;
+  peer.on('open', () => {
+    if(tournament!==t) return;
+    tourStatus('✅ Sala lista: comparte el código '+t.code+' con tus amigos.');
+    tourRenderLobby();
+  });
+  peer.on('connection',(conn)=>{
+    if(tournament!==t || t.status!=='lobby' || t.members.length>=t.size){try{conn.close();}catch(e){};return;}
+    tourAttachGuest(conn,t);
+  });
+  peer.on('error',(err)=>{
+    if(tournament!==t) return;
+    if (err?.type==='unavailable-id') {
+      tourStatus('⚠️ El código está ocupado. Vuelve a crear la sala.');
+    } else tourStatus('⚠️ Conexión del torneo: '+(err?.type||'error de red'));
+  });
+}
+function tourAttachGuest(conn,t){
+  const id=conn.peer;
+  const onOpen=()=>{
+    if(tournament!==t)return;
+    t.peers.set(id,conn);
+  };
+  conn.on('open',onOpen);
+  if(conn.open)onOpen();
+  conn.on('data', (data)=>{
+    if(tournament!==t || !data?.type)return;
+    if(data.type==='TOUR_HELLO' && t.status==='lobby'){
+      if(t.members.find(p=>p.id===id))return;
+      if(t.members.length>=t.size){try{conn.send({type:'TOUR_ERROR',msg:'Sala completa'});}catch(e){};conn.close();return;}
+      const info=tourSanitizeInfo(data.fighterInfo);
+      t.members.push(tourPlayer(id,info));
+      t.peers.set(id,conn);
+      tourPublish();
+    } else if(data.type==='TOUR_FIGHTER_PACKET'){
+      tourRouteFighter(id,data.packet);
+    } else if(data.type==='TOUR_RESULT'){
+      tourReceiveResult(id,data.winner);
+    } else if(data.type==='TOUR_LEAVE'){
+      tourHandleDisconnect(id);
+    }
+  });
+  conn.on('close',()=>{if(tournament===t)tourHandleDisconnect(id);});
+  conn.on('error',(e)=>console.warn('Torneo P2P conexión participante',e));
+}
+function tourSanitizeInfo(info){
+  const safe=info && typeof info==='object'?info:{};
+  return {
+    char:['JORDY','CHUGO','CUSTOM'].includes(safe.char)?safe.char:'JORDY',
+    displayName:String(safe.displayName||'INVITADO').slice(0,32),
+    customConfig:safe.customConfig && typeof safe.customConfig==='object'?safe.customConfig:null
+  };
+}
+function tourJoinOnline(){
+  if(typeof Peer==='undefined'){tourStatus('⏳ Cargando conexión online...');return;}
+  const code=(document.getElementById('tournament-join-code').value||'').trim().toUpperCase();
+  if(!/^[A-HJ-NP-Z2-9]{4}$/.test(code)){tourStatus('⚠️ Escribe el código de 4 caracteres.');return;}
+  tourResetState('online',4);
+  const t=tournament;
+  t.host=false;t.me='';t.code=code;t.members=[];
+  document.getElementById('tournament-host-start').style.display='none';
+  showOverlay('tournament-lobby-overlay');
+  tourStatus('⏳ Buscando torneo '+code+'...');
+  const peer=new Peer(PEER_ICE_CONFIG);t.peer=peer;
+  peer.on('open',id=>{
+    if(tournament!==t)return;
+    t.me=id;
+    const conn=peer.connect(TOUR_ROOM_PREFIX+code,{reliable:true,serialization:'json'});
+    t.hostConn=conn;
+    conn.on('open',()=>{
+      if(tournament!==t)return;
+      tourStatus('✅ Conectado. Esperando al anfitrión...');
+      conn.send({type:'TOUR_HELLO',fighterInfo:tourOwnInfo()});
+    });
+    conn.on('data',(packet)=>{if(tournament===t)tourReceiveHost(packet);});
+    conn.on('close',()=>{if(tournament===t)tourHostDisconnected();});
+    conn.on('error',(err)=>{if(tournament===t)tourStatus('⚠️ Error de canal del torneo: '+(err?.type||'red'));});
+  });
+  peer.on('error',err=>{if(tournament===t)tourStatus('⚠️ No se pudo conectar al torneo ('+(err?.type||'red')+').');});
+}
+async function tourCopyCode(){
+  const code=tournament?.code;
+  if(!code){tourStatus('Primero crea una sala online.');return;}
+  try{
+    if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);
+    else {const el=document.createElement('textarea');el.value=code;document.body.appendChild(el);el.select();document.execCommand('copy');el.remove();}
+    tourStatus('📋 Código '+code+' copiado.');
+  }catch(e){tourStatus('Código de torneo: '+code);}
+}
+function tourPublic(){
+  const t=tournament;
+  if(!t)return null;
+  return {mode:t.mode,size:t.size,code:t.code,status:t.status, members:t.members.map(p=>({...p})),
+    matches:t.matches.map(m=>({...m})),current:t.current,winner:t.winner,runnerUp:t.runnerUp,third:t.third,version:t.roundVersion};
+}
+function tourSend(id,packet){
+  const t=tournament;if(!t || t.mode!=='online')return;
+  if(id===t.me){tourReceiveHost(packet);return;}
+  const c=t.peers.get(id);
+  if(c?.open){try{c.send(packet);}catch(e){}}
+}
+function tourBroadcast(packet){
+  const t=tournament;if(!t)return;
+  if(t.mode==='online') for(const p of t.members)if(p.id!==t.me)tourSend(p.id,packet);
+}
+function tourPublish(){
+  const t=tournament;if(!t)return;
+  t.roundVersion++;
+  tourBroadcast({type:'TOUR_SYNC',state:tourPublic()});
+  tourRenderLobby();
+  tourUpdateHud();
+}
+function tourReceiveHost(packet){
+  const t=tournament;if(!t||!packet?.type)return;
+  if(packet.type==='TOUR_SYNC'){
+    if(t.host)return;
+    const d=packet.state;if(!d)return;
+    t.size=d.size;t.status=d.status;t.members=d.members;t.matches=d.matches;
+    t.current=d.current;t.winner=d.winner;t.runnerUp=d.runnerUp;t.third=d.third;
+    tourRenderLobby();tourUpdateHud();
+  }else if(packet.type==='TOUR_BOUT'){
+    tourEnterBout(packet.match,packet.players);
+  }else if(packet.type==='TOUR_COMBAT'){
+    tourConsumeCombat(packet.sender,packet.packet);
+  }else if(packet.type==='TOUR_FINISH'){
+    tourShowResult(packet.match,packet.winner,packet.reason);
+  }else if(packet.type==='TOUR_END'){
+    tourEndScreen(packet.summary);
+  }else if(packet.type==='TOUR_ERROR'){
+    tourStatus('❌ '+packet.msg);
+  }
+}
+function tourHandleDisconnect(id){
+  const t=tournament;if(!t||!t.host)return;
+  t.peers.delete(id);
+  const p=t.members.find(x=>x.id===id);if(!p || !p.connected)return;
+  if(t.status==='lobby'){
+    // El puesto se libera para que otro amigo pueda entrar antes de empezar.
+    t.members=t.members.filter(x=>x.id!==id);
+    tourPublish();
+    return;
+  }
+  p.connected=false;
+  const m=t.matches.find(x=>x.id===t.current && x.status==='live');
+  if(m && (m.a===id || m.b===id)){
+    const rival=m.a===id?m.b:m.a;
+    if(rival)tourResolveWin(rival,'Desconexión: victoria automática');
+  }
+  tourPublish();
+}
+function tourHostDisconnected(){
+  const t=tournament;if(!t || t.host)return;
+  const m=t.matches.find(x=>x.id===t.current);
+  const opponent=m && [m.a,m.b].find(id=>id!==t.me);
+  const hostWasOpponent=opponent==='HOST';
+  if(m && hostWasOpponent && gameState==='MINIGAME'){
+    vsWinner=fighters[0]?.displayName||'JUGADOR';vsWinnerIdx=0;vsEndAnimTimer=0;
+  }
+  gameState='MENU';updateTouchControlsVisibility();
+  showOverlay('tournament-lobby-overlay');
+  tourStatus(hostWasOpponent?'🏆 El anfitrión se desconectó: ganas este combate. El torneo se ha cancelado.':'⚠️ El anfitrión se desconectó. El torneo se ha cancelado.');
+}
+function tourBracketDefinition(size){
+  const t=tournament, initial=size===8?'q':'s', rounds=[];
+  for(let i=0;i<size/2;i++){
+    rounds.push({id:initial+i, round:initial, a:t.members[2*i].id, b:t.members[2*i+1].id,winner:null,loser:null,status:'pending'});
+  }
+  if(size===8){
+    for(let i=0;i<2;i++)rounds.push({id:'s'+i,round:'s',a:null,b:null,winner:null,loser:null,status:'pending'});
+  }
+  rounds.push({id:'third',round:'third',a:null,b:null,winner:null,loser:null,status:'pending'});
+  rounds.push({id:'final',round:'final',a:null,b:null,winner:null,loser:null,status:'pending'});
+  return rounds;
+}
+function tourStartBracket(){
+  const t=tournament;if(!t||!t.host||t.status!=='lobby')return;
+  if(t.members.length!==t.size || t.members.some(p=>!p.connected)){
+    tourStatus('⚠️ Faltan participantes para comenzar: '+t.members.length+'/'+t.size);return;
+  }
+  t.matches=tourBracketDefinition(t.size);t.status='playing';t.current=null;
+  t.roundVersion++;tourPublish();tourNextMatch();
+}
+function tourNextMatch(){
+  const t=tournament;if(!t||!t.host||t.status!=='playing')return;
+  const match=t.matches.find(m=>m.status==='pending'&&m.a&&m.b);
+  if(!match){
+    const incomplete=t.matches.some(m=>m.status!=='done');
+    if(!incomplete){
+      t.status='complete';t.current=null;t.winner=t.matches.find(m=>m.id==='final')?.winner;
+      t.runnerUp=t.matches.find(m=>m.id==='final')?.loser;
+      t.third=t.matches.find(m=>m.id==='third')?.winner;
+      tourPublish();
+      const summary=tourPublic();tourBroadcast({type:'TOUR_END',summary});tourEndScreen(summary);
+    }
+    return;
+  }
+  t.current=match.id;
+  const a=t.members.find(p=>p.id===match.a),b=t.members.find(p=>p.id===match.b);
+  if(!a?.connected||!b?.connected){
+    tourResolveWin(a?.connected?match.a:match.b,'Desconexión: pase automático');return;
+  }
+  match.status='live';t.roundVersion++;tourPublish();
+  const players=[a,b];
+  tourBroadcast({type:'TOUR_BOUT',match:{...match},players});
+  tourEnterBout(match,players);
+}
+function tourEnterBout(match,players){
+  const t=tournament;if(!t||t.status!=='playing')return;
+  t.current=match.id;
+  const [a,b]=players;
+  const me=t.me;
+  t.cpuAutoplay=false;
+  keys.left=false;keys.right=false;keys.up=false;keys.defend=false;
+  vsWinner=null;
+  vsWinnerIdx=-1;
+  vsEndAnimTimer=0;
+  const i=me===a.id?0:(me===b.id?1:-1);
+  tourUpdateHud();
+  document.getElementById('vs-end-actions').style.display='none';
+  showOverlay(null);
+  if(t.mode==='offline'){
+    const humanInThisMatch=a.id===me || b.id===me;
+    t.cpuAutoplay=!humanInThisMatch;
+    // El motor offline siempre controla a fighters[0].
+    const own=humanInThisMatch?(a.id===me?a:b):a;
+    const other=humanInThisMatch?(a.id===me?b:a):b;
+    selectedCpuOpponent=other.fighterInfo.char==='CHUGO'?'CHUGO':'JORDY';
+    startVersusMiniGame(false);
+    if(!humanInThisMatch){
+      fighters[0].char=own.fighterInfo.char;fighters[0].customConfig=own.fighterInfo.customConfig;
+      fighters[0].hp=140;fighters[0].maxHp=140;fighters[0].hpGhost=140;
+      fighters[1].hp=140;fighters[1].maxHp=140;fighters[1].hpGhost=140;
+    }
+    fighters[0].displayName=own.name;
+    updateTouchControlsVisibility();
+    fighters[1].char=other.fighterInfo.char;
+    fighters[1].customConfig=other.fighterInfo.customConfig;
+    fighters[1].displayName=other.name;
+    t.returnGameState='MINIGAME';t.returnMatchId=match.id;
+    tourUpdateHud();
+  }else if(i>=0){
+    isOnlineHost=i===0;
+    startVersusMiniGame(true,players[1-i].fighterInfo);
+    fighters[0].displayName=players[i].name;
+    fighters[1].displayName=players[1-i].name;
+    t.returnGameState='MINIGAME';t.returnMatchId=match.id;
+    tourUpdateHud();
+  }else{
+    fighters=players.map((p,idx)=>tourMakeSpectatorFighter(p,idx));
+    projectiles=[];vsFloaters=[];
+    gameState='TOURNAMENT_WATCH';
+    updateTouchControlsVisibility();
+    sound.playBGM('bgm_versus');
+    t.returnGameState='TOURNAMENT_WATCH';t.returnMatchId=match.id;
+    tourUpdateHud();
+  }
+}
+function tourMakeSpectatorFighter(p,idx){
+  const x=idx===0?260:700;
+  return {char:p.fighterInfo.char,displayName:p.name,customConfig:p.fighterInfo.customConfig,
+    x,y:getFightGroundY(),vx:0,vy:0,hp:350,maxHp:350,hpGhost:350,facing:idx===0?1:-1,
+    onGround:true,blocking:false,guardPose:false,action:null,actionTimer:0,cooldown:0,hurtTimer:0,
+    anim:0,shieldBlocks:0,shieldCooldown:0,shieldReadyAt:0,shieldAnim:0,
+    knockbackFrames:0,knockbackDir:0,knockbackPerFrame:12};
+}
+function tourRouteFighter(sender,packet){
+  const t=tournament;if(!t||!t.host||t.status!=='playing'||!packet?.type)return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m || (sender!==m.a&&sender!==m.b))return;
+  const to=sender===m.a?m.b:m.a;
+  const out={type:'TOUR_COMBAT',sender,packet};
+  tourSend(to,out);
+  // Espectadores reciben posiciones y proyectiles; no alteran las vidas.
+  if(['STATE','BEER'].includes(packet.type)){
+    for(const p of t.members){
+      if(p.id!==sender && p.id!==to && p.connected)tourSend(p.id,out);
+    }
+  }
+}
+function tourSendCombat(packet){
+  const t=tournament;if(!t||t.mode!=='online'||!packet)return;
+  if(packet.type==='STATE'){
+    const now=performance.now();
+    if(now-t.lastStateAt<TOUR_STATE_INTERVAL)return;
+    t.lastStateAt=now;
+  }
+  if(t.host)tourRouteFighter(t.me,packet);
+  else if(t.hostConn?.open)try{t.hostConn.send({type:'TOUR_FIGHTER_PACKET',packet});}catch(e){}
+}
+function tourConsumeCombat(sender,p){
+  const t=tournament;if(!t||t.status!=='playing'||!p?.type)return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m)return;
+  if(gameState==='MINIGAME'){
+    if(sender===t.me || (sender!==m.a&&sender!==m.b) || fighters.length!==2)return;
+    const remote=fighters[1];
+    if(p.type==='STATE'){
+      remote.x=p.nx*FIGHT_STAGE_W;
+      remote.y=getFightGroundY()-(p.jumpOffset||0);
+      remote.facing=typeof p.facing==='number'?p.facing:remote.facing;
+      remote.blocking=!!p.blocking;
+      remote.action=p.action||null;
+      remote.anim=p.anim||0;
+      if(p.customConfig){remote.char='CUSTOM';remote.customConfig=p.customConfig;}
+      if(typeof p.myHp==='number'){
+        remote.hp=p.myHp;
+        if(remote.hp<=0&&!vsWinner)declareVersusWinner(0);
+      }
+    }else if(p.type==='MELEE_ATTACK'&&!vsWinner){
+      const dmg=[AXE_DAMAGE,KICK_DAMAGE].includes(p.dmg)?p.dmg:AXE_DAMAGE;
+      checkMeleeHit(fighters[1],fighters[0],dmg);
+    }else if(p.type==='BEER'&&!vsWinner){spawnBeer(1);}
+  }else if(gameState==='TOURNAMENT_WATCH'&&fighters.length===2){
+    const index=sender===m.a?0:(sender===m.b?1:-1);
+    if(index<0)return;
+    if(p.type==='STATE'){
+      const f=fighters[index];
+      f.x=p.nx*FIGHT_STAGE_W;
+      f.y=getFightGroundY()-(p.jumpOffset||0);
+      f.facing=typeof p.facing==='number'?p.facing:f.facing;
+      f.blocking=!!p.blocking;
+      f.guardPose=f.blocking || p.action==='GUARD_WEAK';
+      f.shieldAnim=f.guardPose?1:0;
+      f.action=p.action||null;
+      f.anim=p.anim||0;
+      if(typeof p.myHp==='number')f.hp=p.myHp;
+    }else if(p.type==='BEER'){spawnBeer(index);}
+  }
+}
+function tourReceiveResult(sender,winner){
+  const t=tournament;if(!t||!t.host||t.status!=='playing')return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m || ![m.a,m.b].includes(sender)||![m.a,m.b].includes(winner))return;
+  tourResolveWin(winner,'KO');
+}
+function tourNotifyWin(index){
+  const t=tournament;if(!t||t.status!=='playing')return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');if(!m)return;
+  let winner;
+  if(t.mode==='offline'){
+    const human=m.a===t.me||m.b===t.me;
+    const first=human?(m.a===t.me?m.a:m.b):m.a;
+    const second=human?(m.a===t.me?m.b:m.a):m.b;
+    winner=index===0?first:second;
+    tourResolveWin(winner,'KO');
+  }else{
+    winner=index===0?t.me:(m.a===t.me?m.b:m.a);
+    if(t.host)tourReceiveResult(t.me,winner);
+    else if(t.hostConn?.open)try{t.hostConn.send({type:'TOUR_RESULT',winner});}catch(e){}
+  }
+}
+function tourResolveWin(winner,reason){
+  const t=tournament;if(!t||!t.host||t.status!=='playing')return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m||![m.a,m.b].includes(winner))return;
+  const loser=winner===m.a?m.b:m.a;
+  m.winner=winner;m.loser=loser;m.status='done';
+  if(t.size===8 && m.round==='q'){
+    const k=Number(m.id.slice(1));
+    const semi=t.matches.find(x=>x.id==='s'+Math.floor(k/2));
+    if(k%2===0)semi.a=winner;else semi.b=winner;
+  }
+  if(m.round==='s'){
+    const k=Number(m.id.slice(1));
+    const fin=t.matches.find(x=>x.id==='final'), third=t.matches.find(x=>x.id==='third');
+    if(k===0){fin.a=winner;third.a=loser;}else{fin.b=winner;third.b=loser;}
+  }
+  t.current=m.id;t.roundVersion++;
+  tourBroadcast({type:'TOUR_FINISH',match:m.id,winner,reason});
+  tourShowResult(m.id,winner,reason);
+  tourPublish();
+  if(tourRoundTimer)clearTimeout(tourRoundTimer);
+  tourRoundTimer=setTimeout(()=>{tourRoundTimer=null;if(tournament===t)tourNextMatch();},3100);
+}
+function tourShowResult(matchId,winner,reason){
+  const t=tournament;if(!t)return;
+  const p=t.members.find(x=>x.id===winner);
+  vsWinner=p?.name||'GANADOR';
+  const m=t.matches.find(x=>x.id===matchId);
+  if(m){
+    const first=t.mode==='offline' && (m.a===t.me||m.b===t.me)?(m.a===t.me?m.a:m.b):m.a;
+    vsWinnerIdx=winner===first?0:1;
+  }
+  vsEndAnimTimer=0;
+  document.getElementById('vs-end-actions').style.display='none';
+  tourUpdateHud('🏆 '+vsWinner+' · '+reason);
+}
+function tourEndScreen(summary){
+  const t=tournament;if(!t)return;
+  t.status='complete';
+  if(summary){t.members=summary.members;t.matches=summary.matches;t.winner=summary.winner;t.runnerUp=summary.runnerUp;t.third=summary.third;}
+  gameState='MENU';updateTouchControlsVisibility();
+  showOverlay('tournament-end-overlay');
+  const winnerName=id=>t.members.find(x=>x.id===id)?.name||'—';
+  document.getElementById('tournament-podium').innerHTML=
+    `<div class="tour-medal">🥇 CAMPEÓN: ${tourEscape(winnerName(t.winner))}</div>`+
+    `<div class="tour-medal">🥈 SEGUNDO: ${tourEscape(winnerName(t.runnerUp))}</div>`+
+    `<div class="tour-medal">🥉 TERCERO: ${tourEscape(winnerName(t.third))}</div>`;
+  tourRenderLobby();
+}
+function tourEscape(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function tourRenderLobby(){
+  const t=tournament;if(!t)return;
+  const list=document.getElementById('tournament-players-list');
+  if(list){list.innerHTML=t.members.map((p,i)=>`<div class="tour-player">${i+1}. ${tourEscape(p.name)} ${p.cpu?'🤖':''} ${p.connected?'✅':'⚠️ DESCONECTADO'}</div>`).join('');}
+  const code=document.getElementById('tournament-code-display');
+  if(code)code.textContent=t.mode==='online'?t.code:'SIN INTERNET';
+  const count=document.getElementById('tournament-count');
+  if(count)count.textContent=`${t.members.filter(p=>p.connected).length} / ${t.size} participantes`;
+  const returnBtn=document.getElementById('tournament-return-to-fight');
+  if(returnBtn){
+    returnBtn.style.display=t.status==='lobby'?'none':'block';
+    returnBtn.textContent=t.status==='complete'?'↩️ VOLVER AL PODIO':
+      (t.returnGameState==='TOURNAMENT_WATCH'?'👁️ VOLVER A VER EL COMBATE':'↩️ VOLVER AL COMBATE');
+  }
+  const hostStart=document.getElementById('tournament-host-start');
+  if(hostStart){hostStart.style.display=t.host&&t.status==='lobby'?'block':'none';hostStart.disabled=t.members.length!==t.size||t.members.some(p=>!p.connected);}
+  const bracket=document.getElementById('tournament-bracket');
+  if(bracket){
+    if(!t.matches.length){bracket.innerHTML='<p class="controls-hint">El cuadro se sortea al completar la sala.</p>';}
+    else bracket.innerHTML=t.matches.map(m=>{
+      const name=id=>t.members.find(p=>p.id===id)?.name||(id?'JUGADOR':'POR DEFINIR');
+      return `<div class="tour-match ${m.status==='live'?'tour-current':''}"><strong>${TOUR_ROUND_LABELS[m.round]||m.round}${m.status==='live'?' 🔴 EN VIVO':''}</strong><div>${tourEscape(name(m.a))} <b>VS</b> ${tourEscape(name(m.b))}</div>${m.winner?`<small>🏆 ${tourEscape(name(m.winner))}</small>`:''}</div>`;
+    }).join('');
+  }
+}
+function tourUpdateHud(custom){
+  const t=tournament, hud=document.getElementById('tournament-hud');
+  if(!hud)return;
+  const fightVisible=t && t.status==='playing' &&
+    (gameState==='MINIGAME'||gameState==='TOURNAMENT_WATCH');
+  // Nunca superponer el botón a un menú abierto.
+  const menuOpen=!!document.querySelector('.overlay.active');
+  hud.style.display=fightVisible && !menuOpen?'flex':'none';
+}
+function tourShowBracket(){
+  const t=tournament;if(!t)return;
+  if(t.status==='playing' && (gameState==='MINIGAME'||gameState==='TOURNAMENT_WATCH')){
+    t.returnGameState=gameState;
+    t.returnMatchId=t.current;
+  }
+  tourRenderLobby();
+  showOverlay('tournament-lobby-overlay');
+  tourUpdateHud();
+}
+function tourResumeSpectate(){
+  const t=tournament;if(!t)return;
+  if(t.status==='complete'){
+    tourEndScreen(tourPublic());
+    tourUpdateHud();
+    return;
+  }
+  if(t.status!=='playing'){
+    tourRenderLobby();showOverlay('tournament-lobby-overlay');tourUpdateHud();
+    return;
+  }
+  // Regresar sin recrear los luchadores ni reiniciar la vida o los combates.
+  const match=t.matches.find(m=>m.id===t.current);
+  if(match?.status==='live' && !['MINIGAME','TOURNAMENT_WATCH'].includes(gameState)){
+    if(t.returnMatchId===t.current && fighters.length===2 &&
+       ['MINIGAME','TOURNAMENT_WATCH'].includes(t.returnGameState)){
+      gameState=t.returnGameState;
+    }else if(fighters.length!==2){
+      const a=t.members.find(p=>p.id===match.a);
+      const b=t.members.find(p=>p.id===match.b);
+      if(a&&b)tourEnterBout(match,[a,b]);
+    }
+  }
+  showOverlay(null);
+  updateTouchControlsVisibility();
+  tourUpdateHud();
+}
+function tourCpuDrive(){
+  const t=tournament;
+  if(!t?.cpuAutoplay || gameState!=='MINIGAME'||fighters.length!==2||vsWinner)return;
+  const me=fighters[0],other=fighters[1];
+  keys.left=false;keys.right=false;keys.defend=false;keys.up=false;
+  const dist=Math.abs(me.x-other.x);
+  if(dist>78){keys.left=other.x<me.x;keys.right=other.x>me.x;}
+  else if(me.cooldown<=0){
+    if(Math.random()<0.36)triggerKick();else triggerFighterAxe();
+  }
+  if(dist>220 && me.cooldown<=0 && Math.random()<0.02)triggerBeerThrow();
+}
+function tourWatchAnimation(){
+  if(gameState!=='TOURNAMENT_WATCH')return;
+  const gy=getFightGroundY();
+  for(const f of fighters){
+    if(!f)continue;
+    f.hpGhost = f.hpGhost>f.hp?Math.max(f.hp,f.hpGhost-1.5):f.hp;
+  }
+  for(let i=projectiles.length-1;i>=0;i--){
+    const pr=projectiles[i];pr.x+=pr.vx;pr.vy+=0.28;pr.y+=pr.vy;pr.rot+=0.3;pr.life--;
+    if(pr.y>gy+30||pr.x<0||pr.x>FIGHT_STAGE_W||pr.life<=0)projectiles.splice(i,1);
+  }
+}
+function tourLeave(silent=false){
+  if(tourRoundTimer){clearTimeout(tourRoundTimer);tourRoundTimer=null;}
+  const t=tournament;
+  if(t){
+    if(t.mode==='online'&&!t.host&&t.hostConn?.open){try{t.hostConn.send({type:'TOUR_LEAVE'});}catch(e){}}
+    try{t.hostConn?.close();}catch(e){}
+    if(t.peers)for(const c of t.peers.values())try{c.close();}catch(e){}
+    try{t.peer?.destroy();}catch(e){}
+  }
+  tournament=null;
+  keys.left=false;keys.right=false;keys.defend=false;keys.up=false;
+  vsIsOnline=false;vsWinner=null;vsEndAnimTimer=0;
+  const hud=document.getElementById('tournament-hud');if(hud)hud.style.display='none';
+  const end=document.getElementById('vs-end-actions');if(end)end.style.display='none';
+  if(!silent){
+    gameState='MENU';updateTouchControlsVisibility();showOverlay('versus-selection-overlay');sound.playBGM('bgm_menu');
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  const t=tournament;if(!t || document.hidden||t.mode!=='online')return;
+  if(t.peer?.disconnected&&!t.peer.destroyed)try{t.peer.reconnect();}catch(e){}
 });
 
 // Inicialización limpia
