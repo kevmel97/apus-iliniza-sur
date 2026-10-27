@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.27.6</title>
+<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.27.7</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
@@ -426,6 +426,11 @@
   /* La línea gris de los controles se oculta SOLO durante el ascenso. */
   #touch-controls.story-ascent-ui { border-top: 0 !important; }
 
+  /* Resultados del torneo: acción sobre controles táctiles y bajo el escenario de combate. */
+  #vs-end-actions { z-index: 48 !important; }
+  @media (orientation:portrait) {
+    #vs-end-actions { bottom:calc(clamp(195px, 28dvh, 245px) + 16px) !important; width:min(92%,430px) !important; }
+  }
   /* TORNEO: cuadros compactos y compatibles con los temas del juego. */
   /* El cuadro debe estar por encima de los controles tactiles (z-index:25). */
   #tournament-lobby-overlay, #tournament-end-overlay { z-index:60; }
@@ -737,7 +742,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 0.27.6</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 0.27.8.2</div>
     </div>
   </div>
 
@@ -1025,12 +1030,12 @@
     </div>
   </div>
 
-  <!-- TORNEO COMPETITIVO: completamente independiente de la conexión 1 VS 1. -->
+  <!-- TORNEO COMPETITIVO: humanos + CPU opcional, independiente de la conexión 1 VS 1. -->
   <div id="tournament-setup-overlay" class="overlay">
     <div class="retro-box" style="max-width:540px">
       <h1>🏆 TORNEO COMPETITIVO</h1>
       <h2>CHUGO VS JORDY · 4 / 8 PARTICIPANTES</h2>
-      <p class="controls-hint">CUARTOS (SI SON 8), SEMIFINALES, TERCER LUGAR Y FINAL. LOS DEMÁS JUGADORES OBSERVAN EN VIVO.</p>
+      <p class="controls-hint">CUARTOS (SI SON 8), SEMIFINALES, TERCER LUGAR Y FINAL. EN ONLINE PUEDES COMENZAR CON 1 A 8 PERSONAS; LOS CUPOS VACÍOS LOS COMPLETA LA CPU.</p>
       <label for="tournament-size" style="display:block;font-size:10px;color:#facc15;margin:12px 0 6px">CANTIDAD DE PARTICIPANTES</label>
       <select id="tournament-size" style="display:none" aria-hidden="true" tabindex="-1">
         <option value="4">4 JUGADORES · SEMIFINAL + FINAL</option>
@@ -1060,8 +1065,8 @@
       </div>
       <h2 id="tournament-count">0 / 4 PARTICIPANTES</h2>
       <div id="tournament-players-list"></div>
-      <div class="status-badge" id="tournament-lobby-hint">Comparte el código hasta completar la sala.</div>
-      <button class="menu-btn" id="tournament-host-start" style="background:#10ac84" onclick="tourStartBracket()">🥊 COMENZAR TORNEO</button>
+      <div class="status-badge" id="tournament-lobby-hint">Comparte el código; puedes empezar incluso con una sola persona. Los puestos libres serán CPU.</div>
+      <button class="menu-btn" id="tournament-host-start" style="background:#10ac84" onclick="tourStartBracket()">🥊 COMENZAR TORNEO · COMPLETAR CON CPU</button>
       <h2 style="margin-top:14px">🏅 ENFRENTAMIENTOS</h2>
       <div id="tournament-bracket"></div>
       <button class="menu-btn" id="tournament-return-to-fight" style="background:#2e86de" onclick="tourResumeSpectate()">↩️ VOLVER AL COMBATE</button>
@@ -1515,7 +1520,8 @@ const HELMET_COLORS = {
 const AXE_BRAND_COLORS = {
   PETZL: "#f97316", BD: "#94a3b8",
   SIMOND: "#2563eb", SINGING_ROCK: "#eab308",
-  EDELRID: "#16a34a", GRIVEL: "#dc2626"
+  EDELRID: "#16a34a", GRIVEL: "#dc2626",
+  POLICE: "#7c4a22"
 };
 
 const GLASSES_COLORS = [
@@ -2086,6 +2092,8 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   const harnessColor = isCustom ? customConfig.harnessColor : "#1e293b";
   const bootColor    = isCustom ? customConfig.bootsColor  : (isJordy ? "#facc15" : "#1e3a8a");
   const axeBrand     = isCustom ? customConfig.axeBrand    : "PETZL";
+  const specialCombat = isCustom ? (customConfig.specialCombat || null) : null;
+  const isPolice = specialCombat === 'POLICE';
 
   const isDownCrouch = crouching || hugging || crying;
   const yOffset = crying ? 15 : (isDownCrouch ? 10 : 0);
@@ -2099,11 +2107,13 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   targetCtx.fillRect(-18, 30, 36, 6);
 
   // Mochila de expedición
-  targetCtx.fillStyle = packColor;
-  targetCtx.fillRect(-21, -16 + yOffset, 12, 26);
-  targetCtx.strokeStyle = "#0f172a";
-  targetCtx.lineWidth = 2;
-  targetCtx.strokeRect(-21, -16 + yOffset, 12, 26);
+  if (!isPolice) {
+    targetCtx.fillStyle = packColor;
+    targetCtx.fillRect(-21, -16 + yOffset, 12, 26);
+    targetCtx.strokeStyle = "#0f172a";
+    targetCtx.lineWidth = 2;
+    targetCtx.strokeRect(-21, -16 + yOffset, 12, 26);
+  }
 
   // Piernas y Pantalón (caminando en el sitio si celebra)
   const leg1Y = stepBounce;
@@ -2133,26 +2143,51 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   }
 
   // Arnés de escalada
-  targetCtx.fillStyle = harnessColor;
-  targetCtx.fillRect(-11, 4 + yOffset, 22, 4);
-  targetCtx.fillRect(-11, -6 + yOffset, 22, 3);
-  targetCtx.fillRect(-9, 8 + yOffset, 7, 3);
-  targetCtx.fillRect(3, 8 + yOffset, 7, 3);
-  targetCtx.fillStyle = "#cbd5e1";
-  targetCtx.fillRect(-6, 5 + yOffset, 4, 6);
+  if (!isPolice) {
+    targetCtx.fillStyle = harnessColor;
+    targetCtx.fillRect(-11, 4 + yOffset, 22, 4);
+    targetCtx.fillRect(-11, -6 + yOffset, 22, 3);
+    targetCtx.fillRect(-9, 8 + yOffset, 7, 3);
+    targetCtx.fillRect(3, 8 + yOffset, 7, 3);
+    targetCtx.fillStyle = "#cbd5e1";
+    targetCtx.fillRect(-6, 5 + yOffset, 4, 6);
+  } else {
+    // Uniforme policial más visible
+    targetCtx.fillStyle = '#8fb68b';
+    targetCtx.fillRect(-10, -2 + yOffset, 20, 2);
+    targetCtx.fillRect(-10, 5 + yOffset, 20, 2);
+    targetCtx.fillStyle = '#e5e7eb';
+    targetCtx.fillRect(-8, -1 + yOffset, 4, 3);
+    targetCtx.fillRect(4, -1 + yOffset, 4, 3);
+    targetCtx.fillStyle = '#1a3321';
+    targetCtx.fillRect(-11, 7 + yOffset, 22, 3); // cinturón
+    targetCtx.fillStyle = '#d1d5db';
+    targetCtx.fillRect(-2, 7 + yOffset, 4, 3); // hebilla
+    targetCtx.fillStyle = '#facc15';
+    targetCtx.fillRect(5, -10 + yOffset, 3, 3); // insignia
+    targetCtx.fillStyle = '#16301e';
+    targetCtx.fillRect(-8, -10 + yOffset, 4, 6); // bolsillo izq
+    targetCtx.fillRect(4, -10 + yOffset, 4, 6);  // bolsillo der
+  }
 
   // Detalles de pixel art: costuras, cremallera y bolsillo de la chaqueta.
   // Son únicamente gráficos; no afectan al tamaño ni a la física del personaje.
-  targetCtx.fillStyle = "rgba(255,255,255,0.24)";
-  targetCtx.fillRect(-8, -13 + yOffset, 3, 2);
-  targetCtx.fillRect(-8, -10 + yOffset, 2, 7);
-  targetCtx.fillStyle = "rgba(15,23,42,0.28)";
-  targetCtx.fillRect(4, -10 + yOffset, 5, 6);
-  targetCtx.strokeStyle = "rgba(255,255,255,0.42)";
-  targetCtx.lineWidth = 1;
-  targetCtx.strokeRect(4.5, -10 + yOffset, 4, 5);
-  targetCtx.fillStyle = "#facc15";
-  targetCtx.fillRect(1, -1 + yOffset, 2, 2);
+  if (!isPolice) {
+    targetCtx.fillStyle = "rgba(255,255,255,0.24)";
+    targetCtx.fillRect(-8, -13 + yOffset, 3, 2);
+    targetCtx.fillRect(-8, -10 + yOffset, 2, 7);
+    targetCtx.fillStyle = "rgba(15,23,42,0.28)";
+    targetCtx.fillRect(4, -10 + yOffset, 5, 6);
+    targetCtx.strokeStyle = "rgba(255,255,255,0.42)";
+    targetCtx.lineWidth = 1;
+    targetCtx.strokeRect(4.5, -10 + yOffset, 4, 5);
+    targetCtx.fillStyle = "#facc15";
+    targetCtx.fillRect(1, -1 + yOffset, 2, 2);
+  } else {
+    targetCtx.fillStyle = 'rgba(255,255,255,0.14)';
+    targetCtx.fillRect(-8, -13 + yOffset, 6, 2);
+    targetCtx.fillRect(-1, -13 + yOffset, 2, 16); // cremallera
+  }
 
   // Cabello trasero/lateral (según CORTO, MEDIO o LARGO y color elegido)
   targetCtx.fillStyle = hairColor;
@@ -2312,30 +2347,46 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   // Casco Técnico: en defensa del minijuego se retira de la cabeza
   // para sostenerlo como escudo delante del cuerpo.
   if (!helmetShield) {
-  targetCtx.fillStyle = helmetColor;
-  targetCtx.fillRect(-12, -43 + yOffset, 24, 11);
-  targetCtx.strokeStyle = "#0f172a";
-  targetCtx.lineWidth = 1.5;
-  targetCtx.strokeRect(-12, -43 + yOffset, 24, 11);
+    if (isPolice) {
+      targetCtx.fillStyle = '#101827';
+      targetCtx.fillRect(-14, -41 + yOffset, 28, 4); // visera
+      targetCtx.fillStyle = '#214d2f';
+      targetCtx.fillRect(-11, -46 + yOffset, 22, 7); // gorra
+      targetCtx.fillRect(-8, -49 + yOffset, 16, 4);  // parte alta
+      targetCtx.fillStyle = '#183420';
+      targetCtx.fillRect(-10, -39 + yOffset, 20, 2); // banda
+      targetCtx.fillStyle = '#facc15';
+      targetCtx.fillRect(-2, -44 + yOffset, 4, 4);   // placa
+      targetCtx.fillRect(-5, -43 + yOffset, 1, 1);
+      targetCtx.fillRect(4, -43 + yOffset, 1, 1);
+      targetCtx.fillStyle = 'rgba(255,255,255,0.25)';
+      targetCtx.fillRect(-6, -47 + yOffset, 7, 2);
+    } else {
+      targetCtx.fillStyle = helmetColor;
+      targetCtx.fillRect(-12, -43 + yOffset, 24, 11);
+      targetCtx.strokeStyle = "#0f172a";
+      targetCtx.lineWidth = 1.5;
+      targetCtx.strokeRect(-12, -43 + yOffset, 24, 11);
 
-  if (helmetBrand === "PETZL") {
-    targetCtx.fillStyle = "#0f172a";
-    targetCtx.fillRect(-8, -40 + yOffset, 3, 3);
-    targetCtx.fillRect(-2, -41 + yOffset, 3, 3);
-    targetCtx.fillStyle = "#f97316";
-    targetCtx.fillRect(6, -40 + yOffset, 4, 3);
-  } else {
-    targetCtx.fillStyle = "#0f172a";
-    targetCtx.fillRect(-12, -43 + yOffset, 24, 3);
-    targetCtx.fillStyle = "#e2e8f0";
-    targetCtx.fillRect(4, -39 + yOffset, 4, 4);
-  }
+      if (helmetBrand === "PETZL") {
+        targetCtx.fillStyle = "#0f172a";
+        targetCtx.fillRect(-8, -40 + yOffset, 3, 3);
+        targetCtx.fillRect(-2, -41 + yOffset, 3, 3);
+        targetCtx.fillStyle = "#f97316";
+        targetCtx.fillRect(6, -40 + yOffset, 4, 3);
+      } else {
+        targetCtx.fillStyle = "#0f172a";
+        targetCtx.fillRect(-12, -43 + yOffset, 24, 3);
+        targetCtx.fillStyle = "#e2e8f0";
+        targetCtx.fillRect(4, -39 + yOffset, 4, 4);
+      }
 
-  // Brillo del casco y visera, manteniendo el estilo pixel art.
-  targetCtx.fillStyle = "rgba(255,255,255,0.45)";
-  targetCtx.fillRect(-8, -42 + yOffset, 9, 2);
-  targetCtx.fillStyle = "rgba(15,23,42,0.24)";
-  targetCtx.fillRect(-11, -34 + yOffset, 22, 2);
+      // Brillo del casco y visera, manteniendo el estilo pixel art.
+      targetCtx.fillStyle = "rgba(255,255,255,0.45)";
+      targetCtx.fillRect(-8, -42 + yOffset, 9, 2);
+      targetCtx.fillStyle = "rgba(15,23,42,0.24)";
+      targetCtx.fillRect(-11, -34 + yOffset, 22, 2);
+    }
   }
 
   // Brazo y Piolet (Al ganar levanta el piolet hacia arriba varias veces en bucle)
@@ -2360,16 +2411,44 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
 
   targetCtx.fillStyle = jacketColor;
   targetCtx.fillRect(-3, -3, 15, 7);
-  targetCtx.fillStyle = "#0f172a";
+  targetCtx.fillStyle = skinColor;
   targetCtx.fillRect(10, -3, 5, 7);
 
-  targetCtx.fillStyle = AXE_BRAND_COLORS[axeBrand] || AXE_BRAND_COLORS.PETZL;
-  targetCtx.fillRect(12, -20, 4, 28);
-  targetCtx.fillStyle = "#1e293b";
-  targetCtx.fillRect(12, 4, 4, 4);
-  targetCtx.fillStyle = axeBrand === "BD" ? "#e2e8f0" : "#cbd5e1";
-  targetCtx.fillRect(6, -23, 18, 4);
-  targetCtx.fillRect(21, -20, 4, 5);
+  if (isPolice) {
+    if (hugging) {
+      // Escopeta de madera y metal
+      targetCtx.fillStyle = '#7c4a22';
+      targetCtx.fillRect(7, -7, 10, 4);   // culata
+      targetCtx.fillRect(16, -6, 8, 3);   // unión
+      targetCtx.fillStyle = '#94a3b8';
+      targetCtx.fillRect(23, -8, 16, 5);  // cañón
+      targetCtx.fillRect(21, -10, 4, 9);  // cuerpo
+      targetCtx.fillStyle = '#111827';
+      targetCtx.fillRect(36, -7, 3, 3);   // boca del cañón
+      targetCtx.fillStyle = '#d1d5db';
+      targetCtx.fillRect(20, -5, 2, 3);   // gatillo/agarre
+    } else if (swinging || celebrating) {
+      // Tolete más claro
+      targetCtx.fillStyle = '#6b3f1f';
+      targetCtx.fillRect(11, -17, 5, 25);
+      targetCtx.fillStyle = '#2f1c10';
+      targetCtx.fillRect(9, -19, 9, 4);
+      targetCtx.fillRect(10, 4, 7, 2);
+    } else {
+      targetCtx.fillStyle = '#6b3f1f';
+      targetCtx.fillRect(11, -16, 5, 24);
+      targetCtx.fillStyle = '#2f1c10';
+      targetCtx.fillRect(9, -18, 9, 4);
+    }
+  } else {
+    targetCtx.fillStyle = AXE_BRAND_COLORS[axeBrand] || AXE_BRAND_COLORS.PETZL;
+    targetCtx.fillRect(12, -20, 4, 28);
+    targetCtx.fillStyle = "#1e293b";
+    targetCtx.fillRect(12, 4, 4, 4);
+    targetCtx.fillStyle = axeBrand === "BD" ? "#e2e8f0" : "#cbd5e1";
+    targetCtx.fillRect(6, -23, 18, 4);
+    targetCtx.fillRect(21, -20, 4, 5);
+  }
   targetCtx.restore();
 
   if (frozen) {
@@ -2396,6 +2475,95 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
 /* ============================================================================
    CREADOR DE PERSONAJE
    ============================================================================ */
+const TOUR_NAMED_CPU_PROFILES = [
+  {
+    fighterInfo: {
+      char: "CUSTOM",
+      displayName: "Vivi",
+      customConfig: {
+        gender: "F", skin: "BLANCO", hairLength: "LARGO", hairColor: "#6b4423", expression: "ENOJADA",
+        helmetBrand: "PETZL", helmetColor: "#f8fafc", hasGlasses: false, beardStyle: 0,
+        jacketColor: "#7e22ce", pantsColor: "#f472b6", packColor: "#2563eb",
+        harnessColor: "#f97316", bootsColor: "#3b82f6", axeBrand: "SIMOND",
+        quoteText: "ay! mis rodillas!!!"
+      }
+    }
+  },
+  {
+    fighterInfo: {
+      char: "CUSTOM",
+      displayName: "Chiquis",
+      customConfig: {
+        gender: "F", skin: "BLANCO", hairLength: "LARGO", hairColor: "#111111", expression: "ENOJADA",
+        helmetBrand: "PETZL", helmetColor: "#f97316", hasGlasses: false, beardStyle: 0,
+        jacketColor: "#ffffff", pantsColor: "#f472b6", packColor: "#9333ea",
+        harnessColor: "#ec4899", bootsColor: "#f97316", axeBrand: "PETZL",
+        quoteText: "no sentí nada…"
+      }
+    }
+  },
+  {
+    fighterInfo: {
+      char: "CUSTOM",
+      displayName: "Papucho",
+      customConfig: {
+        gender: "M", skin: "BLANCO", hairLength: "CALVO", hairColor: "#18181b", expression: "SERIA",
+        helmetBrand: "POLICE", helmetColor: "#1f4d2e", hasGlasses: false, beardStyle: 0,
+        jacketColor: "#214d2f", pantsColor: "#1c3f28", packColor: "#214d2f",
+        harnessColor: "#214d2f", bootsColor: "#111827", axeBrand: "POLICE",
+        specialCombat: "POLICE", quoteText: "Chugo!!! Dónde estas? Voy por ti!!!"
+      }
+    }
+  },
+  {
+    fighterInfo: {
+      char: "CUSTOM",
+      displayName: "Miguel",
+      customConfig: {
+        gender: "M", skin: "BLANCO", hairLength: "CORTO", hairColor: "#111111", expression: "SERIA",
+        helmetBrand: "BD", helmetColor: "#16a34a", hasGlasses: false, beardStyle: 0,
+        jacketColor: "#2563eb", pantsColor: "#111827", packColor: "#eab308",
+        harnessColor: "#111827", bootsColor: "#3b82f6", axeBrand: "PETZL",
+        quoteText: "el matrimonio me cambió…"
+      }
+    }
+  },
+  {
+    fighterInfo: {
+      char: "CUSTOM",
+      displayName: "Sambita",
+      customConfig: {
+        gender: "F", skin: "MESTIZO", hairLength: "LARGO", hairColor: "#111111", expression: "ENOJADA",
+        helmetBrand: "BD", helmetColor: "#f472b6", hasGlasses: false, beardStyle: 0,
+        jacketColor: "#7e22ce", pantsColor: "#111827", packColor: "#2563eb",
+        harnessColor: "#eab308", bootsColor: "#ec4899", axeBrand: "PETZL",
+        quoteText: "me dio ganas de vomitar!"
+      }
+    }
+  },
+  { fighterInfo: { char: "CHUGO", displayName: "Chugo CPU", customConfig: { quoteText: "no será de tomar un traguito?" } } },
+  { fighterInfo: { char: "JORDY", displayName: "Jordy CPU", customConfig: { quoteText: "mira mamá sin manos!!" } } }
+];
+function tourMakeCpuInfo(slotIndex) {
+  const profile = TOUR_NAMED_CPU_PROFILES[(slotIndex - 1) % TOUR_NAMED_CPU_PROFILES.length];
+  return {
+    char: profile.fighterInfo.char,
+    displayName: profile.fighterInfo.displayName,
+    customConfig: profile.fighterInfo.customConfig ? JSON.parse(JSON.stringify(profile.fighterInfo.customConfig)) : null
+  };
+}
+function isPoliceSpecialConfig(cfg) {
+  return !!(cfg && cfg.specialCombat === 'POLICE');
+}
+function fighterQuoteText(fighter) {
+  if (fighter?.customConfig?.quoteText) return fighter.customConfig.quoteText;
+  if (fighter?.char === 'JORDY') return 'mira mamá sin manos!!';
+  if (fighter?.char === 'CHUGO') return 'no será de tomar un traguito?';
+  return '';
+}
+function fighterProjectileType(fighter) {
+  return isPoliceSpecialConfig(fighter?.customConfig) ? 'BULLET' : 'BEER';
+}
 function selectCustomSlot(slotIdx) {
   activeCustomSlot = slotIdx;
   [0, 1, 2].forEach((i) => {
@@ -4428,9 +4596,45 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
 }
 
 function updateVersusResultActions() {
-  const actions=document.getElementById('vs-end-actions');
-  if(actions) actions.style.display=(!tournament && gameState==='MINIGAME' && !!vsWinner && vsEndAnimTimer<=0)?'flex':'none';
-  if(actions) actions.style.flexDirection='column';
+  const actions = document.getElementById('vs-end-actions');
+  if (!actions) return;
+  actions.style.flexDirection = 'column';
+  if (tournament) {
+    const t = tournament;
+    const canShow = (gameState === 'MINIGAME' || gameState === 'TOURNAMENT_WATCH') && !!vsWinner && vsEndAnimTimer <= 0;
+    if (!canShow) { actions.style.display = 'none'; return; }
+    const winnerId = t.awaitContinueWinner || null;
+    if (!winnerId) { actions.style.display = 'none'; return; } // Una CPU avanza automáticamente.
+    const winnerName = t.members.find(p => p.id === winnerId)?.name || vsWinner;
+    const localIsWinner = winnerId === t.me;
+    let key, content;
+    if (t.awaitContinueTriggered) {
+      key = 'tour-preparing:' + t.current;
+      content = '<div class="controls-hint" style="text-align:center;color:#cbd5e1;margin:2px 0">⏳ Preparando el siguiente combate...</div>';
+    } else if (localIsWinner) {
+      key = 'tour-win:' + t.current;
+      content = '<div class="controls-hint" style="text-align:center;color:#facc15;margin:0 0 4px">🏆 ¡Ganaste! Pulsa para jugar la siguiente partida.</div>' +
+        '<button type="button" id="tour-continue-action" class="menu-btn" style="margin:2px 0;background:#10ac84;touch-action:manipulation" onclick="tourWinnerContinue()">▶️ CONTINUAR TORNEO</button>';
+    } else {
+      key = 'tour-wait:' + t.current + ':' + winnerId;
+      content = `<div class="controls-hint" style="text-align:center;color:#cbd5e1;margin:2px 0">⏳ Esperando que ${tourEscape(winnerName)} pulse continuar...</div>`;
+    }
+    // Evitar recrear el botón en cada fotograma (anulaba el click entre pointerdown y pointerup).
+    if (actions.dataset.apusResultKey !== key) {
+      actions.innerHTML = content;
+      actions.dataset.apusResultKey = key;
+    }
+    actions.style.display = 'flex';
+    return;
+  }
+  // El 1 vs. 1 normal conserva sus dos acciones sin recrearlas cada fotograma.
+  const key = 'normal-versus';
+  if (actions.dataset.apusResultKey !== key) {
+    actions.innerHTML = '<button class="menu-btn" style="margin:2px 0;background:#2e86de;" onclick="requestRematch()">🔁 REVANCHA</button>' +
+      '<button class="menu-btn" style="margin:2px 0;background:#ee5253;" onclick="returnToVersusCharacterSelect()">👤 ELEGIR PERSONAJE / VOLVER</button>';
+    actions.dataset.apusResultKey = key;
+  }
+  actions.style.display = (gameState === 'MINIGAME' && !!vsWinner && vsEndAnimTimer <= 0) ? 'flex' : 'none';
 }
 function returnToVersusCharacterSelect() {
   if(gameState!=='MINIGAME')return;
@@ -4492,10 +4696,11 @@ function spawnBeer(ownerIdx) {
   if (!f) return;
   projectiles.push({
     owner: ownerIdx,
+    type: fighterProjectileType(f),
     x: f.x + f.facing * 36,
     y: f.y - 28,
     vx: f.facing * BEER_SPEED,
-    vy: -3.2,
+    vy: fighterProjectileType(f) === 'BULLET' ? -0.6 : -3.2,
     rot: 0,
     life: 150
   });
@@ -4647,7 +4852,9 @@ function updateVersusMiniGame() {
   }
 
   if (vsWinner) {
-    if (vsEndAnimTimer > 0) vsEndAnimTimer--;
+    if (tournament?.resultReadyAt) {
+      vsEndAnimTimer = Math.ceil(Math.max(0, tournament.resultReadyAt - performance.now()) / (1000 / 60));
+    } else if (vsEndAnimTimer > 0) vsEndAnimTimer--;
     updateVersusResultActions();
     fighters.forEach((f) => {
       f.vx = 0;
@@ -5668,35 +5875,51 @@ function drawVsShield(f) {
 
   ctx.translate(cx, cy);
   ctx.scale(face, 1);
-  // Casco pixel-art curvado en la mano, con el mismo color de cada personaje.
-  ctx.fillStyle = '#101827';
-  ctx.fillRect(-14, -5, 28, 14);
-  ctx.fillRect(-11, -10, 22, 6);
-  ctx.fillRect(-7, -13, 14, 4);
-  ctx.fillStyle = helmetColor;
-  ctx.fillRect(-12, -4, 24, 12);
-  ctx.fillRect(-9, -9, 18, 6);
-  ctx.fillRect(-6, -12, 12, 5);
-  ctx.fillStyle = 'rgba(255,255,255,0.38)';
-  ctx.fillRect(-8, -9, 8, 2);
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(-15, 7, 30, 4); // visera
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(-6, -5, 3, 3); // ventilaciones
-  ctx.fillRect(4, -5, 3, 3);
+  const isPolice = isPoliceSpecialConfig(f.customConfig);
+  if (isPolice) {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-13, -18, 22, 32);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-11, -16, 18, 28);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-4, -10, 3, 16);
+    ctx.fillRect(-7, -4, 9, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(-9, -14, 5, 20);
+    ctx.fillStyle = '#1e3a8a';
+    ctx.fillRect(-10, -13, 16, 3);
+    ctx.fillRect(-10, 7, 16, 3);
+  } else {
+    // Casco pixel-art curvado en la mano, con el mismo color de cada personaje.
+    ctx.fillStyle = '#101827';
+    ctx.fillRect(-14, -5, 28, 14);
+    ctx.fillRect(-11, -10, 22, 6);
+    ctx.fillRect(-7, -13, 14, 4);
+    ctx.fillStyle = helmetColor;
+    ctx.fillRect(-12, -4, 24, 12);
+    ctx.fillRect(-9, -9, 18, 6);
+    ctx.fillRect(-6, -12, 12, 5);
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    ctx.fillRect(-8, -9, 8, 2);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-15, 7, 30, 4); // visera
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-6, -5, 3, 3); // ventilaciones
+    ctx.fillRect(4, -5, 3, 3);
+  }
 
   // Escudo luminoso clásico DELANTE del casco (no sustituye el casco).
   // En recarga sigue visible, pero atenuado y NO bloquea daño.
   const strength = weakGuard ? 0.32 : 1;
   ctx.fillStyle = `rgba(56,189,248,${0.18 * strength * t})`;
   ctx.beginPath();
-  ctx.ellipse(20, -1, 13, 24, 0, 0, Math.PI * 2);
+  ctx.ellipse(isPolice ? 14 : 20, -1, isPolice ? 16 : 13, isPolice ? 26 : 24, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = `rgba(125,211,252,${0.88 * strength * t})`;
   ctx.lineWidth = 3;
   ctx.stroke();
   ctx.beginPath();
-  ctx.ellipse(19, -1, 9, 19, 0, -Math.PI * 0.65, Math.PI * 0.65);
+  ctx.ellipse(isPolice ? 13 : 19, -1, isPolice ? 11 : 9, isPolice ? 21 : 19, 0, -Math.PI * 0.65, Math.PI * 0.65);
   ctx.strokeStyle = `rgba(224,242,254,${0.6 * strength * t})`;
   ctx.lineWidth = 1.8;
   ctx.stroke();
@@ -5708,14 +5931,61 @@ function drawBeerBottle(pr) {
   ctx.translate(stageXToCanvasX(pr.x), pr.y);
   ctx.rotate(pr.rot);
   ctx.scale(1.3, 1.3);
-  ctx.fillStyle = "#b45309";
-  ctx.fillRect(-5, -4, 14, 9);
-  ctx.fillStyle = "#92400e";
-  ctx.fillRect(9, -2, 8, 5);
-  ctx.fillStyle = "#facc15";
-  ctx.fillRect(17, -3, 3, 7);
-  ctx.fillStyle = "#fef3c7";
-  ctx.fillRect(-2, -4, 5, 9);
+  if (pr.type === 'BULLET') {
+    ctx.fillStyle = '#7c4a22';
+    ctx.fillRect(-8, -3, 10, 6);
+    ctx.fillStyle = '#d1d5db';
+    ctx.fillRect(1, -2, 8, 4);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(8, -1, 3, 2);
+  } else {
+    ctx.fillStyle = "#b45309";
+    ctx.fillRect(-5, -4, 14, 9);
+    ctx.fillStyle = "#92400e";
+    ctx.fillRect(9, -2, 8, 5);
+    ctx.fillStyle = "#facc15";
+    ctx.fillRect(17, -3, 3, 7);
+    ctx.fillStyle = "#fef3c7";
+    ctx.fillRect(-2, -4, 5, 9);
+  }
+  ctx.restore();
+}
+
+function drawSpeechBubble(x, y, text) {
+  if (!text) return;
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const words = String(text).split(/\s+/);
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const cand = line ? line + ' ' + w : w;
+    if (cand.length > 18 && line) { lines.push(line); line = w; }
+    else line = cand;
+  }
+  if (line) lines.push(line);
+  ctx.font = "9px 'Press Start 2P', monospace";
+  const lineH = 12;
+  const width = Math.min(170, Math.max(84, ...lines.map(l => ctx.measureText(l).width + 16)));
+  const height = lines.length * lineH + 12;
+  const boxX = Math.max(7, Math.min(GW - width - 7, x - width / 2));
+  const boxY = Math.max(145, y - height - 18);
+  ctx.fillStyle = '#fff8dc';
+  ctx.fillRect(boxX, boxY, width, height);
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(boxX, boxY, width, height);
+  ctx.beginPath();
+  const tailX = Math.max(boxX + 14, Math.min(boxX + width - 14, x));
+  ctx.moveTo(tailX - 8, boxY + height);
+  ctx.lineTo(tailX + 4, boxY + height);
+  ctx.lineTo(tailX - 1, y - 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#111827';
+  lines.forEach((ln, idx) => ctx.fillText(ln, boxX + width / 2, boxY + 8 + lineH / 2 + idx * lineH, width - 12));
   ctx.restore();
 }
 
@@ -5821,6 +6091,7 @@ function renderVersusMiniGame() {
       anim: f.anim,
       swinging: f.action === "AXE",
       kicking: f.action === "KICK",
+      hugging: f.action === "THROW",
       crouching: f.blocking,
       celebrating: isWinner,
       crying: isLoser,
@@ -5829,6 +6100,14 @@ function renderVersusMiniGame() {
       helmetShield: !vsWinner && (f.shieldAnim || 0) > 0.03
     });
     if ((f.shieldAnim || 0) > 0 && !vsWinner) drawVsShield(f);
+    if (vsWinner && tournament) {
+      const quote = fighterQuoteText(f);
+      if (quote) {
+        // Globo junto al luchador, escalonado para evitar que ambas frases se tapen.
+        const px = stageXToCanvasX(f.x) + (i === 0 ? -20 : 20);
+        drawSpeechBubble(px, f.y - (i === 0 ? 78 : 115), quote);
+      }
+    }
   });
 
   projectiles.forEach(drawBeerBottle);
@@ -5841,30 +6120,34 @@ function renderVersusMiniGame() {
     ctx.font = `${isPortrait ? 24 : 32}px 'Press Start 2P', monospace`;
     ctx.lineWidth = 6;
     ctx.strokeStyle = "#000000";
-    ctx.strokeText("K.O.!", GW / 2, GH / 2 - 30);
+    const koY = tournament ? (isPortrait ? 185 : 165) : GH / 2 - 30;
+    ctx.strokeText("K.O.!", GW / 2, koY);
     ctx.fillStyle = "#ef4444";
-    ctx.fillText("K.O.!", GW / 2, GH / 2 - 30);
+    ctx.fillText("K.O.!", GW / 2, koY);
     ctx.restore();
   }
 
   if (vsWinner && vsEndAnimTimer <= 0) {
     const boxW = Math.min(460, GW - 30);
     const boxX = (GW - boxW) / 2;
-    const boxY = GH / 2 - 60;
+    const boxY = tournament ? (isPortrait ? 165 : 135) : GH / 2 - 60;
+    const boxH = tournament ? 75 : 120;
     ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
-    ctx.fillRect(boxX, boxY, boxW, 120);
+    ctx.fillRect(boxX, boxY, boxW, boxH);
     ctx.strokeStyle = "#f7931e";
     ctx.lineWidth = 4;
-    ctx.strokeRect(boxX, boxY, boxW, 120);
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#facc15";
     fitFont(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, boxW - 30, isPortrait ? 12 : 16);
-    ctx.fillText(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, GW / 2, boxY + 50);
+    ctx.fillText(`🏆 ¡GANA ${trimName(vsWinner, 18)}!`, GW / 2, boxY + (tournament ? 32 : 50));
     ctx.fillStyle = "#fff";
-    const sub = tournament ? "EL TORNEO CONTINÚA..." : "ELIGE REVANCHA O VOLVER A PERSONAJE";
+    const sub = tournament ?
+      (tournament.awaitContinueWinner ? "EL GANADOR DEBE PULSAR CONTINUAR" : "PREPARANDO SIGUIENTE COMBATE...") :
+      "ELIGE REVANCHA O VOLVER A PERSONAJE";
     fitFont(sub, boxW - 30, 10);
-    ctx.fillText(sub, GW / 2, boxY + 90);
+    ctx.fillText(sub, GW / 2, boxY + (tournament ? 61 : 90));
     ctx.textAlign = "left";
   }
 }
@@ -6009,6 +6292,7 @@ function gameLoop() {
     if (!bracketPause) {
       if(tournament?.cpuAutoplay) tourCpuDrive();
       updateVersusMiniGame();
+      if(tournament?.cpuSimulation)tourSendCpuFrame();
     }
     renderVersusMiniGame();
   } else if (gameState === "TOURNAMENT_WATCH") {
@@ -6107,6 +6391,7 @@ let tourFrameTicker = 0;
 const TOUR_ROUND_LABELS = { q: 'CUARTOS DE FINAL', s: 'SEMIFINAL', third: 'TERCER LUGAR', final: 'FINAL' };
 const TOUR_ROOM_PREFIX = 'APUS-TORNEO-';
 const TOUR_STATE_INTERVAL = 65;
+const TOUR_CPU_FRAME_INTERVAL = 85; // espectador: estado de ambos luchadores CPU / humano
 
 function tourStatus(message) {
   const el = document.getElementById('tournament-status');
@@ -6129,7 +6414,7 @@ function tourGetSize() {
 function tourOpenSetup() {
   if (tournament) tourLeave();
   showOverlay('tournament-setup-overlay');
-  tourStatus('Elige 4 u 8 participantes. Puedes pelear con tu personaje personalizado.');
+  tourStatus('Elige 4 u 8 participantes. En online puedes comenzar solo y completar con CPU.');
 }
 function tourOwnInfo() {
   const info = getMyFighterPayload();
@@ -6153,7 +6438,10 @@ function tourResetState(mode, size) {
     code: '', status: 'lobby', peer: null, hostConn: null, peers: new Map(),
     members: [tourPlayer(mode === 'offline' ? 'LOCAL' : 'HOST', tourOwnInfo())],
     matches: [], current: null, third: null, winner: null, runnerUp: null,
-    cpuAutoplay: false, lastStateAt: 0, roundVersion: 0,
+    cpuAutoplay: false, cpuBout: false, cpuSimulation: false,
+    simFirstId: null, simSecondId: null, lastCpuFrameAt: 0,
+    awaitContinueWinner: null, awaitContinueTriggered: false,
+    resultReadyAt: 0, lastStateAt: 0, roundVersion: 0,
     returnGameState: null, returnMatchId: null,
     tourId: Math.random().toString(36).slice(2,11)
   };
@@ -6163,12 +6451,22 @@ function tourResetState(mode, size) {
 function tourOffline() {
   const size = tourGetSize();
   tourResetState('offline',size);
-  const names = ['JORDY','CHUGO','ANDINISTA','GUÍA','EXPLORADOR','ESCALADOR','CORDILLERA'];
   for (let i=1;i<size;i++) {
-    const c = (i%2 === 1 ? 'CHUGO' : 'JORDY');
-    tournament.members.push(tourPlayer('CPU-'+i, {char:c,displayName:names[i-1]+' (CPU)', customConfig:null},true));
+    tournament.members.push(tourPlayer('CPU-'+i, tourMakeCpuInfo(i), true));
   }
   tourStartBracket();
+}
+// En línea los puestos CPU se agregan únicamente al pulsar COMENZAR.
+// En espera se permiten 1..8 personas reales (anfitrión incluido).
+function tourFillMissingCpu(t) {
+  let next = 1;
+  while (t.members.length < t.size) {
+    const id = 'CPU-' + next;
+    if (!t.members.some(p => p.id === id)) {
+      t.members.push(tourPlayer(id, tourMakeCpuInfo(next), true));
+    }
+    next++;
+  }
 }
 function tourNewCode() { return generateShortCode(); }
 function tourCreateOnline() {
@@ -6182,7 +6480,7 @@ function tourCreateOnline() {
   t.peer=peer;
   peer.on('open', () => {
     if(tournament!==t) return;
-    tourStatus('✅ Sala lista: comparte el código '+t.code+' con tus amigos.');
+    tourStatus('✅ Sala '+t.code+' lista. Invita amigos o comienza ahora: las plazas libres serán CPU.');
     tourRenderLobby();
   });
   peer.on('connection',(conn)=>{
@@ -6215,8 +6513,18 @@ function tourAttachGuest(conn,t){
       tourPublish();
     } else if(data.type==='TOUR_FIGHTER_PACKET'){
       tourRouteFighter(id,data.packet);
+    } else if(data.type==='TOUR_CPU_FRAME'){
+      tourRouteCpuFrame(id,data);
     } else if(data.type==='TOUR_RESULT'){
       tourReceiveResult(id,data.winner);
+    } else if(data.type==='TOUR_CONTINUE'){
+      const m=t.matches.find(x=>x.id===t.current && x.status==='done');
+      if (tournament===t && t.host && !t.awaitContinueTriggered && m && data.match===m.id &&
+          data.winner===m.winner && data.winner===t.awaitContinueWinner && id===m.winner &&
+          performance.now()>=(t.resultReadyAt||0)) {
+        t.awaitContinueTriggered=true;
+        tourAdvanceAfterContinue();
+      }
     } else if(data.type==='TOUR_LEAVE'){
       tourHandleDisconnect(id);
     }
@@ -6272,7 +6580,8 @@ function tourPublic(){
   const t=tournament;
   if(!t)return null;
   return {mode:t.mode,size:t.size,code:t.code,status:t.status, members:t.members.map(p=>({...p})),
-    matches:t.matches.map(m=>({...m})),current:t.current,winner:t.winner,runnerUp:t.runnerUp,third:t.third,version:t.roundVersion};
+    matches:t.matches.map(m=>({...m})),current:t.current,winner:t.winner,runnerUp:t.runnerUp,third:t.third,
+    awaitContinueWinner:t.awaitContinueWinner, awaitContinueTriggered:t.awaitContinueTriggered, version:t.roundVersion};
 }
 function tourSend(id,packet){
   const t=tournament;if(!t || t.mode!=='online')return;
@@ -6298,13 +6607,18 @@ function tourReceiveHost(packet){
     const d=packet.state;if(!d)return;
     t.size=d.size;t.status=d.status;t.members=d.members;t.matches=d.matches;
     t.current=d.current;t.winner=d.winner;t.runnerUp=d.runnerUp;t.third=d.third;
+    t.awaitContinueWinner=d.awaitContinueWinner||null;
+    t.awaitContinueTriggered=!!d.awaitContinueTriggered;
+    updateVersusResultActions();
     tourRenderLobby();tourUpdateHud();
   }else if(packet.type==='TOUR_BOUT'){
     tourEnterBout(packet.match,packet.players);
   }else if(packet.type==='TOUR_COMBAT'){
     tourConsumeCombat(packet.sender,packet.packet);
+  }else if(packet.type==='TOUR_CPU_FRAME'){
+    tourConsumeCpuFrame(packet);
   }else if(packet.type==='TOUR_FINISH'){
-    tourShowResult(packet.match,packet.winner,packet.reason);
+    tourShowResult(packet.match,packet.winner,packet.reason,packet.awaitContinueWinner);
   }else if(packet.type==='TOUR_END'){
     tourEndScreen(packet.summary);
   }else if(packet.type==='TOUR_ERROR'){
@@ -6322,6 +6636,14 @@ function tourHandleDisconnect(id){
     return;
   }
   p.connected=false;
+  const completed=t.matches.find(x=>x.id===t.current && x.status==='done');
+  if(completed && t.awaitContinueWinner===id) {
+    t.awaitContinueWinner=null;
+    t.awaitContinueTriggered=true;
+    if(tourRoundTimer)clearTimeout(tourRoundTimer);
+    tourRoundTimer=setTimeout(()=>{if(tournament===t)tourAdvanceAfterContinue();},
+      Math.max(0,(t.resultReadyAt||0)-performance.now()));
+  }
   const m=t.matches.find(x=>x.id===t.current && x.status==='live');
   if(m && (m.a===id || m.b===id)){
     const rival=m.a===id?m.b:m.a;
@@ -6355,9 +6677,15 @@ function tourBracketDefinition(size){
 }
 function tourStartBracket(){
   const t=tournament;if(!t||!t.host||t.status!=='lobby')return;
-  if(t.members.length!==t.size || t.members.some(p=>!p.connected)){
-    tourStatus('⚠️ Faltan participantes para comenzar: '+t.members.length+'/'+t.size);return;
+  if(t.members.filter(p=>p.connected&&!p.cpu).length<1){
+    tourStatus('⚠️ Se necesita al menos un montañista para iniciar.');return;
   }
+  // No convertir en CPU a invitados desconectados durante la espera;
+  // sus plazas ya se liberan en tourHandleDisconnect.
+  if(t.members.some(p=>!p.connected)){
+    tourStatus('⚠️ Revisa a los participantes desconectados antes de empezar.');return;
+  }
+  if(t.mode==='online')tourFillMissingCpu(t);
   t.matches=tourBracketDefinition(t.size);t.status='playing';t.current=null;
   t.roundVersion++;tourPublish();tourNextMatch();
 }
@@ -6391,6 +6719,14 @@ function tourEnterBout(match,players){
   const [a,b]=players;
   const me=t.me;
   t.cpuAutoplay=false;
+  t.cpuBout=false;
+  t.cpuSimulation=false;
+  t.awaitContinueTriggered=false;
+  t.awaitContinueWinner=null;
+  t.resultReadyAt=0;
+  t.simFirstId=null;
+  t.simSecondId=null;
+  t.lastCpuFrameAt=0;
   keys.left=false;keys.right=false;keys.up=false;keys.defend=false;
   vsWinner=null;
   vsWinnerIdx=-1;
@@ -6399,34 +6735,49 @@ function tourEnterBout(match,players){
   tourUpdateHud();
   document.getElementById('vs-end-actions').style.display='none';
   showOverlay(null);
-  if(t.mode==='offline'){
-    const humanInThisMatch=a.id===me || b.id===me;
+
+  // CPU en modo online: el participante humano simula su propio combate;
+  // si son dos CPU, lo simula únicamente el anfitrión. Las pantallas restantes
+  // son espectadores y reciben ambos luchadores desde el simulador.
+  const involvesCpu = !!(a.cpu || b.cpu);
+  const human = !a.cpu ? a : (!b.cpu ? b : null);
+  const simulatedHere = t.mode==='offline' || (involvesCpu &&
+    (human ? human.id===me : t.host));
+  if (simulatedHere) {
+    const humanInThisMatch=!!(human && human.id===me);
     t.cpuAutoplay=!humanInThisMatch;
-    // El motor offline siempre controla a fighters[0].
-    const own=humanInThisMatch?(a.id===me?a:b):a;
-    const other=humanInThisMatch?(a.id===me?b:a):b;
+    t.cpuBout=involvesCpu;
+    t.cpuSimulation=t.mode==='online' && involvesCpu;
+    // El motor offline controla a fighters[0] (humano o CPU anfitriona),
+    // y fighters[1] siempre es el segundo CPU de ese combate.
+    const own=humanInThisMatch?human:a;
+    const other=humanInThisMatch?(own.id===a.id?b:a):b;
+    t.simFirstId=own.id;
+    t.simSecondId=other.id;
     selectedCpuOpponent=other.fighterInfo.char==='CHUGO'?'CHUGO':'JORDY';
     startVersusMiniGame(false);
-    if(!humanInThisMatch){
-      fighters[0].char=own.fighterInfo.char;fighters[0].customConfig=own.fighterInfo.customConfig;
-      fighters[0].hp=140;fighters[0].maxHp=140;fighters[0].hpGhost=140;
-      fighters[1].hp=140;fighters[1].maxHp=140;fighters[1].hpGhost=140;
-    }
+    fighters[0].char=own.fighterInfo.char;
+    fighters[0].customConfig=own.fighterInfo.customConfig;
     fighters[0].displayName=own.name;
-    updateTouchControlsVisibility();
     fighters[1].char=other.fighterInfo.char;
     fighters[1].customConfig=other.fighterInfo.customConfig;
     fighters[1].displayName=other.name;
+    if(t.cpuAutoplay){
+      // Combates CPU vs CPU más breves, igual que los torneos offline previos.
+      for(const f of fighters){f.hp=140;f.maxHp=140;f.hpGhost=140;}
+    }
     t.returnGameState='MINIGAME';t.returnMatchId=match.id;
+    updateTouchControlsVisibility();
     tourUpdateHud();
-  }else if(i>=0){
+  } else if (!involvesCpu && t.mode==='online' && i>=0) {
+    // Confrontación entre dos personas: ruta ONLINE EXISTENTE sin cambios.
     isOnlineHost=i===0;
     startVersusMiniGame(true,players[1-i].fighterInfo);
     fighters[0].displayName=players[i].name;
     fighters[1].displayName=players[1-i].name;
     t.returnGameState='MINIGAME';t.returnMatchId=match.id;
     tourUpdateHud();
-  }else{
+  } else {
     fighters=players.map((p,idx)=>tourMakeSpectatorFighter(p,idx));
     projectiles=[];vsFloaters=[];
     gameState='TOURNAMENT_WATCH';
@@ -6444,6 +6795,75 @@ function tourMakeSpectatorFighter(p,idx){
     anim:0,shieldBlocks:0,shieldCooldown:0,shieldReadyAt:0,shieldAnim:0,
     knockbackFrames:0,knockbackDir:0,knockbackPerFrame:12};
 }
+// Los combates mixtos no usan MELEE_ATTACK/STATE del 1 vs 1:
+// el cliente simulador entrega un fotograma completo para espectadores.
+function tourSendCpuFrame() {
+  const t=tournament;
+  if(!t||t.mode!=='online'||!t.cpuSimulation||t.status!=='playing'||
+     gameState!=='MINIGAME'||fighters.length!==2)return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m)return;
+  const now=performance.now();
+  if(now-t.lastCpuFrameAt<TOUR_CPU_FRAME_INTERVAL)return;
+  t.lastCpuFrameAt=now;
+  const frame={
+    actors:fighters.map((f,i)=>({id:i===0?t.simFirstId:t.simSecondId,
+      x:f.x,y:f.y,facing:f.facing,hp:f.hp,maxHp:f.maxHp,
+      blocking:!!f.blocking,guardPose:!!f.guardPose,
+      shieldAnim:f.shieldAnim||0,shieldCooldown:f.shieldCooldown||0,
+      action:f.action||null,anim:f.anim||0,hurtTimer:f.hurtTimer||0})),
+    projectiles:projectiles.map(p=>({ownerId:p.owner===0?t.simFirstId:t.simSecondId,
+      type:p.type||'BEER',x:p.x,y:p.y,vx:p.vx,vy:p.vy,rot:p.rot,life:p.life}))
+  };
+  if(t.host)tourRouteCpuFrame(t.me,{match:m.id,frame});
+  else if(t.hostConn?.open)try{t.hostConn.send({type:'TOUR_CPU_FRAME',match:m.id,frame});}catch(e){}
+}
+function tourRouteCpuFrame(sender,packet) {
+  const t=tournament;
+  if(!t||!t.host||t.mode!=='online'||t.status!=='playing')return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m||packet?.match!==m.id)return;
+  const a=t.members.find(p=>p.id===m.a), b=t.members.find(p=>p.id===m.b);
+  if(!a||!b||!(a.cpu||b.cpu))return;
+  const expectedOwner=!a.cpu?a.id:(!b.cpu?b.id:t.me);
+  if(sender!==expectedOwner)return;
+  const out={type:'TOUR_CPU_FRAME',match:m.id,frame:packet.frame};
+  if(t.me!==sender)tourConsumeCpuFrame(out);
+  for(const p of t.members){
+    if(!p.cpu&&p.connected&&p.id!==t.me&&p.id!==sender)tourSend(p.id,out);
+  }
+}
+function tourConsumeCpuFrame(packet) {
+  const t=tournament;
+  if(!t||t.status!=='playing'||gameState!=='TOURNAMENT_WATCH')return;
+  const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
+  if(!m||packet?.match!==m.id||fighters.length!==2)return;
+  const frame=packet.frame;
+  if(!Array.isArray(frame?.actors)||frame.actors.length!==2)return;
+  for(const actor of frame.actors){
+    const i=actor.id===m.a?0:(actor.id===m.b?1:-1);
+    if(i<0||!Number.isFinite(actor.x)||!Number.isFinite(actor.y)||
+       !Number.isFinite(actor.hp))continue;
+    const f=fighters[i];
+    f.x=actor.x;f.y=actor.y;
+    f.facing=actor.facing===-1?-1:1;
+    f.hp=Math.max(0,Math.min(350,actor.hp));
+    if(Number.isFinite(actor.maxHp))f.maxHp=actor.maxHp;
+    f.blocking=!!actor.blocking;
+    f.guardPose=!!actor.guardPose;
+    f.shieldAnim=actor.shieldAnim||0;
+    f.shieldCooldown=actor.shieldCooldown||0;
+    f.action=actor.action||null;
+    f.anim=actor.anim||0;
+    f.hurtTimer=actor.hurtTimer||0;
+  }
+  // Proyectiles sobre el terreno sincronizados con el simulador.
+  if(Array.isArray(frame.projectiles)){
+    projectiles=frame.projectiles.slice(0,16).filter(p=>
+      Number.isFinite(p.x)&&Number.isFinite(p.y)&&Number.isFinite(p.vx)
+    ).map(p=>({...p,owner:p.ownerId===m.a?0:1,life:p.life||60}));
+  }
+}
 function tourRouteFighter(sender,packet){
   const t=tournament;if(!t||!t.host||t.status!=='playing'||!packet?.type)return;
   const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
@@ -6459,7 +6879,7 @@ function tourRouteFighter(sender,packet){
   }
 }
 function tourSendCombat(packet){
-  const t=tournament;if(!t||t.mode!=='online'||!packet)return;
+  const t=tournament;if(!t||t.mode!=='online'||!packet||t.cpuSimulation)return;
   if(packet.type==='STATE'){
     const now=performance.now();
     if(now-t.lastStateAt<TOUR_STATE_INTERVAL)return;
@@ -6512,22 +6932,52 @@ function tourReceiveResult(sender,winner){
   const t=tournament;if(!t||!t.host||t.status!=='playing')return;
   const m=t.matches.find(m=>m.id===t.current&&m.status==='live');
   if(!m || ![m.a,m.b].includes(sender)||![m.a,m.b].includes(winner))return;
+  const ma=t.members.find(p=>p.id===m.a),mb=t.members.find(p=>p.id===m.b);
+  if((ma?.cpu||mb?.cpu)&&(!ma?.cpu?m.a:(!mb?.cpu?m.b:t.me))!==sender)return;
   tourResolveWin(winner,'KO');
 }
 function tourNotifyWin(index){
   const t=tournament;if(!t||t.status!=='playing')return;
   const m=t.matches.find(m=>m.id===t.current&&m.status==='live');if(!m)return;
   let winner;
-  if(t.mode==='offline'){
-    const human=m.a===t.me||m.b===t.me;
-    const first=human?(m.a===t.me?m.a:m.b):m.a;
-    const second=human?(m.a===t.me?m.b:m.a):m.b;
-    winner=index===0?first:second;
-    tourResolveWin(winner,'KO');
+  if(t.mode==='offline'||t.cpuSimulation){
+    winner=index===0?t.simFirstId:t.simSecondId;
+    if(t.host)tourResolveWin(winner,'KO');
+    else if(t.hostConn?.open)try{t.hostConn.send({type:'TOUR_RESULT',winner});}catch(e){}
   }else{
     winner=index===0?t.me:(m.a===t.me?m.b:m.a);
     if(t.host)tourReceiveResult(t.me,winner);
     else if(t.hostConn?.open)try{t.hostConn.send({type:'TOUR_RESULT',winner});}catch(e){}
+  }
+}
+function tourWinnerNeedsConfirmation(t, winnerId) {
+  const p = t?.members?.find(x => x.id === winnerId);
+  return !!(p && !p.cpu);
+}
+function tourAdvanceAfterContinue(){
+  const t=tournament;if(!t||!t.host||t.status!=='playing')return;
+  t.awaitContinueWinner = null;
+  t.awaitContinueTriggered = false;
+  if(tourRoundTimer)clearTimeout(tourRoundTimer);
+  tourRoundTimer = null;
+  tourNextMatch();
+}
+function tourWinnerContinue(){
+  const t=tournament;
+  if(!t||t.status!=='playing'||!t.awaitContinueWinner||t.awaitContinueTriggered)return;
+  const match=t.matches.find(m=>m.id===t.current && m.status==='done');
+  if(!match||match.winner!==t.me||t.me!==t.awaitContinueWinner)return;
+  if(performance.now() < (t.resultReadyAt||0))return; // Nunca antes de 3 segundos.
+  if(t.host){
+    t.awaitContinueTriggered=true;
+    tourAdvanceAfterContinue();
+  }else if(t.hostConn?.open){
+    t.awaitContinueTriggered=true;
+    updateVersusResultActions();
+    try { t.hostConn.send({type:'TOUR_CONTINUE',match:match.id,winner:t.me}); }
+    catch(e){t.awaitContinueTriggered=false;updateVersusResultActions();}
+  }else {
+    tourStatus('⚠️ Sin conexión al anfitrión; no se pudo continuar.');
   }
 }
 function tourResolveWin(winner,reason){
@@ -6547,24 +6997,37 @@ function tourResolveWin(winner,reason){
     if(k===0){fin.a=winner;third.a=loser;}else{fin.b=winner;third.b=loser;}
   }
   t.current=m.id;t.roundVersion++;
-  tourBroadcast({type:'TOUR_FINISH',match:m.id,winner,reason});
+  t.awaitContinueWinner = tourWinnerNeedsConfirmation(t, winner) ? winner : null;
+  t.awaitContinueTriggered = false;
+  t.resultReadyAt=performance.now()+3000;
+  tourBroadcast({type:'TOUR_FINISH',match:m.id,winner,reason,
+    awaitContinueWinner:t.awaitContinueWinner});
   tourShowResult(m.id,winner,reason);
   tourPublish();
   if(tourRoundTimer)clearTimeout(tourRoundTimer);
-  tourRoundTimer=setTimeout(()=>{tourRoundTimer=null;if(tournament===t)tourNextMatch();},3100);
+  if(!t.awaitContinueWinner){
+    tourRoundTimer=setTimeout(()=>{tourRoundTimer=null;if(tournament===t)tourAdvanceAfterContinue();},3100);
+  }
 }
-function tourShowResult(matchId,winner,reason){
+function tourShowResult(matchId,winner,reason,waitForWinner){
   const t=tournament;if(!t)return;
+  if(matchId!==t.current)return;
   const p=t.members.find(x=>x.id===winner);
+  // En invitados, el ganador autorizado llega en TOUR_FINISH y también en TOUR_SYNC.
+  if(!t.host) t.awaitContinueWinner = waitForWinner !== undefined ? waitForWinner :
+    (tourWinnerNeedsConfirmation(t,winner) ? winner : null);
+  t.awaitContinueTriggered=false;
+  if(!t.host || !t.resultReadyAt) t.resultReadyAt=performance.now()+3000;
   vsWinner=p?.name||'GANADOR';
   const m=t.matches.find(x=>x.id===matchId);
   if(m){
-    const first=t.mode==='offline' && (m.a===t.me||m.b===t.me)?(m.a===t.me?m.a:m.b):m.a;
+    const first=(t.cpuSimulation||t.mode==='offline')&&t.simFirstId?t.simFirstId:m.a;
     vsWinnerIdx=winner===first?0:1;
   }
-  vsEndAnimTimer=0;
+  vsEndAnimTimer=180;
   document.getElementById('vs-end-actions').style.display='none';
   tourUpdateHud('🏆 '+vsWinner+' · '+reason);
+  updateVersusResultActions();
 }
 function tourEndScreen(summary){
   const t=tournament;if(!t)return;
@@ -6587,7 +7050,13 @@ function tourRenderLobby(){
   const code=document.getElementById('tournament-code-display');
   if(code)code.textContent=t.mode==='online'?t.code:'SIN INTERNET';
   const count=document.getElementById('tournament-count');
-  if(count)count.textContent=`${t.members.filter(p=>p.connected).length} / ${t.size} participantes`;
+  if(count){
+    const humanCount=t.members.filter(p=>p.connected&&!p.cpu).length;
+    const cpuCount=t.members.filter(p=>p.cpu).length;
+    count.textContent=t.status==='lobby'&&t.mode==='online'
+      ?`${humanCount} humano(s) · ${t.size-humanCount} plaza(s) CPU al empezar`
+      :`${humanCount} humano(s) + ${cpuCount} CPU / ${t.size}`;
+  }
   const returnBtn=document.getElementById('tournament-return-to-fight');
   if(returnBtn){
     returnBtn.style.display=t.status==='lobby'?'none':'block';
@@ -6595,10 +7064,12 @@ function tourRenderLobby(){
       (t.returnGameState==='TOURNAMENT_WATCH'?'👁️ VOLVER A VER EL COMBATE':'↩️ VOLVER AL COMBATE');
   }
   const hostStart=document.getElementById('tournament-host-start');
-  if(hostStart){hostStart.style.display=t.host&&t.status==='lobby'?'block':'none';hostStart.disabled=t.members.length!==t.size||t.members.some(p=>!p.connected);}
+  if(hostStart){hostStart.style.display=t.host&&t.status==='lobby'?'block':'none';
+    hostStart.disabled=!t.host||t.members.filter(p=>p.connected&&!p.cpu).length<1||t.members.some(p=>!p.connected);
+  }
   const bracket=document.getElementById('tournament-bracket');
   if(bracket){
-    if(!t.matches.length){bracket.innerHTML='<p class="controls-hint">El cuadro se sortea al completar la sala.</p>';}
+    if(!t.matches.length){bracket.innerHTML='<p class="controls-hint">El cuadro se genera al comenzar. Las plazas sin personas se completan con CPU.</p>';}
     else bracket.innerHTML=t.matches.map(m=>{
       const name=id=>t.members.find(p=>p.id===id)?.name||(id?'JUGADOR':'POR DEFINIR');
       return `<div class="tour-match ${m.status==='live'?'tour-current':''}"><strong>${TOUR_ROUND_LABELS[m.round]||m.round}${m.status==='live'?' 🔴 EN VIVO':''}</strong><div>${tourEscape(name(m.a))} <b>VS</b> ${tourEscape(name(m.b))}</div>${m.winner?`<small>🏆 ${tourEscape(name(m.winner))}</small>`:''}</div>`;
@@ -6608,7 +7079,7 @@ function tourRenderLobby(){
 function tourUpdateHud(custom){
   const t=tournament, hud=document.getElementById('tournament-hud');
   if(!hud)return;
-  const fightVisible=t && t.status==='playing' &&
+  const fightVisible=t && t.status==='playing' && !vsWinner &&
     (gameState==='MINIGAME'||gameState==='TOURNAMENT_WATCH');
   // Nunca superponer el botón a un menú abierto.
   const menuOpen=!!document.querySelector('.overlay.active');
@@ -6665,6 +7136,12 @@ function tourCpuDrive(){
 }
 function tourWatchAnimation(){
   if(gameState!=='TOURNAMENT_WATCH')return;
+  if(vsWinner) {
+    vsEndAnimTimer = tournament?.resultReadyAt ?
+      Math.ceil(Math.max(0,tournament.resultReadyAt-performance.now())/(1000/60)) :
+      Math.max(0,vsEndAnimTimer-1);
+    updateVersusResultActions();
+  }
   const gy=getFightGroundY();
   for(const f of fighters){
     if(!f)continue;
