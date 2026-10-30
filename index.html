@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 0.27.8.3</title>
+<title>APUS' GUARDIANS - RETO ILINIZA SUR · VERSIÓN 28.0.1</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
@@ -206,6 +206,139 @@
     transform: translateY(2px);
     box-shadow: 0 1px 0 #0f172a;
   }
+
+  /* V28.0: comunidad: se limita el estilo al panel nuevo. */
+  #community-overlay .community-intro {
+    margin: 12px 0 16px;
+    padding: 14px 12px;
+    background: rgba(15,23,42,0.55);
+    border: 2px solid #4a5d80;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 10px;
+    line-height: 1.9;
+  }
+  #community-overlay .community-intro p { margin: 8px 0; }
+  #community-overlay .community-mountain {
+    display: block;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  #community-overlay .community-whatsapp {
+    display: block;
+    background: #128c4f;
+    border-color: #bbf7d0;
+    color: #ffffff;
+    text-decoration: none;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  #community-overlay .community-whatsapp:hover,
+  #community-overlay .community-whatsapp:focus-visible {
+    background: #16a34a;
+    border-color: #ffffff;
+  }
+  #community-overlay .community-donation {
+    background: rgba(146,64,14,0.16);
+    border: 2px dashed #d6a34b;
+    border-radius: 6px;
+    padding: 12px 10px;
+    margin: 16px 0;
+    font-size: 10px;
+    line-height: 1.7;
+    color: #fef3c7;
+  }
+  /* V28.0.1: datos y relato; solo afecta la pantalla de comunidad. */
+  #community-overlay .retro-box { max-width: 520px !important; }
+  #community-overlay .community-account {
+    margin-top: 12px;
+    border-top: 1px solid rgba(253,230,138,0.36);
+    padding-top: 12px;
+    text-align: center;
+  }
+  #community-overlay .community-account-title {
+    display: block;
+    font-size: 10px;
+    color: #fde68a;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  #community-overlay .community-account p {
+    margin: 8px 0;
+    line-height: 1.75;
+    font-size: 9px;
+  }
+  #community-overlay .community-account strong { color: #fff; }
+  #community-overlay .community-account-number {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.7px;
+    overflow-wrap: anywhere;
+    color: #fde68a;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  #community-overlay .community-story {
+    text-align: left;
+    background: rgba(15,23,42,0.55);
+    border: 2px solid #4a5d80;
+    border-radius: 6px;
+    padding: 14px 12px;
+    margin: 14px 0 10px;
+    color: #e2e8f0;
+  }
+  #community-overlay .community-story h3 {
+    margin-bottom: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+    text-align: center;
+    color: #facc15;
+  }
+  #community-overlay .community-story p {
+    font-size: 9px;
+    line-height: 2.0;
+    margin: 0 0 11px;
+    overflow-wrap: break-word;
+  }
+  #community-overlay .community-story .community-thanks {
+    color: #fde68a;
+    text-align: center;
+    font-size: 10px;
+  }
+  #community-overlay .community-logo {
+    display: block;
+    width: 96px;
+    height: 96px;
+    margin: 12px auto 15px;
+  }
+  body.theme-light #community-overlay .community-account-title,
+  body.theme-light #community-overlay .community-account-number,
+  body.theme-light #community-overlay .community-story h3,
+  body.theme-light #community-overlay .community-story .community-thanks { color: #92400e; }
+  body.theme-light #community-overlay .community-account strong { color: #713f12; }
+  body.theme-light #community-overlay .community-story {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #0f172a;
+  }
+  body.theme-light #community-overlay .community-intro {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #0f172a;
+  }
+  body.theme-light #community-overlay .community-whatsapp {
+    background: #128c4f;
+    border-color: #15803d;
+    color: #fff;
+  }
+  body.theme-light #community-overlay .community-whatsapp:hover,
+  body.theme-light #community-overlay .community-whatsapp:focus-visible { background: #16a34a; border-color: #15803d; }
+  body.theme-light #community-overlay .community-donation {
+    background: #fff7ed;
+    border-color: #d97706;
+    color: #713f12;
+  }
+  body.theme-light #community-overlay .community-donation-placeholder { color: #92400e; }
 
   /* CHARACTER SELECTION */
   .char-grid {
@@ -732,6 +865,7 @@
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
       <button class="menu-btn" onclick="openRanking()">🏆 RANKING GLOBAL</button>
       <button class="menu-btn" onclick="showOverlay('minigames-hub-overlay')">🎮 MINI JUEGOS</button>
+      <button class="menu-btn" onclick="showOverlay('community-overlay')">🏔️ ÚNETE A NUESTRA COMUNIDAD</button>
       <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
       <div class="diff-selector">
@@ -742,7 +876,50 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 0.27.9.3</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 0.28.0.1</div>
+    </div>
+  </div>
+
+  <!-- V28.0: COMUNIDAD; módulo de navegación independiente, sin alterar el juego. -->
+  <div id="community-overlay" class="overlay">
+    <div class="retro-box" style="max-width:480px">
+      <h1>🏔️ ÚNETE A NUESTRA COMUNIDAD</h1>
+      <h2>APUS GUARDIANS</h2>
+
+      <div class="community-intro">
+        <span class="community-mountain" aria-hidden="true">⛰️ 🥾 🏕️</span>
+        <p>Somos una comunidad de montañistas independientes.</p>
+        <p>Conoce nuestras salidas ingresando al siguiente grupo de WhatsApp.</p>
+      </div>
+
+      <!-- WhatsApp elige la aplicación disponible (WhatsApp o Business) según el dispositivo. -->
+      <a class="menu-btn community-whatsapp" href="https://chat.whatsapp.com/H3qT4z2MH3wJYvxHFMsjxk?s=cl&amp;p=a&amp;mlu=0&amp;amv=0" target="_blank" rel="noopener noreferrer" aria-label="Unirse a Apus Guardians por WhatsApp">
+        <span aria-hidden="true">💬</span> UNIRME AL GRUPO DE WHATSAPP
+      </a>
+
+      <div class="community-donation">
+        <p>💛 Ayúdanos a seguir creciendo con una donación para el juego.</p>
+        <div class="community-account">
+          <strong class="community-account-title">🏦 BANCO PICHINCHA</strong>
+          <p>CUENTA DE AHORROS <strong class="community-account-number">2204587764</strong></p>
+          <p>TITULAR: <strong>KEVIN MELENDEZ</strong></p>
+          <p>CÉDULA: <strong class="community-account-number">1725133480</strong></p>
+        </div>
+      </div>
+
+      <section class="community-story" aria-label="Historia de Apus Guardians">
+        <h3>🏔️ LA HISTORIA DE NUESTRO JUEGO</h3>
+        <p>Este juego fue creado con el propósito de dar a conocer por todo el país a la hermosa comunidad de montañistas Apus' Guardians.</p>
+        <p>La magia de formar parte de estas salidas es el cariño por la naturaleza, la vida y el deporte.</p>
+        <p>Los mejores líderes del grupo, Chuguito y Jordy, siempre estarán para ayudarte a empezar en el grandioso mundo del montañismo.</p>
+        <p class="community-thanks">Apóyanos a seguir creciendo.<br><strong>«Muchas gracias a todos»</strong></p>
+        <p class="community-thanks"><strong>¡Y VAMOS POR MÁS!</strong></p>
+      </section>
+
+      <!-- Mismo dibujo que aparece en el menú principal. -->
+      <canvas id="communityLogoCanvas" class="community-logo" width="96" height="96" aria-label="Logo de Apus Guardians" role="img"></canvas>
+
+      <button class="menu-btn" style="background:#ee5253" onclick="showOverlay('menu-overlay')">🔙 VOLVER AL MENÚ PRINCIPAL</button>
     </div>
   </div>
 
@@ -6358,6 +6535,11 @@ function initPreviews() {
   if (logoCanvas) {
     const logoCtx = logoCanvas.getContext("2d");
     drawApusLogo(logoCtx, 4, 4, 88);
+  }
+  // Reutilizar exactamente el mismo logo del menú principal en Comunidad.
+  const communityLogoCanvas = document.getElementById("communityLogoCanvas");
+  if (communityLogoCanvas) {
+    drawApusLogo(communityLogoCanvas.getContext("2d"), 4, 4, 88);
   }
   const jCanvas = document.getElementById("preview-jordy");
   if (jCanvas) {
