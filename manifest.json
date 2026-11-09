@@ -1,0 +1,11 @@
+{
+  "name": "Apus Iliniza Sur — Apus Guardians",
+  "short_name": "Apus Iliniza",
+  "description": "Juego de ascenso y minijuegos Apus Guardians — versión 31 modular",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0e17",
+  "theme_color": "#0b0e17",
+  "lang": "es"
+}
