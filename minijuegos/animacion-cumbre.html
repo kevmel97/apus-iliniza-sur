@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Victoria! Cumbre Iliniza Sur Alcanzada</title>
+        <style>
+        :root {
+            --pixel-font: 'Press Start 2P', monospace;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #0b0f19;
+            user-select: none;
+            cursor: pointer;
+        }
+        .font-pixel {
+            font-family: var(--pixel-font);
+        }
+        /* Renderizado nítido para Pixel Art */
+        canvas {
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        /* Efecto CRT / Retro sutil */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.42;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.18) 50%,
+                rgba(0, 0, 0, 0.18)
+            );
+            background-size: 100% 4px;
+        }
+    
+        #victory-hud {
+            position: fixed;
+            inset: 18px 10px auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            pointer-events: none;
+            padding: 0 4px;
+        }
+        #summit-prompt {
+            position: relative;
+            display: block;
+            max-width: 94vw;
+            border: 3px solid #fbbf24;
+            border-radius: 7px;
+            background: rgba(2, 6, 23, 0.91);
+            color: #fff;
+            box-shadow: 0 5px 0 #78350f, 0 8px 24px rgba(0, 0, 0, .4);
+            padding: 13px 16px 15px;
+            text-align: center;
+            font-family: var(--pixel-font), monospace;
+            cursor: pointer;
+            pointer-events: auto;
+            line-height: 1.7;
+            animation: summitPulse 1.6s ease-in-out infinite;
+        }
+        #summit-prompt::after {
+            content: "";
+            position: absolute;
+            left: calc(50% - 10px);
+            bottom: -13px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 12px solid #fbbf24;
+        }
+        #summit-prompt-title {
+            display: block;
+            color: #fcd34d;
+            font-size: clamp(10px, 2.4vw, 16px);
+            margin-bottom: 7px;
+            text-shadow: 2px 2px 0 #000;
+        }
+        #summit-prompt-detail {
+            display: block;
+            color: #f8fafc;
+            font-size: clamp(8px, 1.7vw, 11px);
+            text-shadow: 2px 2px 0 #000;
+        }
+        @keyframes summitPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+    /* V24: dejar ver diez segundos de celebración antes de pedir clic. */
+        #victory-hud { display:none; }
+        #victory-hud.summit-ready { display:flex; }
+    </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden">
+
+    <!-- Canvas Principal Pixel Art a Pantalla Completa -->
+    <canvas id="pixel-canvas"></canvas>
+
+    <!-- Capa de Scanlines Retro -->
+    <div class="scanlines pointer-events-none fixed inset-0 opacity-60 z-10"></div>
+
+    <!-- Burbuja interactiva de victoria: el clic continúa al menú de puntaje del juego anfitrión. -->
+    <div id="victory-hud" aria-label="Finalizar ascenso" role="button" tabindex="0">
+        <button id="summit-prompt" type="button">
+            <span id="summit-prompt-title">🏔️ ¡ALCANZASTE LA CUMBRE!</span>
+            <span id="summit-prompt-detail">DALE UN CLIC PARA FINALIZAR EL JUEGO</span>
+        </button>
+    </div>
+
+    <script>
+        /***********************************************************************
+         * 1. CONFIGURACIÓN DEL CANVAS AUTO-ADAPTABLE (1:1, 16:9, 19:6, 6:19...)
+         *    Y BUCLE DE 10 SEGUNDOS
+         ***********************************************************************/
+        const canvas = document.getElementById('pixel-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Duración exacta del bucle en segundos
+        const LOOP_DURATION = 10.0;
+        let startTime = performance.now();
+
+        // Resolución interna estilo Pixel Art (se calcula dinámicamente según el aspect ratio real de la ventana)
+        let logicalWidth = 384;
+        let logicalHeight = 216;
+
+        // Estado de animación extra al hacer clic/toque en la pantalla
+        let celebrationBoost = 0;
+
+        function updateCanvasDimensions() {
+            const winW = window.innerWidth || 384;
+            const winH = window.innerHeight || 216;
+            const aspect = winW / winH;
+
+            // Mantenemos una densidad constante de ~82,000 píxeles lógicos para que el Pixel Art
+            // se vea igual de nítido tanto en 1:1, 16:9, 9:16, 19:6 o 6:19
+            const targetArea = 82944; // 384 * 216
+            logicalHeight = Math.max(130, Math.round(Math.sqrt(targetArea / aspect)));
+            logicalWidth = Math.max(130, Math.round(logicalHeight * aspect));
+
+            canvas.width = logicalWidth;
+            canvas.height = logicalHeight;
+
+            initSnowParticles();
+        }
+
+        window.addEventListener('resize', updateCanvasDimensions);
+
+        /***********************************************************************
+         * 2. SISTEMA DE NIEVE Y PARTÍCULAS (ESPUMITA / ESTRELLAS DE VICTORIA)
+         ***********************************************************************/
+        let snowMax = 110;
+        let snowflakes = [];
+        let bubbles = [];
+
+        function initSnowParticles() {
+            snowflakes = [];
+            for (let i = 0; i < snowMax; i++) {
+                snowflakes.push({
+                    x: Math.random() * logicalWidth,
+                    y: Math.random() * logicalHeight,
+                    size: Math.random() < 0.75 ? 1 : 2,
+                    speedY: 12 + Math.random() * 22,
+                    speedX: -6 + Math.random() * 12,
+                    phase: Math.random() * Math.PI * 2,
+                    alpha: 0.55 + Math.random() * 0.45
+                });
+            }
+        }
+
+        function spawnBeerBubbles(count, originX, originY) {
+            for (let i = 0; i < count; i++) {
+                bubbles.push({
+                    x: (originX || 0) + (Math.random() * 10 - 5),
+                    y: (originY || 0) + (Math.random() * 6 - 3),
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: -12 - Math.random() * 20,
+                    life: 1.0,
+                    color: Math.random() > 0.3 ? '#fef08a' : '#ffffff',
+                    size: Math.random() > 0.6 ? 2 : 1
+                });
+            }
+        }
+
+        /***********************************************************************
+         * 3. UTILIDADES DE DIBUJO PIXEL ART
+         ***********************************************************************/
+        function pxRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+        }
+
+        function drawPixelPolygon(points, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(Math.round(points[0][0]), Math.round(points[0][1]));
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(Math.round(points[i][0]), Math.round(points[i][1]));
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        /***********************************************************************
+         * 4. ESCENARIO: CIELO CREPUSCULAR, VOLCÁN COTOPAXI Y CUMBRE ILINIZA SUR
+         ***********************************************************************/
+        function drawSkyAndClouds(camY, loopProgress) {
+            const w = logicalWidth;
+            const h = logicalHeight;
+
+            // Bandas de cielo estilo Pixel Art fieles a la ilustración original
+            const skyBands = [
+                { stop: 0.00, color: '#212b4a' },
+                { stop: 0.14, color: '#2b395e' },
+                { stop: 0.27, color: '#3b4a70' },
+                { stop: 0.38, color: '#58587a' },
+                { stop: 0.48, color: '#865e6d' },
+                { stop: 0.57, color: '#bd6c5e' },
+                { stop: 0.66, color: '#e5834b' },
+                { stop: 0.75, color: '#f5a153' },
+                { stop: 0.84, color: '#fbc46e' },
+                { stop: 0.92, color: '#fde293' }
+            ];
+
+            const skyShift = Math.round(camY * 0.15);
+            for (let i = 0; i < skyBands.length; i++) {
+                const yStart = Math.floor(skyBands[i].stop * h) + skyShift;
+                const nextStop = (i < skyBands.length - 1) ? skyBands[i + 1].stop : 1.25;
+                const bandH = Math.ceil((nextStop - skyBands[i].stop) * h) + 6;
+                pxRect(0, yStart - 15, w, bandH, skyBands[i].color);
+            }
+
+            // Estrellas tenues en la parte alta del cielo
+            const stars = [
+                [0.12, 0.07], [0.23, 0.12], [0.39, 0.16], [0.58, 0.09],
+                [0.71, 0.06], [0.85, 0.11], [0.18, 0.21], [0.64, 0.19]
+            ];
+            stars.forEach((st, idx) => {
+                const twinkle = Math.sin(loopProgress * Math.PI * 4 + idx) > 0.2;
+                if (twinkle) {
+                    pxRect(st[0] * w, st[1] * h + skyShift, 1, 1, '#e2e8f0');
+                }
+            });
+
+            // Nubes alargadas crepusculares (rosa/violeta/naranja)
+            const cloudDrift = Math.sin(loopProgress * Math.PI * 2) * 4;
+            const clouds = [
+                { x: 0.08 * w + cloudDrift, y: 0.24 * h + skyShift, w: 42, h: 3, c: '#74637f' },
+                { x: 0.52 * w - cloudDrift, y: 0.20 * h + skyShift, w: 36, h: 3, c: '#74637f' },
+                { x: 0.65 * w + cloudDrift, y: 0.34 * h + skyShift, w: 68, h: 4, c: '#c47164' },
+                { x: 0.04 * w - cloudDrift, y: 0.40 * h + skyShift, w: 54, h: 4, c: '#d87b59' },
+                { x: 0.78 * w + cloudDrift, y: 0.43 * h + skyShift, w: 60, h: 4, c: '#f29552' }
+            ];
+            clouds.forEach(cl => {
+                pxRect(cl.x, cl.y, cl.w, cl.h, cl.c);
+                pxRect(cl.x + 6, cl.y - 2, cl.w * 0.6, 2, cl.c);
+            });
+        }
+
+        function drawDistantVolcano(camX, camY) {
+            const w = logicalWidth;
+            const h = logicalHeight;
+
+            // Ajuste inteligente según si el formato es vertical, cuadrado o panorámico
+            const isVertical = (h > w);
+            const vPeakX = Math.round(w * (isVertical ? 0.34 : 0.36) + camX * 0.3);
+            const vPeakY = Math.round(h * (isVertical ? 0.26 : 0.23) + camY * 0.35);
+            const vBaseY = Math.round(h * (isVertical ? 0.62 : 0.64) + camY * 0.35);
+            const vHalfW = Math.round(Math.max(w, h) * 0.34);
+
+            // Sombra base del volcán (azul grisáceo oscuro)
+            drawPixelPolygon([
+                [vPeakX - 10, vPeakY],
+                [vPeakX + 12, vPeakY],
+                [vPeakX + vHalfW, vBaseY],
+                [vPeakX - vHalfW, vBaseY]
+            ], '#3b3c54');
+
+            // Laderas rojizas/marrones andinas iluminadas por el atardecer
+            drawPixelPolygon([
+                [vPeakX - 8, vPeakY + 8],
+                [vPeakX + 10, vPeakY + 8],
+                [vPeakX + vHalfW * 0.72, vBaseY - 8],
+                [vPeakX, vBaseY - 12],
+                [vPeakX - vHalfW * 0.58, vBaseY - 10]
+            ], '#7c3f49');
+
+            drawPixelPolygon([
+                [vPeakX - 4, vPeakY + 12],
+                [vPeakX + 8, vPeakY + 12],
+                [vPeakX + vHalfW * 0.45, vBaseY - 18],
+                [vPeakX - vHalfW * 0.32, vBaseY - 16]
+            ], '#9c4c4b');
+
+            // Glaciar / Nieve de la cumbre del volcán con picos dentados
+            drawPixelPolygon([
+                [vPeakX - 9, vPeakY],
+                [vPeakX + 11, vPeakY],
+                [vPeakX + vHalfW * 0.44, vPeakY + (vBaseY - vPeakY) * 0.48],
+                [vPeakX + vHalfW * 0.25, vPeakY + (vBaseY - vPeakY) * 0.38],
+                [vPeakX + vHalfW * 0.08, vPeakY + (vBaseY - vPeakY) * 0.52],
+                [vPeakX - vHalfW * 0.12, vPeakY + (vBaseY - vPeakY) * 0.40],
+                [vPeakX - vHalfW * 0.28, vPeakY + (vBaseY - vPeakY) * 0.49],
+                [vPeakX - vHalfW * 0.44, vPeakY + (vBaseY - vPeakY) * 0.43]
+            ], '#f8fafc');
+
+            // Sombra celeste en el lado izquierdo del glaciar
+            drawPixelPolygon([
+                [vPeakX - 9, vPeakY],
+                [vPeakX - 1, vPeakY],
+                [vPeakX - vHalfW * 0.12, vPeakY + (vBaseY - vPeakY) * 0.40],
+                [vPeakX - vHalfW * 0.28, vPeakY + (vBaseY - vPeakY) * 0.49],
+                [vPeakX - vHalfW * 0.44, vPeakY + (vBaseY - vPeakY) * 0.43]
+            ], '#bae6fd');
+
+            // Cráter sombreado en la cima
+            pxRect(vPeakX - 5, vPeakY + 3, 9, 3, '#473b54');
+
+            // Colchón de nubes bajas entre el volcán y el Iliniza Sur
+            const cloudY = vBaseY - 14;
+            for (let cx = -20; cx < w + 30; cx += 22) {
+                const wave = Math.round(Math.sin(cx * 0.08) * 5);
+                pxRect(cx, cloudY + wave, 28, 18, '#938da8');
+                pxRect(cx + 3, cloudY + wave - 3, 20, 5, '#c7b8c9');
+                pxRect(cx, cloudY + wave + 10, 28, 28, '#6e6d8c');
+            }
+        }
+
+        function drawForegroundCliffs(camX, camY, rightAnchorX, rightAnchorY) {
+            const w = logicalWidth;
+            const h = logicalHeight;
+
+            // 1. Acantilado rocoso nevado de la IZQUIERDA (con los 2 piolets clavados abajo)
+            const leftCliffX = Math.round(camX * 0.8);
+            const leftCliffY = Math.round(h * 0.46 + camY * 0.85);
+
+            // Roca oscura base izquierda
+            drawPixelPolygon([
+                [leftCliffX - 15, leftCliffY],
+                [leftCliffX + w * 0.28, leftCliffY + 22],
+                [leftCliffX + w * 0.33, h + 40],
+                [leftCliffX - 15, h + 40]
+            ], '#27293d');
+
+            // Relieves de roca gris/azulada
+            drawPixelPolygon([
+                [leftCliffX, leftCliffY + 14],
+                [leftCliffX + w * 0.26, leftCliffY + 26],
+                [leftCliffX + w * 0.24, h + 20],
+                [leftCliffX, h + 20]
+            ], '#424761');
+
+            // Capa gruesa de nieve y carámbanos en la cornisa izquierda
+            drawPixelPolygon([
+                [leftCliffX - 10, leftCliffY - 4],
+                [leftCliffX + w * 0.14, leftCliffY + 14],
+                [leftCliffX + w * 0.28, leftCliffY + 19],
+                [leftCliffX + w * 0.28, leftCliffY + 28],
+                [leftCliffX + w * 0.12, leftCliffY + 26],
+                [leftCliffX - 10, leftCliffY + 12]
+            ], '#f1f5f9');
+
+            pxRect(leftCliffX + w * 0.12, leftCliffY + 23, w * 0.16, 5, '#93c5fd');
+
+            // Dos piolets clavados en la nieve abajo a la izquierda
+            drawPlantedIceAxe(leftCliffX + Math.round(w * 0.08), Math.round(h * 0.84 + camY * 0.85), -0.35, '#f97316');
+            drawPlantedIceAxe(leftCliffX + Math.round(w * 0.21), Math.round(h * 0.88 + camY * 0.85), -0.25, '#94a3b8');
+
+            // 2. Cumbre / Cornisa glacial de la DERECHA donde están los 2 montañistas
+            const ledgeTopY = rightAnchorY;
+            const ledgeLeftX = rightAnchorX - 46;
+
+            // Sombra profunda del acantilado derecho
+            drawPixelPolygon([
+                [ledgeLeftX - 24, ledgeTopY + 56],
+                [ledgeLeftX, ledgeTopY + 4],
+                [w + 30, ledgeTopY + 14],
+                [w + 30, h + 50],
+                [ledgeLeftX - 30, h + 50]
+            ], '#1e2030');
+
+            // Facetas de roca andina
+            drawPixelPolygon([
+                [ledgeLeftX + 4, ledgeTopY + 12],
+                [ledgeLeftX + 75, ledgeTopY + 18],
+                [ledgeLeftX + 95, h + 30],
+                [ledgeLeftX - 10, h + 30]
+            ], '#3b3f58');
+
+            drawPixelPolygon([
+                [ledgeLeftX + 18, ledgeTopY + 22],
+                [ledgeLeftX + 55, ledgeTopY + 24],
+                [ledgeLeftX + 45, h + 20],
+                [ledgeLeftX + 8, h + 20]
+            ], '#525875');
+
+            // Terraza inferior con carámbanos de hielo (abajo al centro-derecha)
+            const stepX = ledgeLeftX - 26;
+            const stepY = ledgeTopY + 52;
+            drawPixelPolygon([
+                [stepX, stepY],
+                [ledgeLeftX + 18, stepY - 8],
+                [ledgeLeftX + 26, stepY + 8],
+                [stepX + 4, stepY + 14]
+            ], '#f8fafc');
+            pxRect(stepX + 2, stepY + 8, 36, 7, '#7dd3fc');
+            // Carámbanos colgantes
+            pxRect(stepX + 5, stepY + 14, 3, 9, '#bae6fd');
+            pxRect(stepX + 12, stepY + 14, 4, 13, '#e0f2fe');
+            pxRect(stepX + 21, stepY + 13, 3, 8, '#bae6fd');
+
+            // Plataforma superior de nieve de la cumbre donde pisan los personajes
+            drawPixelPolygon([
+                [ledgeLeftX - 2, ledgeTopY],
+                [rightAnchorX + 58, ledgeTopY - 2],
+                [w + 25, ledgeTopY + 22],
+                [w + 25, ledgeTopY + 38],
+                [rightAnchorX + 35, ledgeTopY + 24],
+                [ledgeLeftX - 4, ledgeTopY + 14]
+            ], '#ffffff');
+
+            // Borde de hielo celeste y carámbanos bajo sus pies
+            pxRect(ledgeLeftX - 2, ledgeTopY + 8, 95, 6, '#93c5fd');
+            pxRect(ledgeLeftX + 3, ledgeTopY + 13, 4, 10, '#bae6fd');
+            pxRect(ledgeLeftX + 11, ledgeTopY + 13, 3, 14, '#e0f2fe');
+            pxRect(ledgeLeftX + 19, ledgeTopY + 12, 3, 8, '#93c5fd');
+        }
+
+        function drawPlantedIceAxe(x, y, angle, shaftColor) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            // Mango clavado
+            pxRect(-2, 0, 4, 24, '#1e293b');
+            pxRect(-1, 2, 2, 18, shaftColor);
+            // Cabeza de acero curvada
+            pxRect(-10, -2, 18, 3, '#cbd5e1');
+            pxRect(-12, 0, 4, 3, '#94a3b8');
+            pxRect(6, -1, 4, 3, '#94a3b8');
+            ctx.restore();
+        }
+
+        /***********************************************************************
+         * 5. PERSONAJES PIXEL ART:
+         *    - MONTAÑISTA 1 (CHAQUETA NARANJA): SALTANDO FELIZ CON PIOLET
+         *    - MONTAÑISTA 2 (CHAQUETA AZUL): TOMANDO UNA CERVEZA ESPUMOSA
+         ***********************************************************************/
+        function drawClimberOrangeJumping(baseX, baseY, elapsedSec) {
+            const jumpCycle = (elapsedSec * 2.2) % 1;
+            const jumpSin = Math.max(0, Math.sin(jumpCycle * Math.PI));
+            const extraBoost = celebrationBoost * 8;
+            const jumpHeight = Math.round(jumpSin * (11 + extraBoost));
+
+            // Sombra en la nieve que se encoge al saltar
+            const shadowW = Math.round(22 - jumpSin * 6);
+            pxRect(baseX - shadowW / 2, baseY - 1, shadowW, 3, 'rgba(30, 58, 138, 0.35)');
+
+            const y = baseY - jumpHeight;
+            const x = baseX;
+
+            // Mochila amarilla/mostaza detrás
+            pxRect(x + 6, y - 38, 10, 18, '#eab308');
+            pxRect(x + 7, y - 36, 8, 14, '#ca8a04');
+
+            // Piernas (pantalón gris oscuro técnico) flexionándose un poco en el aire
+            const legSpread = jumpSin > 0.3 ? 2 : 0;
+            pxRect(x - 9 - legSpread, y - 18, 7, 13, '#1e293b');
+            pxRect(x - 8 - legSpread, y - 17, 5, 11, '#334155');
+            pxRect(x + 2 + legSpread, y - 18, 7, 13, '#1e293b');
+            pxRect(x + 3 + legSpread, y - 17, 5, 11, '#334155');
+
+            // Botas amarillas de alta montaña
+            pxRect(x - 12 - legSpread, y - 6, 10, 6, '#facc15');
+            pxRect(x - 12 - legSpread, y - 2, 10, 2, '#1e293b');
+            pxRect(x + 2 + legSpread, y - 6, 10, 6, '#facc15');
+            pxRect(x + 2 + legSpread, y - 2, 10, 2, '#1e293b');
+
+            // Torso: Chaqueta inflada NARANJA
+            pxRect(x - 10, y - 38, 20, 20, '#c2410c');
+            pxRect(x - 9, y - 37, 18, 18, '#f97316');
+            pxRect(x - 9, y - 31, 18, 1, '#9a3412');
+            pxRect(x - 9, y - 25, 18, 1, '#9a3412');
+            pxRect(x - 1, y - 37, 2, 18, '#7c2d12');
+
+            // Arnés de escalada y mosquetones metálicos
+            pxRect(x - 9, y - 21, 18, 3, '#ea580c');
+            pxRect(x - 8, y - 18, 5, 3, '#ea580c');
+            pxRect(x + 3, y - 18, 5, 3, '#ea580c');
+            pxRect(x + 5, y - 20, 3, 5, '#cbd5e1');
+
+            // Correas de mochila en los hombros
+            pxRect(x - 7, y - 37, 3, 14, '#ca8a04');
+            pxRect(x + 4, y - 37, 3, 14, '#ca8a04');
+
+            // Brazo izquierdo
+            pxRect(x + 8, y - 35, 6, 12, '#f97316');
+            pxRect(x + 10, y - 24, 4, 4, '#fdba74');
+
+            // Brazo derecho levantado agitando el piolet con entusiasmo
+            const waveOffset = Math.round(Math.sin(elapsedSec * 12) * 2);
+            pxRect(x - 15, y - 44 + waveOffset, 6, 11, '#ea580c');
+            pxRect(x - 18, y - 51 + waveOffset, 6, 9, '#f97316');
+            pxRect(x - 18, y - 54 + waveOffset, 5, 4, '#fdba74');
+
+            // Piolet levantado en alto
+            const axeX = x - 16;
+            const axeY = y - 54 + waveOffset;
+            for (let i = -8; i <= 10; i++) {
+                pxRect(axeX + i, axeY - i, 2, 2, i > 0 ? '#f97316' : '#1e293b');
+            }
+            pxRect(axeX + 6, axeY - 14, 11, 3, '#e2e8f0');
+            pxRect(axeX + 15, axeY - 12, 3, 4, '#94a3b8');
+
+            // Cabeza y sonrisa grande
+            pxRect(x - 8, y - 51, 16, 13, '#fDBA74');
+            pxRect(x - 7, y - 50, 14, 11, '#fed7aa');
+
+            // Gafas oscuras deportivas de glaciar
+            pxRect(x - 8, y - 47, 15, 5, '#0f172a');
+            pxRect(x - 7, y - 46, 5, 3, '#38bdf8');
+            pxRect(x + 1, y - 46, 5, 3, '#38bdf8');
+
+            // Gran sonrisa blanca de felicidad
+            pxRect(x - 5, y - 41, 9, 3, '#7c2d12');
+            pxRect(x - 4, y - 41, 7, 2, '#ffffff');
+
+            // Casco blanco de montañismo con ventilaciones
+            pxRect(x - 9, y - 57, 18, 7, '#f8fafc');
+            pxRect(x - 7, y - 59, 14, 3, '#ffffff');
+            pxRect(x - 9, y - 52, 18, 2, '#94a3b8');
+            pxRect(x - 4, y - 56, 2, 2, '#334155');
+            pxRect(x + 2, y - 56, 2, 2, '#334155');
+        }
+
+        function drawClimberBlueDrinkingBeer(baseX, baseY, elapsedSec) {
+            const drinkWave = Math.sin(elapsedSec * (Math.PI * 2 / 3.33));
+            const isDrinking = drinkWave > 0.15 || celebrationBoost > 0.2;
+            const bodyBob = Math.round(Math.abs(Math.sin(elapsedSec * 4)) * 1.5);
+
+            const x = baseX;
+            const y = baseY - bodyBob;
+
+            // Sombra en la nieve
+            pxRect(x - 11, baseY - 1, 22, 3, 'rgba(30, 58, 138, 0.35)');
+
+            // Mochila azul oscuro detrás
+            pxRect(x + 6, y - 38, 10, 19, '#1e293b');
+            pxRect(x + 7, y - 36, 8, 15, '#334155');
+
+            // Piernas (pantalón NARANJA de montaña)
+            pxRect(x - 9, y - 18, 7, 13, '#9a3412');
+            pxRect(x - 8, y - 17, 5, 11, '#ea580c');
+            pxRect(x + 2, y - 18, 7, 13, '#9a3412');
+            pxRect(x + 3, y - 17, 5, 11, '#ea580c');
+
+            // Botas azules de alta montaña
+            pxRect(x - 12, y - 6, 10, 6, '#1d4ed8');
+            pxRect(x - 12, y - 2, 10, 2, '#0f172a');
+            pxRect(x + 2, y - 6, 10, 6, '#1d4ed8');
+            pxRect(x + 2, y - 2, 10, 2, '#0f172a');
+
+            // Torso: Chaqueta inflada AZUL
+            pxRect(x - 10, y - 38, 20, 20, '#1e3a8a');
+            pxRect(x - 9, y - 37, 18, 18, '#2563eb');
+            pxRect(x - 9, y - 31, 18, 1, '#1d4ed8');
+            pxRect(x - 9, y - 25, 18, 1, '#1d4ed8');
+            pxRect(x - 1, y - 37, 2, 18, '#172554');
+
+            // Arnés y mosquetones
+            pxRect(x - 9, y - 21, 18, 3, '#334155');
+            pxRect(x + 4, y - 20, 3, 5, '#cbd5e1');
+
+            // Cabeza con barba completa y gran sonrisa
+            const headTilt = isDrinking ? -1 : 0;
+            pxRect(x - 8, y - 51 + headTilt, 16, 13, '#fdba74');
+            pxRect(x - 7, y - 50 + headTilt, 14, 11, '#fed7aa');
+
+            // Ojos felices
+            pxRect(x - 5, y - 46 + headTilt, 3, 2, '#0f172a');
+            pxRect(x + 1, y - 46 + headTilt, 3, 2, '#0f172a');
+
+            // Barba oscura tupida y sonrisa
+            pxRect(x - 8, y - 43 + headTilt, 15, 5, '#27272a');
+            pxRect(x - 6, y - 39 + headTilt, 11, 2, '#27272a');
+            pxRect(x - 4, y - 42 + headTilt, 7, 2, '#ffffff');
+
+            // Casco NARANJA con detalles negros
+            pxRect(x - 9, y - 57 + headTilt, 18, 7, '#ea580c');
+            pxRect(x - 7, y - 59 + headTilt, 14, 3, '#f97316');
+            pxRect(x - 4, y - 56 + headTilt, 2, 2, '#1e293b');
+            pxRect(x + 2, y - 56 + headTilt, 2, 2, '#1e293b');
+
+            // Brazo derecho sosteniendo y empinando la CERVEZA
+            const mugLiftY = isDrinking ? (y - 46) : (y - 35);
+            const mugLiftX = isDrinking ? (x - 12) : (x - 18);
+
+            pxRect(x - 14, isDrinking ? (y - 41) : (y - 36), 6, 10, '#2563eb');
+            pxRect(mugLiftX + 4, mugLiftY + 5, 4, 4, '#fed7aa');
+
+            // JARRA DE CERVEZA PIXEL ART CON ESPUMA BLANCA
+            pxRect(mugLiftX - 3, mugLiftY + 2, 3, 7, '#e2e8f0');
+            pxRect(mugLiftX, mugLiftY, 9, 11, '#fef08a');
+            pxRect(mugLiftX + 1, mugLiftY + 2, 7, 8, '#f59e0b');
+            pxRect(mugLiftX + 2, mugLiftY + 3, 2, 6, '#fde047');
+            pxRect(mugLiftX - 1, mugLiftY - 3, 11, 4, '#ffffff');
+            pxRect(mugLiftX + 1, mugLiftY - 5, 7, 2, '#f8fafc');
+            pxRect(mugLiftX + 7, mugLiftY, 2, 4, '#ffffff');
+
+            // Generar burbujitas de espuma cuando bebe
+            if (isDrinking && Math.random() < 0.28) {
+                spawnBeerBubbles(1, mugLiftX + 4, mugLiftY - 4);
+            }
+
+            // Brazo izquierdo
+            pxRect(x + 9, y - 35, 5, 13, '#1d4ed8');
+            pxRect(x + 9, y - 23, 4, 4, '#fed7aa');
+        }
+
+        /***********************************************************************
+         * 6. MÚSICA MIDI / CHIPTUNE DE VICTORIA (WEB AUDIO API)
+         ***********************************************************************/
+        let audioCtx = null;
+        let isPlayingAudio = false;
+        let midiSchedulerId = null;
+        let currentNoteIndex = 0;
+
+        const VICTORY_MELODY = [
+            { f: 523.25, b: 392.00, d: 0.14 }, // C5
+            { f: 523.25, b: 392.00, d: 0.14 }, // C5
+            { f: 523.25, b: 392.00, d: 0.14 }, // C5
+            { f: 523.25, b: 261.63, d: 0.42 }, // C5
+            { f: 415.30, b: 207.65, d: 0.40 }, // G#4
+            { f: 466.16, b: 233.08, d: 0.40 }, // A#4
+            { f: 523.25, b: 261.63, d: 0.26 }, // C5
+            { f: 466.16, b: 233.08, d: 0.14 }, // A#4
+            { f: 523.25, b: 261.63, d: 0.65 }, // C5
+
+            { f: 659.25, b: 329.63, d: 0.22 }, // E5
+            { f: 783.99, b: 392.00, d: 0.22 }, // G5
+            { f: 880.00, b: 440.00, d: 0.32 }, // A5
+            { f: 783.99, b: 392.00, d: 0.22 }, // G5
+            { f: 659.25, b: 329.63, d: 0.22 }, // E5
+            { f: 587.33, b: 293.66, d: 0.32 }, // D5
+            { f: 523.25, b: 261.63, d: 0.22 }, // C5
+            { f: 587.33, b: 293.66, d: 0.22 }, // D5
+            { f: 659.25, b: 329.63, d: 0.45 }, // E5
+
+            { f: 698.46, b: 349.23, d: 0.22 }, // F5
+            { f: 783.99, b: 392.00, d: 0.22 }, // G5
+            { f: 880.00, b: 440.00, d: 0.32 }, // A5
+            { f: 987.77, b: 493.88, d: 0.22 }, // B5
+            { f: 1046.50, b: 523.25, d: 0.65 } // C6 ¡Cumbre!
+        ];
+
+        function playMidiStep() {
+            if (!isPlayingAudio || !audioCtx || audioCtx.state !== 'running') return;
+
+            const step = VICTORY_MELODY[currentNoteIndex];
+            const now = audioCtx.currentTime;
+
+            // Canal 1: Onda cuadrada (Lead 8-bit)
+            const oscLead = audioCtx.createOscillator();
+            const gainLead = audioCtx.createGain();
+            oscLead.type = 'square';
+            oscLead.frequency.setValueAtTime(step.f, now);
+
+            gainLead.gain.setValueAtTime(0.08, now);
+            gainLead.gain.exponentialRampToValueAtTime(0.001, now + step.d * 0.92);
+
+            oscLead.connect(gainLead);
+            gainLead.connect(audioCtx.destination);
+            oscLead.start(now);
+            oscLead.stop(now + step.d);
+
+            // Canal 2: Onda triangular (Bajo MIDI)
+            const oscBass = audioCtx.createOscillator();
+            const gainBass = audioCtx.createGain();
+            oscBass.type = 'triangle';
+            oscBass.frequency.setValueAtTime(step.b * 0.5, now);
+
+            gainBass.gain.setValueAtTime(0.11, now);
+            gainBass.gain.exponentialRampToValueAtTime(0.001, now + step.d * 0.95);
+
+            oscBass.connect(gainBass);
+            gainBass.connect(audioCtx.destination);
+            oscBass.start(now);
+            oscBass.stop(now + step.d);
+
+            currentNoteIndex = (currentNoteIndex + 1) % VICTORY_MELODY.length;
+            midiSchedulerId = setTimeout(playMidiStep, step.d * 1000);
+        }
+
+        function ensureAudioStarted() {
+            try {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        if (!isPlayingAudio) {
+                            isPlayingAudio = true;
+                            currentNoteIndex = 0;
+                            playMidiStep();
+                        }
+                    }).catch(() => {});
+                } else if (!isPlayingAudio) {
+                    isPlayingAudio = true;
+                    currentNoteIndex = 0;
+                    playMidiStep();
+                }
+            } catch (e) {
+                // Ignorar si el navegador bloquea autoplay hasta el primer toque
+            }
+        }
+
+        // Al hacer clic o tocar cualquier parte de la pantalla se activa la música (o se alterna) y celebran con más impulso
+        let summitTapHandled = false;
+        let summitTapReady = false;
+        function handleSummitTap() {
+            celebrationBoost = 1.0;
+            if (!audioCtx || audioCtx.state === 'suspended' || !isPlayingAudio) {
+                ensureAudioStarted();
+            }
+            if (!summitTapReady) return;
+            if (!summitTapHandled) {
+                summitTapHandled = true;
+                const hud = document.getElementById('victory-hud');
+                if (hud) hud.style.display = 'none';
+                try { window.parent.postMessage('apus-summit-finish-v21', '*'); } catch (e) {}
+            }
+        }
+        window.addEventListener('pointerdown', handleSummitTap);
+        window.addEventListener('keydown', (event) => {
+            if ((event.key === 'Enter' || event.key === ' ') && !summitTapHandled) {
+                event.preventDefault();
+                handleSummitTap();
+            }
+        });
+
+        /***********************************************************************
+         * 7. BUCLE PRINCIPAL DE ANIMACIÓN (10 SEGUNDOS EN LOOP + PANEO DE CÁMARA)
+         ***********************************************************************/
+        let lastFrameTime = performance.now();
+
+        function animate(now) {
+            const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+            lastFrameTime = now;
+
+            // Tiempo dentro del ciclo exacto de 10.0 segundos en bucle
+            const totalElapsed = (now - startTime) / 1000;
+            const loopSec = totalElapsed % LOOP_DURATION;
+            const loopProgress = loopSec / LOOP_DURATION; // 0.0 -> 1.0
+
+            // Decaimiento del impulso de celebración extra
+            if (celebrationBoost > 0) {
+                celebrationBoost = Math.max(0, celebrationBoost - dt * 0.6);
+            }
+
+            // Movimiento suave de cámara DE ABAJO HACIA ARRIBA ("pero poco") durante los 10s
+            const smoothPan = 0.5 - 0.5 * Math.cos(loopProgress * Math.PI * 2);
+            const camY = -10 + smoothPan * 18;
+            const camX = Math.sin(loopProgress * Math.PI * 2) * 3;
+
+            // 1. Pintar Cielo y Nubes Lejanas
+            drawSkyAndClouds(camY, loopProgress);
+
+            // 2. Pintar Volcán Nevado con Parallax medio
+            drawDistantVolcano(camX, camY);
+
+            // 3. Calcular punto de anclaje de la cumbre derecha (adaptable a cualquier Aspect Ratio)
+            const isTall = logicalHeight > logicalWidth * 1.15;
+            const rightAnchorX = Math.round(logicalWidth * (isTall ? 0.62 : 0.75) + camX);
+            const rightAnchorY = Math.round(logicalHeight * (isTall ? 0.63 : 0.58) + camY);
+
+            // 4. Pintar Acantilados Glaciares de Primer Plano
+            drawForegroundCliffs(camX, camY, rightAnchorX, rightAnchorY);
+
+            // 5. Pintar los 2 Montañistas sobre la cumbre derecha
+            // Personaje 1 (Izquierda, chaqueta naranja): saltando feliz con piolet
+            drawClimberOrangeJumping(rightAnchorX - 20, rightAnchorY + 2, totalElapsed);
+
+            // Personaje 2 (Derecha, chaqueta azul): tomando una cerveza espumosa
+            drawClimberBlueDrinkingBeer(rightAnchorX + 18, rightAnchorY + 5, totalElapsed);
+
+            // 6. Actualizar y pintar burbujas/espuma de cerveza
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const b = bubbles[i];
+                b.x += b.vx * dt;
+                b.y += b.vy * dt;
+                b.life -= dt * 1.1;
+                if (b.life <= 0) {
+                    bubbles.splice(i, 1);
+                } else {
+                    pxRect(b.x, b.y, b.size, b.size, b.color);
+                }
+            }
+
+            // 7. Actualizar y pintar Nieve cayendo por toda la escena
+            for (let i = 0; i < snowflakes.length; i++) {
+                const s = snowflakes[i];
+                s.y += s.speedY * dt;
+                s.x += (s.speedX + Math.sin(totalElapsed * 2 + s.phase) * 8) * dt;
+
+                if (s.y > logicalHeight + 4) {
+                    s.y = -4;
+                    s.x = Math.random() * logicalWidth;
+                }
+                if (s.x > logicalWidth + 4) s.x = -4;
+                if (s.x < -4) s.x = logicalWidth + 4;
+
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+                ctx.fillRect(Math.round(s.x), Math.round(s.y), s.size, s.size);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Inicialización al cargar la ventana
+        window.onload = function () {
+            updateCanvasDimensions();
+            ensureAudioStarted();
+            requestAnimationFrame(animate);
+            setTimeout(() => {
+                summitTapReady = true;
+                const hud = document.getElementById('victory-hud');
+                if (hud) hud.classList.add('summit-ready');
+            }, 10000);
+        };
+    </script>
+</body>
+</html>

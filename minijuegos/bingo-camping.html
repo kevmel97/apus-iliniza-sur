@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bingo Camping · Apus Iliniza Sur</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+<style>
+:root{--night:#0b1627;--navy:#122a41;--panel:#172e45;--line:#587a96;--ice:#bceeff;--gold:#ffd368;--orange:#ff9948;--green:#80e5b2;--white:#f0faff}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,'Segoe UI',sans-serif;color:var(--white);background:#081525}body{overflow-x:hidden}button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.43;cursor:not-allowed}button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}.landscape{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#101d39 0%,#324c71 42%,#ce8d78 73%,#14243b 100%)}.mountain{position:absolute;bottom:0;left:-20%;width:140%;height:65%;background:#19273a;clip-path:polygon(0 91%,12% 69%,24% 89%,41% 15%,49% 48%,60% 77%,72% 40%,85% 85%,100% 65%,100% 100%,0 100%)}.snowcap{position:absolute;bottom:15%;left:16%;width:56%;height:52%;background:#d7e9f9;clip-path:polygon(29% 0,50% 65%,43% 48%,37% 72%,28% 41%,17% 70%,0% 96%);opacity:.55}.mist{position:absolute;bottom:-3%;inset-inline:0;height:46%;background:linear-gradient(transparent,#0b1627 82%)}.app{max-width:1260px;margin:auto;padding:12px 14px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#101f36eb;border:2px solid #416381;border-radius:15px;box-shadow:0 5px 0 #05101a}.brand{display:flex;gap:10px;align-items:center}.mark{font-size:27px;background:#345673;border:2px solid #9acee8;border-radius:12px;padding:6px}.brand b{font-size:clamp(17px,3vw,25px);letter-spacing:1px}.brand small{display:block;color:#a2c4da;font-size:11px}.topright{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .tiny{color:var(--gold);font-size:12px;font-weight:800}.screen{display:none}.screen.active{display:block}.glass{background:#11273eea;border:2px solid #5b829d;border-radius:16px;box-shadow:0 7px 0 #08131f,0 20px 40px #0005}.intro{max-width:810px;margin:34px auto;padding:clamp(18px,4vw,35px)}h1,h2,h3{margin:0 0 12px}h1{font-size:clamp(26px,5vw,44px);color:var(--gold);text-shadow:2px 3px #0e1522}h2{font-size:clamp(18px,3vw,24px);color:var(--ice)}h3{font-size:16px;color:var(--gold)}p{line-height:1.5}.muted{color:#b4cde0;font-size:13px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}.box{padding:17px;background:#192f46b8;border:1px solid #6b8da5;border-radius:12px}.bigbtn,.smallbtn{border:2px solid #f7f7ff;border-radius:10px;background:#2977ac;color:white;font-weight:900;box-shadow:0 4px #113c5e;padding:10px 14px;text-align:center}.bigbtn{width:100%;margin-top:10px;min-height:44px}.bigbtn.orange,.smallbtn.orange{background:#b95825;box-shadow:0 4px #713419}.bigbtn.green,.smallbtn.green{background:#16785f;box-shadow:0 4px #0b4436}.bigbtn.red,.smallbtn.red{background:#873b45;box-shadow:0 4px #541e27}.bigbtn:hover:not(:disabled),.smallbtn:hover:not(:disabled){filter:brightness(1.15)}.bigbtn:active:not(:disabled),.smallbtn:active:not(:disabled){transform:translateY(3px);box-shadow:none}.smallbtn{font-size:12px;padding:7px 11px}.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.row.space{justify-content:space-between}.input{color:#fff;background:#0b1b2c;border:2px solid #6b8faa;border-radius:8px;padding:10px;min-width:0;width:100%;font-weight:900;text-transform:uppercase}.input:read-only{color:var(--gold)}.chip{padding:5px 9px;border-radius:7px;background:#274861;border:1px solid #63839d;color:var(--ice);font-size:12px;font-weight:800}.warn{color:var(--gold);font-size:12px}.lobby{max-width:870px;margin:24px auto;padding:20px}.roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.player{background:#203950;border:1px solid #668ca8;border-radius:8px;padding:10px;font-size:12px;min-width:0;overflow-wrap:anywhere}.player b{display:block;color:#e8f6fb;margin-bottom:3px}.player small{color:#aed0e0}.player.host{border-color:#f6bd53}.player.me{background:#245c5c}.arena{display:grid;grid-template-columns:minmax(0,1fr) 235px;gap:15px;margin-top:18px}.centercol{min-width:0}.scorehead{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-bottom:12px}.tombola{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:18px 10px}.wheel{width:132px;height:132px;border:5px solid #86b4d1;border-radius:50%;background:radial-gradient(circle at 33% 22%,#6297b1,#22445d 55%,#0b2334);box-shadow:inset 0 0 25px #0008,0 0 0 6px #304e66;position:relative;display:grid;place-items:center}.wheel:before{content:'•  •  •  •  •  •  •  •';color:#f9d37b;font-size:22px;max-width:91px;text-align:center;letter-spacing:9px;line-height:28px;position:absolute;transform:rotate(-18deg)}.wheel:after{content:'❄';font-size:45px;color:#eafaffbb;position:relative}.wheel.spinning{animation:spinWheel .6s linear infinite}@keyframes spinWheel{to{transform:rotate(360deg)}}.ball{width:94px;height:94px;border-radius:50%;background:radial-gradient(circle at 28% 22%,#ffe1a9,#dc8444 65%,#944526);border:4px solid #ffe5bb;box-shadow:0 6px 0 #743b21;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:950;color:#152538;text-shadow:0 1px #fff5}.ball .letter{font-size:15px}.ball .number{font-size:31px}.ball.reveal{animation:pop .35s ease-out}@keyframes pop{from{transform:scale(.2)}to{transform:scale(1)}}.callpanel{min-width:175px;max-width:280px;flex:1}.callpanel b{display:block;color:#ffdc8b;font-size:14px;margin:5px 0}.hint{font-size:11px;color:#bbd4e5}.board{padding:17px}.letters,.cardgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}.letters{margin-bottom:7px}.letters span{text-align:center;padding:5px;background:#264a68;border:1px solid #9cd7f3;color:#ffdf8c;border-radius:8px;font-size:18px;font-weight:950}.square{aspect-ratio:1/1;width:100%;min-width:0;background:linear-gradient(#e7f8ff,#bfdce9);border:2px solid #6e9eb7;border-radius:9px;color:#132c42;font-weight:950;font-size:clamp(14px,3.4vw,26px);display:grid;place-items:center;box-shadow:0 3px #40627b}.square.called{border-color:#ffc862;background:#fff0ca}.square.marked{background:#e5a058;border-color:#ffdd87;color:#241e20;box-shadow:0 3px #714823}.square.free{background:#3e876d;color:#fff;border-color:#acf5cd;font-size:13px;line-height:1.1;cursor:default}.square:disabled{opacity:1;cursor:default}.opponents{padding:12px;max-height:780px;overflow:auto}.opponent{border:1px solid #416c86;padding:8px;border-radius:9px;background:#18344d;margin-bottom:7px}.opponent .mini{display:flex;justify-content:space-between;font-size:12px;gap:4px}.bar{margin-top:5px;background:#092136;height:7px;border-radius:7px;overflow:hidden}.bar i{display:block;background:#f4bd6a;height:100%}.history{display:flex;gap:6px;overflow:auto;padding:8px 0}.pill{flex-shrink:0;min-width:35px;border-radius:50px;background:#e8b871;color:#13283b;text-align:center;font-weight:950;padding:6px;font-size:12px}.allnums{display:grid;grid-template-columns:repeat(15,1fr);gap:3px}.num{font-size:11px;text-align:center;padding:3px 0;border:1px solid #456784;border-radius:4px;color:#b7d3e4}.num.done{background:#f0b66a;color:#1b2639;border-color:#ffdfb1;font-weight:900}.overlay{display:none;position:fixed;inset:0;background:#030a13dd;z-index:30;align-items:center;justify-content:center;padding:16px;overflow:auto}.overlay.active{display:flex}.modal{width:min(470px,100%);text-align:center;padding:23px;background:#193149;border:3px solid #d1b57d;border-radius:19px;box-shadow:0 15px 90px #000c}.modal h1{font-size:29px}.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#f4db9d;color:#152d40;padding:10px 15px;border:2px solid #fff;border-radius:11px;z-index:40;max-width:calc(100vw - 32px);font-weight:800;font-size:13px;text-align:center;box-shadow:0 8px 30px #0008}.hide{display:none!important}.notice{border-left:3px solid #f1c571;padding:8px 11px;background:#192f44;font-size:12px;line-height:1.5;margin:12px 0}@media(max-width:800px){.arena{grid-template-columns:1fr}.opponents{max-height:245px}.roster{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.app{padding:9px 8px 45px}.intro{margin:12px auto}.allnums{grid-template-columns:repeat(10,1fr)}}@media(max-width:380px){.wheel{width:100px;height:100px}.tombola{gap:8px}.ball{width:73px;height:73px}.ball .number{font-size:23px}.square{border-radius:5px}}
+</style>
+<style id="bingo-pixel-art-theme">
+/* ==============================================================
+   BINGO CAMPING · V25 EDICIÓN PIXEL ART
+   SOLO PRESENTACIÓN VISUAL. EL MOTOR DE PARTIDAS P2P NO SE ALTERA.
+   ============================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+:root{--night:#090f1e;--navy:#162239;--panel:#1c2a43;--line:#859dbc;--ice:#a8dcfa;--gold:#ffd476;--orange:#f7931e;--green:#7edfbd;--white:#f6f8ff;--ink:#050914}
+html,body{font-family:'Press Start 2P', 'Courier New',monospace; background:#0a1020; color:#f5f8ff; image-rendering:pixelated}
+body{min-width:300px; letter-spacing:0; font-size:10px; line-height:1.75; scrollbar-color:#809abe #111a2d}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.15;background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,#030b1a 4px);mix-blend-mode:multiply}
+button,input{font-family:'Press Start 2P','Courier New',monospace !important;letter-spacing:0}
+button{border-radius:3px !important;text-shadow:1px 2px #0009}
+.landscape{position:fixed;inset:0;background:linear-gradient(180deg,rgba(3,10,23,.47),rgba(4,11,22,.47) 45%,rgba(4,10,19,.88) 92%),url('../assets/escenarios/imagen_6ce08e48db7d18.webp') center center/cover no-repeat;image-rendering:pixelated}
+.landscape{z-index:0}
+.mountain,.snowcap,.mist{display:none}
+.app{max-width:1290px;padding:13px 18px 52px;position:relative;z-index:3}
+.top,.glass,.box,.opponents,.board,.modal,.player,.opponent,.chip,.toast,.notice{border-radius:3px !important}
+.top,.glass,.modal{background:rgba(20,31,53,.95);border:4px solid #8da6c8;box-shadow:0 0 0 3px #0a1222,6px 7px 0 rgba(2,7,16,.92)}
+.top{padding:11px 17px;background:#182741ed;border-bottom-color:#e3ebfc}
+.brand{gap:14px}
+.brand b{font-size:clamp(13px,1.8vw,22px);font-weight:normal;color:#f7931e;text-shadow:3px 3px 0 #060c17;line-height:1.7}
+.brand small{font-size:8px;line-height:1.65;color:#bfd7f2;margin-top:4px}
+.mark{font-size:22px;border:3px solid #9bbbe0;border-radius:3px;background:#30445d;box-shadow:3px 3px 0 #060b14;padding:7px}
+.tiny{font-size:9px;line-height:1.6;max-width:210px;overflow-wrap:anywhere}
+.screen{animation:pixelAppear .17s steps(3,end)}
+@keyframes pixelAppear{from{opacity:.4;transform:translateY(7px)}to{opacity:1;transform:none}}
+.intro{max-width:940px;margin:26px auto;padding:clamp(18px,3vw,36px)}
+h1,h2,h3{font-weight:normal;line-height:1.65;text-shadow:2px 3px 0 #030714;letter-spacing:.1px}
+h1{color:#ffa133;font-size:clamp(16px,3vw,29px);margin-bottom:10px}
+h2{font-size:clamp(12px,1.45vw,16px);color:#76d0ff;margin-bottom:12px}
+h3{font-size:11px;color:#ffd476}
+p{font-size:10px;line-height:2.05;margin:10px 0;color:#dceaf9}
+.muted{color:#b8cee8;font-size:9px;line-height:1.9}
+.grid2{gap:18px}
+.box{padding:19px 18px 23px;background:#1b2a44f4;border:3px solid #738aab;box-shadow:5px 5px 0 #070d1b;position:relative}
+.box:first-child{border-top-color:#fa9d3d}.box:last-child{border-top-color:#72c7ef}
+.box::before{content:'';position:absolute;top:7px;left:8px;width:5px;height:5px;background:#b4c8e0;box-shadow:calc(100% - 8px) 0 #b4c8e0}
+.bigbtn,.smallbtn{background:#2b3954;border:3px solid #8ba3c7;color:#fff;box-shadow:0 5px 0 #071120;font-size:10px;font-weight:normal;line-height:1.65;text-transform:uppercase;padding:12px 10px;border-radius:3px}
+.bigbtn{min-height:50px;margin-top:14px}.smallbtn{font-size:8px;line-height:1.5;padding:8px 11px}
+.bigbtn.orange,.smallbtn.orange{background:#a85318;border-color:#ffd082;box-shadow:0 5px 0 #4b250f}
+.bigbtn.green,.smallbtn.green{background:#186e65;border-color:#91f6d7;box-shadow:0 5px 0 #073c37}
+.bigbtn.red,.smallbtn.red{background:#812c41;border-color:#ffadad;box-shadow:0 5px 0 #3e1327}
+.bigbtn:hover:not(:disabled),.smallbtn:hover:not(:disabled){background:#e78328;border-color:#fff;filter:none;transform:translate(-1px,-1px)}
+.bigbtn:active:not(:disabled),.smallbtn:active:not(:disabled){transform:translate(0,4px);box-shadow:0 1px 0 #0b1222}
+.input{border-radius:3px;background:#0e1b30;border:3px solid #7a96b8;color:#fff;font-size:10px;min-height:43px;padding:10px}
+.chip{border:2px solid #7897b7;background:#263b58;color:#d5ebff;padding:7px 9px;font-size:9px;line-height:1.7}
+.notice{background:#102137;border:2px solid #536c8b;padding:11px;color:#ccdff4;font-size:9px;line-height:2;margin:12px 0}
+.lobby{max-width:1000px;background:#182844f5;margin:23px auto;padding:20px}
+.roster{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.player{padding:11px 8px;min-height:63px;background:#203450;border:2px solid #637d9d;font-size:9px;line-height:1.65}
+.player.host{border-color:#fcb956}.player.me{background:#255457;border-color:#8de9cb}
+.player b{color:#fff;font-size:9px;line-height:1.7}.player small{font-size:8px;line-height:1.75;color:#abcfeb}
+.arena{grid-template-columns:minmax(0,1fr) 260px;gap:18px;margin-top:19px}
+.scorehead{gap:7px;margin-bottom:16px}
+.tombola{background:linear-gradient(180deg,#172942,#102038);border:3px solid #5e80a2;border-radius:2px;min-height:256px;align-items:center;gap:18px;padding:10px 12px}
+.wheel,.wheel.spinning{animation:none !important;transform:none !important;width:256px;height:206px;border:0;box-shadow:none;border-radius:0;background:none;display:block;position:relative;flex-shrink:0}
+.wheel::before,.wheel::after{display:none !important}
+#tombolaCanvas{display:block;width:256px;height:206px;image-rendering:pixelated}
+.ball{width:79px;height:79px;border:5px solid #fff3c9;border-radius:50%;background:radial-gradient(circle at 25% 24%,#ffefc5,#f7a345 60%,#a65319 92%);color:#172338;box-shadow:0 5px 0 #6f3517;flex-shrink:0;font-family:'Press Start 2P',monospace}
+.ball .letter{font-size:12px}.ball .number{font-size:22px}
+.callpanel{min-width:155px;max-width:330px}.callpanel b{color:#ffd476;line-height:1.9;font-size:10px;font-weight:normal}.hint{font-size:8px;line-height:1.9;color:#b6cce5}
+.board{padding:17px 20px;background:rgba(24,37,59,.97)}
+.letters,.cardgrid{gap:5px;max-width:485px;margin-left:auto;margin-right:auto}
+.letters{margin:12px auto 9px}.letters span{border-radius:3px;background:#304561;border:3px solid #91b1db;color:#ffc15b;font-size:clamp(14px,2vw,20px);padding:7px 0;text-shadow:2px 2px #071220}
+.letters span:nth-child(even){background:#604028;color:#ffdab1;border-color:#c49c63}
+.square{border-radius:2px;background:linear-gradient(125deg,#f0f8ff,#b4d0e4);border:3px solid #7faccb;box-shadow:2px 3px 0 #344a65;color:#14283f;font-size:clamp(11px,2.2vw,21px);font-weight:normal;text-shadow:1px 1px #fff9;line-height:1.5;min-height:34px}
+.square.called{background:#ffedba;border-color:#ffe29d;animation:calledPulse 1.4s steps(2,end) infinite}
+@keyframes calledPulse{50%{border-color:#e89441;box-shadow:2px 3px 0 #344a65,0 0 10px #ffcb7588}}
+.square.marked{background:#e89441;border-color:#ffe4a7;color:#1a2537;box-shadow:2px 3px 0 #8c4925;text-shadow:none;animation:none}
+.square.marked::after{content:'✦';position:absolute;right:3px;top:0;color:#fff6d2;font-size:8px}
+.square{position:relative}.square.free{background:#367f70;color:#fff;border-color:#9cf3d6;font-size:clamp(7px,1.3vw,10px);text-shadow:1px 1px #0a382a}
+.square:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-2px)}
+.opponents{background:#15283ef5;padding:15px;max-height:860px}
+.opponent{border-radius:2px;background:#253c59;border:2px solid #627d9e;padding:11px 9px;margin-bottom:9px}
+.opponent .mini{font-size:9px;line-height:1.65}.opponent strong,.opponent b{font-size:9px}
+.bar{border-radius:0;border:1px solid #87aac4;height:8px;background:#091525}.bar i{background:linear-gradient(90deg,#cb7529,#ffcc75)}
+.history{gap:7px;padding:13px 0 7px}.pill{border-radius:3px;padding:9px 6px;border:2px solid #fff3ba;background:#d78a42;color:#102034;font-size:9px}
+.allnums{gap:3px}.num{border-radius:0;background:#101f35;border-color:#4e7394;color:#bedaf0;font-size:9px;padding:7px 0}.num.done{background:#dc9647;color:#10243a;border-color:#fff1bb}
+.modal{background:#1a2b45;border:4px solid #fcd27a;max-width:560px}.modal h1{color:#ffbd63}.overlay{background:#020713e9;z-index:60}
+.toast{position:fixed;background:#193657;border:3px solid #ffd085;color:#fff;box-shadow:4px 5px #000b;font-size:9px;line-height:2;bottom:18px}
+/* Decoración propia en 16 bit: tienda, fogata y picos nevados. */
+.camp-banner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 19px;padding:10px 16px;background:#13223ae8;border:3px solid #7f9cbc;box-shadow:4px 4px 0 #07101d}
+.camp-banner .pixel-summit{width:170px;height:84px;flex-shrink:0;image-rendering:pixelated}
+.camp-banner>div{display:flex;flex-direction:column;gap:4px;flex:1}
+.camp-banner strong{color:#ffcc75;font-size:10px;line-height:2}.camp-banner small{color:#bddcf4;font-size:8px;line-height:2}
+.camp-banner .spark{color:#d8f1ff;font-size:18px;animation:sparkFlicker 2s steps(3) infinite}
+@keyframes sparkFlicker{50%{color:#ffbf63;transform:translateY(-3px)}}
+.pixel-mini-ribbon{text-align:center;color:#ffe0a0;background:#233957;border:2px dashed #6c8ea9;margin:0 0 15px;padding:9px;font-size:8px;line-height:2}
+@media(max-width:1080px){.tombola{gap:12px}.wheel,.wheel.spinning,#tombolaCanvas{width:225px;height:181px}.tombola{min-height:209px}}
+@media(max-width:900px){.arena{grid-template-columns:1fr}.opponents{max-height:255px;overflow:auto}.roster{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.app{padding:8px 9px 40px}.top{padding:10px 11px}.brand b{font-size:12px}.brand small{font-size:7px}.mark{font-size:18px}.intro{margin:14px auto;padding:15px}.grid2{grid-template-columns:1fr;gap:14px}.box{padding:16px}.camp-banner{padding:7px 9px}.camp-banner .pixel-summit{width:95px;height:57px}.camp-banner strong{font-size:8px}.camp-banner small{font-size:6px}.camp-banner .spark{display:none}.wheel,.wheel.spinning,#tombolaCanvas{width:216px;height:174px}.tombola{padding:7px 8px}.ball{width:67px;height:67px}.ball .number{font-size:18px}.ball .letter{font-size:9px}.board{padding:11px}.opponents{padding:11px}.roster{grid-template-columns:repeat(2,minmax(0,1fr))}.scorehead{gap:5px}.chip{font-size:7px;padding:6px}.square{font-size:clamp(10px,3.7vw,16px);border-width:2px}.letters span{font-size:14px}.notice{font-size:8px}}
+@media(max-width:480px){.tombola{justify-content:center}.wheel,.wheel.spinning,#tombolaCanvas{width:200px;height:161px}.callpanel{max-width:none;flex-basis:100%}.ball{width:66px;height:66px}.board{margin-bottom:10px}.topright .tiny{max-width:150px}.smallbtn{font-size:7px}.allnums{grid-template-columns:repeat(10,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.square.called,.camp-banner .spark{animation:none}}
+
+/* V25 - tema global de Apus. El bingo utiliza la misma preferencia
+   claro / oscuro que el menú principal, sin tocar el motor ni el online. */
+body.theme-light {
+  --night:#f0f5fd; --navy:#d9e8fa; --panel:#eef5ff;
+  --line:#527c9d; --ice:#17466d; --gold:#975013;
+  --orange:#ad540f; --green:#116d59; --white:#152c48; --ink:#ffffff;
+  color:#183755; background:#deebf7; scrollbar-color:#769cb8 #d9e8f7;
+}
+body.theme-light::after {opacity:.06}
+body.theme-light .landscape {
+  filter:brightness(1.42) saturate(.78);
+  background-size:cover; background-position:center;
+}
+body.theme-light .top,body.theme-light .glass,body.theme-light .box,
+body.theme-light .board,body.theme-light .opponents,body.theme-light .lobby,
+body.theme-light .modal,body.theme-light .tombola,body.theme-light .camp-banner {
+  background:#eaf3feF5; color:#15344f; border-color:#5d83a6;
+  box-shadow:4px 5px 0 #7392ac;
+}
+body.theme-light .top {background:#dcecffef; border-bottom-color:#38678f}
+body.theme-light .mark {background:#c5e3f6;border-color:#5986ad;box-shadow:2px 3px #87a8c2}
+body.theme-light .brand b,body.theme-light h1,body.theme-light h3 {color:#a7500d;text-shadow:1px 2px #ffffff}
+body.theme-light h2 {color:#155a90;text-shadow:1px 2px #ffffff}
+body.theme-light p,body.theme-light .muted,body.theme-light .hint,
+body.theme-light .brand small,body.theme-light .camp-banner small,
+body.theme-light .player small {color:#315b79}
+body.theme-light .camp-banner strong {color:#97440c}
+body.theme-light .pixel-mini-ribbon {background:#d0e4f5;color:#284d6a;border-color:#7b9fbd}
+body.theme-light .box {background:#ecf5ff}
+body.theme-light .notice {background:#d4e8f8;color:#214d6d;border-color:#719cb9}
+body.theme-light .chip {background:#d5eafa;color:#164161;border-color:#8daec9}
+body.theme-light .input {background:#fff;color:#143652;border-color:#779cb9}
+body.theme-light .bigbtn,body.theme-light .smallbtn {background:#426f97;color:#fff;border-color:#bad4ed;text-shadow:none;box-shadow:0 4px #264763}
+body.theme-light .bigbtn.orange,body.theme-light .smallbtn.orange {background:#ae5b22;border-color:#f6c77e;box-shadow:0 4px #69350e}
+body.theme-light .bigbtn.green,body.theme-light .smallbtn.green {background:#247665;border-color:#86d6b6;box-shadow:0 4px #155046}
+body.theme-light .bigbtn.red,body.theme-light .smallbtn.red {background:#a63f4b;border-color:#f9b6bc;box-shadow:0 4px #65242e}
+body.theme-light .player,body.theme-light .opponent {background:#d9e9f8;border-color:#7499bb;color:#173953}
+body.theme-light .player b,body.theme-light .opponent b,body.theme-light .opponent strong {color:#133653}
+body.theme-light .player.me {background:#c5eade;border-color:#3e9d83}
+body.theme-light .letters span {background:#4d779f;color:#fff;border-color:#bed3e5;text-shadow:none}
+body.theme-light .letters span:nth-child(even) {background:#ad702e;color:#fff;border-color:#f0c58a}
+body.theme-light .square {background:#fff;border-color:#6c9abb;color:#163f5f;text-shadow:none;box-shadow:2px 3px #a4bfd3}
+body.theme-light .square.called {background:#ffedb6;border-color:#d98a37}
+body.theme-light .square.marked {background:#e7a045;color:#2a2731;border-color:#ac6b24}
+body.theme-light .square.free {background:#267b69;color:white;border-color:#8bcebc}
+body.theme-light .bar {background:#c1d8ea;border-color:#82a8bf}
+body.theme-light .num {background:#e5f0fa;color:#245674;border-color:#9abbd3}
+body.theme-light .num.done {background:#e5a45a;color:#263c50;border-color:#bb823a}
+body.theme-light .pill {background:#f4ca85;color:#284359;border-color:#fff1c9}
+body.theme-light .overlay {background:#385978cf}
+body.theme-light .toast {background:#d9eafb;color:#183a57;border-color:#d99e49}
+
+/* Colores de Apus: contornos azules y acciones azules en ambos temas.
+   Solo CSS. No cambia reglas, cartones ni conexiones del bingo. */
+:root { --line:#3796d6; --green:#6ac5ff; }
+.top,.glass,.box,.board,.opponents,.lobby,.modal,.tombola,.camp-banner {
+  border-color:#3796d6;
+}
+.player,.opponent,.chip,.notice,.input,.mark,.pixel-mini-ribbon {
+  border-color:#3286bc;
+}
+.bigbtn,.smallbtn {background:#185b94;border-color:#69baf0;box-shadow:0 5px 0 #0a315a}
+.bigbtn.green,.smallbtn.green {background:#146da9;border-color:#78ccff;box-shadow:0 5px 0 #073b68}
+.player.me {background:#183e66;border-color:#60c0ff}
+.square.free {background:#1768a7;border-color:#9bdbff;text-shadow:1px 1px #12385e}
+body.theme-light { --line:#137dca; --green:#157bc0; }
+body.theme-light .top,body.theme-light .glass,body.theme-light .box,
+body.theme-light .board,body.theme-light .opponents,body.theme-light .lobby,
+body.theme-light .modal,body.theme-light .tombola,body.theme-light .camp-banner {
+  border-color:#137dca;
+}
+body.theme-light .player,body.theme-light .opponent,body.theme-light .chip,
+body.theme-light .notice,body.theme-light .input,body.theme-light .mark,
+body.theme-light .pixel-mini-ribbon {border-color:#2185c9}
+body.theme-light .bigbtn,body.theme-light .smallbtn {
+  background:#176dab;color:#fff;border-color:#5eb3ee;box-shadow:0 4px #0b4172;
+}
+body.theme-light .bigbtn.green,body.theme-light .smallbtn.green {
+  background:#0879c1;color:#fff;border-color:#8bd2ff;box-shadow:0 4px #07518a;
+}
+body.theme-light .player.me {background:#c8e6ff;border-color:#138cda}
+body.theme-light .square.free {background:#1979bf;border-color:#72c4ff;color:white}
+
+</style></head><body>
+<div class="landscape"><div class="mountain"></div><div class="snowcap"></div><div class="mist"></div></div>
+<div class="app"><header class="top"><div class="brand"><div class="mark">🏕️</div><div><b>BINGO CAMPING</b><small>APUS ILINIZA SUR · MINIJUEGO · VER. 0.26</small></div></div><div class="topright"><span class="tiny" id="signedUser">👤 INVITADO</span><button class="smallbtn" id="soundBtn" onclick="toggleAudio()" title="Activar o silenciar sonidos del Bingo" aria-label="Desactivar sonidos del Bingo" aria-pressed="true">🔊 SÍ</button><button class="smallbtn red" onclick="leaveBingo()">⬅ VOLVER A APUS</button></div></header>
+<section class="screen active" id="homeScreen"><div class="intro glass"><div class="camp-banner"><svg class="pixel-summit" viewBox="0 0 160 84" shape-rendering="crispEdges" aria-hidden="true"><path fill="#0b1528" d="M0 79L20 46L39 63L76 6L111 58L133 40L160 76V84H0Z"/><path fill="#4d6180" d="M3 82L20 48L39 69L76 9L112 64L134 41L160 80V84H0Z"/><path fill="#eaf4ff" d="M55 39L76 9L101 46L86 39L81 49L75 31L68 42L64 36Z"/><path fill="#b7dbed" d="M54 40L76 9L74 33L68 42L64 35Z"/><path fill="#26394c" d="M4 83L22 66L39 78L46 72L61 83Z"/><path fill="#ec9b3e" d="M110 81L125 53L142 81Z"/><path fill="#ffc879" d="M115 78L126 57L137 78Z"/><path fill="#733f2d" d="M124 67L124 79L129 79L129 68Z"/><path fill="#d8ecf5" d="M135 16h12v2h-12zm-10 7h20v2h-20zM9 24h26v2H9z"/><path fill="#ffcc85" d="M32 12h4v4h-4zm19 7h3v3h-3Z"/></svg><div><strong>⛺ APUS · CAMPAMENTO BASE</strong><small>75 BOLAS · 16 MONTAÑISTAS · UN CAMPEÓN</small></div><span class="spark">✦</span></div><h1>🏔️ ¡BINGO CAMPING!</h1><p>Reúnete en el campamento, gira la tómbola de <b>75 números</b> y completa los <b>24 números</b> de tu cartón (centro libre).</p><div class="notice">👤 Tu nombre se toma de la cuenta de APUS. No se necesitan personajes, rostros ni avatares.</div><div class="grid2"><div class="box"><h2>🤖 CONTRA LA CPU</h2><p class="muted">Juega sin conexión. Tú sacas cada bola y compites con los rivales de la máquina.</p><label class="muted" for="botCount">Total de jugadores: <b id="botCountLabel">8</b></label><input id="botCount" type="range" min="2" max="16" value="8" style="width:100%;accent-color:#eaa961" oninput="document.getElementById('botCountLabel').textContent=this.value"><button class="bigbtn orange" onclick="startOffline()">▶ JUGAR OFFLINE</button></div><div class="box"><h2>🌐 SALA ONLINE</h2><p class="muted">Hasta <b>16 jugadores</b> reales por sala. Solo el anfitrión saca números. Si sale, se elige un nuevo anfitrión.</p><button class="bigbtn green" onclick="createRoom()">➕ CREAR SALA</button><div class="row" style="margin-top:11px"><input class="input" id="joinCode" maxlength="4" placeholder="4 DÍGITOS" aria-label="Código de sala" style="flex:1"><button class="smallbtn orange" onclick="joinRoom()">UNIRSE</button></div><div class="muted" style="margin-top:7px">Las salas online requieren internet y que PeerJS pueda conectarse.</div></div></div></div></section>
+<section class="screen" id="lobbyScreen"><div class="lobby glass"><h2>⛺ CAMPAMENTO · SALA DE ESPERA</h2><div class="row space"><div><div class="muted">CÓDIGO PARA COMPARTIR</div><div class="row" style="gap:7px"><div style="color:var(--gold);font-weight:950;font-size:27px;letter-spacing:5px" id="roomDisplay">----</div><button class="smallbtn" onclick="copyBingoRoomCode()">📋 COPIAR</button></div></div><div class="chip" id="lobbyCount">1/16 JUGADORES</div></div><div class="notice" id="lobbyStatus">Conectando...</div><div class="roster" id="lobbyRoster"></div><button class="bigbtn orange" id="startOnlineBtn" onclick="startOnline()">▶ INICIAR PARTIDA (ANFITRIÓN)</button><button class="bigbtn red" onclick="backHome()">SALIR DE LA SALA</button></div></section>
+<section class="screen" id="arenaScreen"><div class="arena"><div class="centercol"><div class="glass" style="padding:14px;margin-bottom:12px"><div class="scorehead"><span class="chip" id="modeText">CPU</span><span class="chip" id="hostText">🎤 Anfitrión</span><span class="chip" id="drawCount">0/75 BOLAS</span></div><div class="tombola"><div class="wheel" id="wheel"><canvas id="tombolaCanvas" width="256" height="206" aria-label="Tómbola pixel art con bolas girando y rebotando"></canvas></div><div class="ball" id="lastBall"><span class="letter" id="ballLetter">LISTO</span><span class="number" id="ballNumber">--</span></div><div class="callpanel"><b id="turnText">¡Comienza el bingo!</b><div class="hint" id="turnDesc">Gira la tómbola para anunciar un número.</div><button class="bigbtn orange" id="spinBtn" onclick="drawBall()">🎲 SACAR NÚMERO</button></div></div><div class="pixel-mini-ribbon">❄ TÓMBOLA DEL CAMPAMENTO · SOLO EL ANFITRIÓN SACA BOLAS ❄</div><div class="muted">Bolas que salieron:</div><div class="history" id="history"><span class="muted">Aún no hay números.</span></div></div>
+<div class="board glass"><div class="row space" style="margin-bottom:9px"><div><h2 style="margin:0">🎫 MI CARTÓN</h2><small id="myName" style="color:#f7ce82">MONTAÑISTA</small></div><div class="chip" id="hitsDisplay">0 / 24</div></div><div class="letters"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div><div class="cardgrid" id="cardGrid"></div><div class="notice">Pulsa únicamente los números que ya hayan salido. El centro es gratis. Gana quien complete primero todo su cartón.</div><button class="bigbtn green hide" id="bingoBtn" onclick="claimBingo()">🏆 ¡CANTAR BINGO!</button><button class="smallbtn" id="toggleNumsBtn" onclick="document.getElementById('allNumsPanel').classList.toggle('hide')">🧾 TABLERO 1–75</button><div class="hide" id="allNumsPanel" style="margin-top:9px"><div class="allnums" id="allNums"></div></div></div></div><div class="opponents glass"><h3>🏕️ CAMPAMENTO · JUGADORES</h3><div id="opponentList"></div></div></div></section>
+</div>
+<div class="overlay" id="hostOfferOverlay" role="dialog" aria-modal="true" aria-label="Invitación a ser anfitrión"><div class="modal"><h2>👑 NUEVO ANFITRIÓN</h2><p id="hostOfferText">El anfitrión anterior se desconectó. ¿Aceptas dirigir la partida?</p><p class="muted">Si rechazas, se consultará al siguiente jugador con más aciertos.</p><button class="bigbtn green" onclick="respondToHostOffer(true)">✅ ACEPTAR SER ANFITRIÓN</button><button class="bigbtn red" onclick="respondToHostOffer(false)">❌ RECHAZAR</button></div></div>
+<div class="overlay" id="winOverlay"><div class="modal"><div style="font-size:40px">🏆🎉</div><h1>¡BINGO!</h1><h2 id="winTitle">GANADOR</h2><p id="winSubtitle" class="muted"></p><div id="standings" style="text-align:left;max-height:210px;overflow:auto"></div><button class="bigbtn orange" onclick="again()">🔁 OTRA PARTIDA</button><button class="bigbtn red" onclick="backHome()">🏠 MENÚ BINGO</button></div></div>
+<div class="toast hide" id="toast" role="status"></div>
+<script>
+'use strict';
+/* BINGO CAMPING v25 · Módulo aislado: nunca modifica la lógica de APUS. */
+const MAX=16, RANGE=75, ROOM_PREFIX='APUSBC25-R-', CLIENT_PREFIX='APUSBC25-P-';
+const $=id=>document.getElementById(id);
+const myId='p'+(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)).replace(/-/g,'').slice(0,20);
+let accountName='INVITADO', state={mode:'idle',status:'idle',room:'',hostId:'',players:[],draws:[],winner:null,seq:0},marked=new Set([12]),peer=null,alias=null,connections=new Map(),roomLink=null,myCard=[],isBusy=false,audioEnabled=true,lastHostSeen=Date.now(),aliasTimer=null,lastRoomStatus='',pendingJoin=false,uiScreen='home';
+let hostElection=null, hostElectionTimer=null; // v26: invitaciones ordenadas, sin traspaso automático
+const connectingPeers=new Set();
+const HOST_OFFER_SECONDS=16;
+const cardsNames=['CAMPERO','NEVADO','PINGÜINO','GLACIAR','CONDOR','PÁRAMO','VIAJERO','FRAILEJÓN','MOCHILERO','FOGATA','ANDINISTA','CAMPISTA','PÁJARO','HIELO','ROCA'];
+function safeName(x){return String(x||'INVITADO').replace(/[^\p{L}\p{N}_ .-]/gu,'').trim().slice(0,24)||'INVITADO'}
+function getMe(){return state.players.find(p=>p.id===myId)}
+function host(){return state.hostId===myId}
+function activeScreen(which){uiScreen=which;document.querySelectorAll('.screen').forEach(el=>el.classList.toggle('active',el.id===which+'Screen'))}
+let toastTimer;function notify(text){let t=$('toast');t.textContent=text;t.classList.remove('hide');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hide'),4200)}
+function initialPlayer(id,name,card,bot=false,order=0){return{id,name:safeName(name),card,bot,order}}
+function shuffledNumbers(a,b){const x=Array.from({length:b-a+1},(_,i)=>i+a);for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+function makeCard(){const c=Array(25).fill(0);for(let col=0;col<5;col++){const x=shuffledNumbers(col*15+1,col*15+15).slice(0,5);for(let row=0;row<5;row++)c[row*5+col]=x[row]}c[12]=0;return c}
+function hits(p){return p.card.filter(n=>n>0&&state.draws.includes(n)).length}
+function countHits(card,draws){return card.filter(n=>n>0&&draws.includes(n)).length}
+function orderForHost(p,q){return countHits(q.card,state.draws)-countHits(p.card,state.draws)||p.order-q.order||p.id.localeCompare(q.id)}
+function letter(n){return ['','B','I','N','G','O'][Math.ceil(n/15)]}
+function formatBall(n){return letter(n)+'-'+n}
+function baseState(){return{mode:state.mode,status:state.status,room:state.room,hostId:state.hostId,players:state.players,draws:state.draws,winner:state.winner,seq:state.seq}}
+function normalizedSnapshot(snapshot){if(!snapshot||!Array.isArray(snapshot.players)||!Array.isArray(snapshot.draws)||snapshot.players.length>MAX||snapshot.draws.length>75)return null;return{mode:'online',status:['lobby','playing','ended'].includes(snapshot.status)?snapshot.status:'lobby',room:String(snapshot.room||''),hostId:String(snapshot.hostId||''),players:snapshot.players.map(p=>initialPlayer(p.id,p.name,Array.isArray(p.card)&&p.card.length===25?p.card:makeCard(),!!p.bot,p.order||0)),draws:snapshot.draws.filter(n=>Number.isInteger(n)&&n>=1&&n<=75).slice(0,75),winner:snapshot.winner||null,seq:Number(snapshot.seq)||0}}
+function applySnapshot(next,from){const s=normalizedSnapshot(next);if(!s||s.room!==state.room||s.seq<state.seq)return;if(hostElection&&s.hostId===hostElection.oldHost)return; if(state.hostId&&from!==state.hostId&&from!==s.hostId&&s.hostId===state.hostId)return;const previousStatus=state.status;const previousDraws=state.draws.length;state={...s};lastHostSeen=Date.now();if(state.draws.length>previousDraws){playFx('ball');animateDraw()}if(state.status==='ended'&&state.winner){renderAll();showWinner(state.winner)}else if(state.status==='lobby'){activeScreen('lobby');renderLobby()}else if(state.status==='playing'){activeScreen('arena');renderAll()}else{renderAll()}if(host()&&!alias)claimAlias();if(state.mode==='online'&&state.players.length>1)connectMesh(state.players.filter(p=>!p.bot).map(p=>p.id))}
+function syncAll(){if(state.mode!=='online'||!host())return;state.seq++;broadcast({type:'STATE',data:baseState(),from:myId});renderAll()}
+function broadcast(payload,except=null){for(const [id,c] of connections)if(id!==except&&c.open){try{c.send(payload)}catch(e){}}}
+function sendToHost(payload){const c=connections.get(state.hostId);if(c&&c.open){c.send(payload);return true}notify('Buscando conexión con el anfitrión...');return false}
+function makePeer(){return new Promise((resolve,reject)=>{if(peer&&!peer.destroyed){resolve(peer);return}const PeerCtor=window.Peer||window.parent?.Peer;if(!PeerCtor){reject(new Error('No se cargó PeerJS. Revisa la conexión a internet.'));return}peer=new PeerCtor(CLIENT_PREFIX+myId);let complete=false;peer.on('open',()=>{if(!complete){complete=true;resolve(peer)}});peer.on('connection',c=>linkPeer(c));peer.on('error',e=>{if(!complete){complete=true;reject(e)}else notify('Conexión P2P: '+(e.type||e.message||'problema de red'))});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}})})}
+function linkPeer(c,outbound=false){c.apusOutgoing=outbound;let other='';let ready=false;const hello=()=>{if(ready)return;ready=true;if(c.open){c.send({type:'HELLO',id:myId,name:accountName,room:state.room})}};
+c.on('open',hello);if(c.open)hello();c.on('data',msg=>{if(!msg||typeof msg!=='object')return;const id=msg.id||other;if(msg.type==='HELLO'){if(msg.room!==state.room||!state.room)return;other=String(msg.id||'');if(!other||other===myId||!other.startsWith('p'))return;const prior=connections.get(other);if(prior&&prior!==c&&prior.open){/* Avoid duplicate mesh links deterministically. */const wantOutbound=myId<other;if(prior.apusOutgoing===wantOutbound||c.apusOutgoing!==wantOutbound){try{c.close()}catch(e){}return}else{try{prior.close()}catch(e){}}}
+connections.set(other,c);connectingPeers.delete(other);if(host())c.send({type:'STATE',data:baseState(),from:myId});return}
+if(msg.type==='STATE'&&msg.from===other){applySnapshot(msg.data,other);return}
+if(msg.type==='CLAIM'&&host()&&msg.id===other){evaluateClaim(other);return}
+if(msg.type==='LEAVE'&&msg.id===other){handleLeave(other,true);return}
+if(msg.type==='HOST_PING'){if(msg.hostId===state.hostId)lastHostSeen=Date.now();return}
+if(msg.type==='HOST_DECLINE'&&msg.id===other){handleHostDecline(other,msg.oldHost);return}
+if(msg.type==='HOST_ACCEPT'&&msg.id===other){handleHostAccept(other,msg.oldHost);return}
+if(msg.type==='HOST_GONE'&&msg.oldHost===state.hostId){beginHostElection(msg.oldHost);return}
+if(msg.type==='HOST_CANCEL'&&msg.oldHost===state.hostId){endBingoHostElection(msg.oldHost);return}
+if(msg.type==='ELECT'&&other===state.hostId){beginHostElection(other);return}});
+c.on('close',()=>{if(other&&connections.get(other)===c){connections.delete(other);if(state.mode==='online'&&state.status!=='ended'&&state.hostId===other){setTimeout(()=>{if(!connections.has(other))beginHostElection(other)},500)}else if(host()&&state.players.some(p=>p.id===other))handleLeave(other,true)}});
+c.on('error',()=>{});
+}
+function connectMesh(knownIds){for(const id of knownIds){if(id===myId||connections.has(id)||connectingPeers.has(id))continue;if(!peer||!peer.open)continue;connectingPeers.add(id);const c=peer.connect(CLIENT_PREFIX+id,{reliable:true,serialization:'json'});linkPeer(c,true);c.on('error',()=>connectingPeers.delete(id));c.on('close',()=>connectingPeers.delete(id));setTimeout(()=>connectingPeers.delete(id),3000)}}
+function makeCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:4},()=>chars[Math.floor(Math.random()*chars.length)]).join('')}
+async function copyBingoRoomCode(){const code=state.room;if(!code||code==='LOCAL'){notify('Primero crea una sala online');return}try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);else{const t=document.createElement('textarea');t.value=code;t.style.cssText='position:fixed;left:-9999px';document.body.appendChild(t);t.select();if(!document.execCommand('copy'))throw Error('No se pudo copiar');t.remove()}notify('📋 Código '+code+' copiado')}catch(e){notify('Copia manualmente el código: '+code)}}
+function claimAlias(retry=0){if(state.mode!=='online'||!host()||!peer||!peer.open)return;if(alias&&!alias.destroyed)return;const PeerCtor=window.Peer||window.parent?.Peer;if(!PeerCtor)return;const room=state.room;try{const r=new PeerCtor(ROOM_PREFIX+room);alias=r;r.on('open',()=>{if(alias===r)notify('Sala '+room+' lista para recibir jugadores')});r.on('connection',c=>{
+ c.on('data',m=>{if(m?.type!=='JOIN')return;
+ if(state.mode!=='online'||!host()||m.room!==state.room){c.send({type:'ERROR',text:'Sala no disponible'});return}
+ const id=String(m.player?.id||'');const name=safeName(m.player?.name);if(!id.startsWith('p')||c.peer!==CLIENT_PREFIX+id){c.send({type:'ERROR',text:'Identidad inválida'});return}
+ if(!state.players.some(p=>p.id===id)&&state.players.length>=MAX){c.send({type:'ERROR',text:'La sala ya tiene 16 jugadores'});return}
+ if(state.status!=='lobby'&&!state.players.some(p=>p.id===id)){c.send({type:'ERROR',text:'La partida ya comenzó'});return}
+ if(!state.players.some(p=>p.id===id))state.players.push(initialPlayer(id,name,makeCard(),false,Math.max(-1,...state.players.map(p=>p.order))+1));
+ syncAll();c.send({type:'WELCOME',data:baseState()});renderLobby();setTimeout(()=>{try{c.close()}catch(e){}},4000);
+ })});r.on('error',e=>{if(alias!==r)return;alias=null;if(e?.type==='unavailable-id'||e?.type==='network'){if(host()&&retry<16){clearTimeout(aliasTimer);aliasTimer=setTimeout(()=>claimAlias(retry+1),1500)}}else notify('Error de sala: '+(e?.type||'desconocido'))});r.on('close',()=>{if(alias===r)alias=null})}catch(e){notify('No se pudo publicar la sala') }}
+async function createRoom(){try{await makePeer()}catch(e){notify(e.message);return}resetLinks(false);state={mode:'online',status:'lobby',room:makeCode(),hostId:myId,players:[initialPlayer(myId,accountName,makeCard(),false,0)],draws:[],winner:null,seq:1};myCard=state.players[0].card.slice();marked=new Set([12]);lastHostSeen=Date.now();claimAlias();activeScreen('lobby');renderLobby()}
+async function joinRoom(){const room=$('joinCode').value.toUpperCase().replace(/[^A-Z2-9]/g,'').slice(0,4);if(room.length!==4){notify('Introduce un código de 4 caracteres');return}try{await makePeer()}catch(e){notify(e.message);return}resetLinks(false);state={mode:'online',status:'lobby',room,hostId:'',players:[],draws:[],winner:null,seq:0};myCard=makeCard();marked=new Set([12]);pendingJoin=true;activeScreen('lobby');$('lobbyStatus').textContent='Buscando la sala online...';const aliasId=ROOM_PREFIX+room;roomLink=peer.connect(aliasId,{reliable:true,serialization:'json'});let welcomed=false;roomLink.on('open',()=>roomLink.send({type:'JOIN',room,player:initialPlayer(myId,accountName,myCard)}));roomLink.on('data',m=>{if(m?.type==='ERROR'){notify(m.text);pendingJoin=false;backHome();return}if(m?.type==='WELCOME'){welcomed=true;pendingJoin=false;const s=normalizedSnapshot(m.data);if(!s){notify('Respuesta de sala no válida');return}state=s;lastHostSeen=Date.now();const me=getMe();if(me)myCard=me.card.slice();connectMesh(state.players.filter(p=>!p.bot).map(p=>p.id));renderAll();if(state.status==='lobby'){activeScreen('lobby');renderLobby()}else{activeScreen('arena');renderAll()}notify('¡Conectado a la sala '+room+'!')}});roomLink.on('error',()=>{if(!welcomed){notify('No se encuentra esa sala o está desconectada');backHome()}});setTimeout(()=>{if(!welcomed&&pendingJoin){pendingJoin=false;notify('No se encontró la sala. Revisa el código y la conexión.');backHome()}},11000)}
+function resetLinks(keepPeer=true){clearHostElection();connectingPeers.clear();clearTimeout(aliasTimer);if(roomLink){try{roomLink.close()}catch(e){}roomLink=null}for(const c of connections.values())try{c.close()}catch(e){}connections.clear();if(alias){const a=alias;alias=null;try{a.destroy()}catch(e){}}if(!keepPeer&&peer&&!peer.destroyed){/* Keep the personal peer identity until leaving Bingo. */}}
+function cleanup(){if(state.mode==='online'&&state.room){broadcast({type:'LEAVE',id:myId});if(host()){const others=state.players.filter(p=>p.id!==myId&&!p.bot);if(others.length)broadcast({type:'ELECT',oldHost:myId})}}resetLinks();if(peer){try{peer.destroy()}catch(e){}peer=null}state={mode:'idle',status:'idle',room:'',hostId:'',players:[],draws:[],winner:null,seq:0};marked=new Set([12]);lastHostSeen=Date.now()}
+function backHome(){cleanup();activeScreen('home');$('winOverlay').classList.remove('active');renderLobby()}
+function leaveBingo(){cleanup();window.parent.postMessage({apusBingo:'CLOSE'},'*')}
+function handleLeave(id,fromNetwork){
+  if(!id||state.mode!=='online')return;
+  const present=state.players.some(p=>p.id===id);
+  if(!present)return;
+  if(id===state.hostId){beginHostElection(id);return}
+  state.players=state.players.filter(p=>p.id!==id);
+  if(host())syncAll();else renderAll();
+  if(fromNetwork)notify('Un jugador salió del campamento');
+}
+function endBingoHostElection(oldHost){
+  if(state.mode!=='online'||state.hostId!==oldHost)return;
+  state.status='ended';
+  backHome();
+  notify('❌ Nadie aceptó ser anfitrión. Se canceló la partida.');
+}
+function clearHostElection(){
+  clearTimeout(hostElectionTimer);hostElectionTimer=null;
+  hostElection=null;
+  const modal=$('hostOfferOverlay');if(modal)modal.classList.remove('active');
+}
+function beginHostElection(oldHost){
+  if(state.mode!=='online'||state.status==='ended'||state.hostId!==oldHost)return;
+  if(hostElection&&hostElection.oldHost===oldHost)return;
+  const candidates=state.players.filter(p=>!p.bot&&p.id!==oldHost).sort(orderForHost).map(p=>p.id);
+  state.players=state.players.filter(p=>p.id!==oldHost);
+  hostElection={oldHost,candidates,index:0,declined:new Set(),room:state.room};
+  lastHostSeen=Date.now();
+  notify('⚠️ Se desconectó el anfitrión. Buscando quién acepta reemplazarlo...');
+  broadcast({type:'HOST_GONE',oldHost});
+  offerNextHost();
+}
+function offerNextHost(){
+  const election=hostElection;
+  if(!election||election.room!==state.room)return;
+  clearTimeout(hostElectionTimer);hostElectionTimer=null;
+  $('hostOfferOverlay').classList.remove('active');
+  while(election.index<election.candidates.length && election.declined.has(election.candidates[election.index]))election.index++;
+  if(election.index>=election.candidates.length){
+    // Avisar ANTES de cerrar los canales PeerJS: si se destruyen enseguida,
+    // la última negativa podría no llegar a los demás participantes.
+    broadcast({type:'HOST_CANCEL',oldHost:election.oldHost});
+    const oldHost=election.oldHost, room=election.room;
+    clearHostElection();
+    hostElectionTimer=setTimeout(()=>{
+      if(state.mode==='online'&&state.hostId===oldHost&&state.room===room)endBingoHostElection(oldHost);
+    },400);
+    return;
+  }
+  const candidate=election.candidates[election.index];
+  const p=state.players.find(x=>x.id===candidate);
+  if(candidate===myId){
+    $('hostOfferText').textContent='⚠️ Se desconectó el anfitrión. Tienes '+countHits(myCard,state.draws)+' aciertos. ¿Aceptas ser el nuevo anfitrión?';
+    $('hostOfferOverlay').classList.add('active');
+  }else{
+    notify('⚠️ Anfitrión desconectado. Esperando respuesta de '+(p?.name||'otro jugador')+'...');
+  }
+  hostElectionTimer=setTimeout(()=>{
+    if(hostElection!==election||election.candidates[election.index]!==candidate)return;
+    election.declined.add(candidate);
+    if(candidate===myId)broadcast({type:'HOST_DECLINE',id:myId,oldHost:election.oldHost});
+    offerNextHost();
+  },HOST_OFFER_SECONDS*1000);
+  if(state.status==='lobby')renderLobby();else renderAll();
+}
+function respondToHostOffer(accept){
+  const election=hostElection;
+  if(!election||election.candidates[election.index]!==myId)return;
+  $('hostOfferOverlay').classList.remove('active');
+  if(accept){
+    broadcast({type:'HOST_ACCEPT',id:myId,oldHost:election.oldHost});
+    handleHostAccept(myId,election.oldHost);
+  }else{
+    broadcast({type:'HOST_DECLINE',id:myId,oldHost:election.oldHost});
+    handleHostDecline(myId,election.oldHost);
+  }
+}
+function handleHostDecline(candidate,oldHost){
+  const election=hostElection;
+  if(!election){if(state.hostId===oldHost)beginHostElection(oldHost);else return;}
+  const e=hostElection;
+  if(!e||e.oldHost!==oldHost||!e.candidates.includes(candidate))return;
+  e.declined.add(candidate);
+  if(e.candidates[e.index]===candidate)offerNextHost();
+}
+function handleHostAccept(candidate,oldHost){
+  if(state.mode!=='online'||state.hostId!==oldHost)return;
+  const election=hostElection;
+  if(!election){beginHostElection(oldHost)}
+  const e=hostElection;
+  if(!e||e.oldHost!==oldHost||e.candidates[e.index]!==candidate)return;
+  state.hostId=candidate;
+  state.players=state.players.filter(p=>p.id!==oldHost);
+  state.seq++;
+  clearHostElection();
+  lastHostSeen=Date.now();
+  notify('👑 '+(state.players.find(p=>p.id===candidate)?.name||'Jugador')+' aceptó ser anfitrión.');
+  if(host()){
+    claimAlias();
+    broadcast({type:'HOST_ACCEPT',id:myId,oldHost});
+    syncAll();
+  }
+  if(state.status==='lobby')renderLobby();else renderAll();
+}
+// Si el anfitrión pierde la conexión sin salir voluntariamente.
+setInterval(()=>{
+  if(state.mode!=='online'||!peer||state.status==='ended'||hostElection)return;
+  if(host())broadcast({type:'HOST_PING',hostId:myId});
+  else if(state.hostId&&Date.now()-lastHostSeen>14000)beginHostElection(state.hostId);
+},4000);
+function startOffline(){cleanup();let n=Number($('botCount').value)||8;n=Math.max(2,Math.min(MAX,n));const players=[initialPlayer(myId,accountName,makeCard(),false,0)];for(let i=1;i<n;i++)players.push(initialPlayer('bot'+i,cardsNames[(i-1)%cardsNames.length],makeCard(),true,i));state={mode:'cpu',status:'playing',room:'LOCAL',hostId:myId,players,draws:[],winner:null,seq:0};myCard=players[0].card.slice();marked=new Set([12]);activeScreen('arena');renderAll();notify('Partida contra la CPU iniciada')}
+function startOnline(){if(hostElection||!host()||state.status!=='lobby'){notify('Solo el anfitrión puede iniciar la partida');return}if(state.players.length<2){notify('Se necesitan al menos 2 jugadores');return}state.status='playing';syncAll();activeScreen('arena');renderAll()}
+function drawBall(){if(isBusy||state.status!=='playing'||hostElection)return;if(!host()){notify('Solo el anfitrión puede girar la tómbola');return}const left=Array.from({length:RANGE},(_,i)=>i+1).filter(n=>!state.draws.includes(n));if(!left.length){finishByClosest();return}isBusy=true;$('wheel').classList.add('spinning');$('spinBtn').disabled=true;playFx('tick');setTimeout(()=>{const n=left[Math.floor(Math.random()*left.length)];state.draws.push(n);state.seq++;isBusy=false;animateDraw();playFx('ball');if(state.mode==='online')broadcast({type:'STATE',from:myId,data:baseState()});renderAll();if(state.mode==='cpu'){const topBots=state.players.filter(p=>p.bot&&hits(p)===24);if(topBots.length){state.winner=topBots[0].id;state.status='ended';showWinner(state.winner)}}if(state.draws.length===RANGE&&state.status!=='ended')setTimeout(finishByClosest,1500)},800)}
+function animateDraw(){$('wheel').classList.remove('spinning');$('lastBall').classList.remove('reveal');void $('lastBall').offsetWidth;$('lastBall').classList.add('reveal')}
+function finishByClosest(){if(state.status!=='playing'||!host())return;let top=[...state.players].sort(orderForHost);state.winner=top.length?top[0].id:null;state.status='ended';if(state.mode==='online')syncAll();showWinner(state.winner)}
+function toggleMark(index){if(state.status!=='playing')return;const n=myCard[index];if(index===12||!n)return;if(!state.draws.includes(n)){notify('Ese número todavía no ha salido');playFx('error');return}if(marked.has(index))marked.delete(index);else{marked.add(index);playFx('mark')}renderAll();if(marked.size===25){$('bingoBtn').classList.remove('hide');notify('¡Cartón completo! Canta BINGO')}}
+function claimBingo(){if(state.status!=='playing'||marked.size!==25){notify('Marca todos los números del cartón');return}if(host())evaluateClaim(myId);else sendToHost({type:'CLAIM',id:myId})}
+function evaluateClaim(id){if(state.status!=='playing'||!host())return;const p=state.players.find(p=>p.id===id);if(!p||hits(p)!==24){notify('El cartón aún no está completo');return}state.winner=id;state.status='ended';if(state.mode==='online')syncAll();showWinner(id);playFx('win')}
+function showWinner(id){if(state.status!=='ended'||!id)return;const winner=state.players.find(p=>p.id===id);$('winTitle').textContent=winner?'🏆 '+winner.name:'¡BINGO!';$('winSubtitle').textContent=(id===myId?'¡Felicitaciones! Has completado tu cartón.':'¡El ganador se anuncia a todos los participantes!')+' · '+state.draws.length+' bolas';$('standings').replaceChildren();const sorted=[...state.players].sort(orderForHost);sorted.forEach((p,i)=>{const div=document.createElement('div');div.className='player';div.textContent=(i+1)+'. '+p.name+' — '+hits(p)+'/24';$('standings').append(div)});$('winOverlay').classList.add('active')}
+function again(){if(state.mode==='cpu'){startOffline();$('winOverlay').classList.remove('active');return}if(state.mode==='online'){if(host()){state.players=state.players.map(p=>({...p,card:makeCard()}));state.draws=[];state.winner=null;state.status='lobby';marked=new Set([12]);let p=getMe();if(p)myCard=p.card.slice();syncAll();$('winOverlay').classList.remove('active');activeScreen('lobby');renderLobby()}else{notify('Solo el anfitrión puede reiniciar la sala');$('winOverlay').classList.remove('active');activeScreen('lobby');renderLobby()}}}
+function renderLobby(){const l=$('lobbyRoster');l.replaceChildren();$('roomDisplay').textContent=state.room||'----';$('lobbyCount').textContent=state.players.length+'/16 JUGADORES';$('lobbyStatus').textContent=hostElection?'⚠️ ANFITRIÓN DESCONECTADO · ESPERANDO ACEPTACIÓN':state.status==='playing'?'Partida en curso':host()?'Eres el anfitrión: cuando todos estén listos, comienza la partida.':'Esperando al anfitrión. Solo él puede sacar bolas.';for(const p of state.players){const d=document.createElement('div');d.className='player'+(p.id===state.hostId?' host':'')+(p.id===myId?' me':'');const name=document.createElement('b');name.textContent=p.name+(p.id===myId?' (TÚ)':'');const label=document.createElement('small');label.textContent=p.id===state.hostId?'👑 ANFITRIÓN':'🏕️ PARTICIPANTE';d.append(name,label);l.append(d)}$('startOnlineBtn').classList.toggle('hide',!host()||state.status!=='lobby');$('startOnlineBtn').disabled=!!hostElection||state.players.length<2}
+function renderAll(){if(state.status==='lobby'){renderLobby();return}let me=getMe();if(me&&myCard.join(',')!==me.card.join(',')){myCard=me.card.slice();marked=new Set([12])} $('modeText').textContent=state.mode==='cpu'?'🤖 VS CPU':'🌐 SALA '+state.room;$('hostText').textContent=host()?'👑 TÚ GIRAS':'🎤 '+(state.players.find(p=>p.id===state.hostId)?.name||'Anfitrión');$('drawCount').textContent=state.draws.length+'/75 BOLAS';$('myName').textContent=accountName;$('hitsDisplay').textContent=(marked.size-1)+'/24 MARCADOS';$('spinBtn').disabled=!!hostElection||!host()||isBusy||state.status!=='playing';$('spinBtn').textContent=host()?'🎲 GIRAR TÓMBOLA':'🔒 SOLO ANFITRIÓN';$('turnText').textContent=state.draws.length?'ÚLTIMA BOLA: '+formatBall(state.draws[state.draws.length-1]):'¡Gira la tómbola!';$('turnDesc').textContent=host()?'Eres anfitrión: solo tú puedes sacar los números.':'Espera al anfitrión y marca los números anunciados.';const last=state.draws.at(-1);$('ballLetter').textContent=last?letter(last):'LISTO';$('ballNumber').textContent=last||'--';const hist=$('history');hist.replaceChildren();if(!state.draws.length){const x=document.createElement('span');x.textContent='Aún no hay números';x.className='muted';hist.append(x)}else for(const n of [...state.draws].reverse()){const x=document.createElement('span');x.className='pill';x.textContent=formatBall(n);hist.append(x)}const b=$('cardGrid');b.replaceChildren();myCard.forEach((n,i)=>{const btn=document.createElement('button');btn.className='square'+(i===12?' free':marked.has(i)?' marked':state.draws.includes(n)?' called':'');btn.textContent=i===12?'LIBRE':String(n);btn.disabled=i===12||state.status!=='playing';btn.onclick=()=>toggleMark(i);b.append(btn)});$('bingoBtn').classList.toggle('hide',marked.size!==25||state.status!=='playing');const opponents=$('opponentList');opponents.replaceChildren();const competitors=state.players.filter(p=>p.id!==myId).sort(orderForHost);competitors.forEach(p=>{const item=document.createElement('div');item.className='opponent';const row=document.createElement('div');row.className='mini';const name=document.createElement('strong');name.textContent=(p.id===state.hostId?'👑 ':'')+p.name;const score=document.createElement('b');score.textContent=hits(p)+'/24';row.append(name,score);const bar=document.createElement('div');bar.className='bar';const fi=document.createElement('i');fi.style.width=(hits(p)/24*100)+'%';bar.append(fi);item.append(row,bar);opponents.append(item)});const all=$('allNums');all.replaceChildren();const set=new Set(state.draws);for(let i=1;i<=75;i++){const n=document.createElement('div');n.className='num'+(set.has(i)?' done':'');n.textContent=i;all.append(n)}if(state.status==='ended'&&state.winner)showWinner(state.winner)}
+function toggleAudio(){
+  setBingoAudio(!audioEnabled);
+  try { if(window.parent!==window) window.parent.postMessage({apusBingo:'REQUEST_SOUND',enabled:audioEnabled},'*'); }catch(e){}
+}
+function setBingoAudio(enabled){
+  enabled=!!enabled;
+  if(audioEnabled===enabled)return;
+  audioEnabled=enabled;
+  const btn=$('soundBtn');
+  btn.textContent=audioEnabled?'🔊 SÍ':'🔇 NO';
+  btn.title=audioEnabled?'Desactivar sonidos del Bingo':'Activar sonidos del Bingo';
+  btn.setAttribute('aria-pressed',String(audioEnabled));
+  btn.setAttribute('aria-label',btn.title);
+  if(audioMaster&&audio){audioMaster.gain.setValueAtTime(audioEnabled?1:0,audio.currentTime);}
+  if(audioEnabled)playFx('mark');
+}
+let audio=null,audioMaster=null;
+function playFx(type){if(!audioEnabled)return;try{
+ if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();audioMaster=audio.createGain();audioMaster.gain.value=audioEnabled?1:0;audioMaster.connect(audio.destination);}
+ audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audioMaster);o.type=type==='error'?'sawtooth':'triangle';const f=type==='win'?850:type==='ball'?680:type==='mark'?550:type==='error'?175:260;o.frequency.setValueAtTime(f,audio.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.35,audio.currentTime+.13);g.gain.setValueAtTime(.07,audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.22);o.start();o.stop(audio.currentTime+.23)}catch(e){}}
+window.addEventListener('message',e=>{
+  if(e.source!==window.parent||!e.data)return;
+  if(e.data.apusBingo==='SOUND'){setBingoAudio(e.data.enabled);return;}
+  if(e.data.apusBingo==='THEME'){
+    document.body.classList.toggle('theme-light',e.data.theme==='light');
+    return;
+  }
+  if(e.data.apusBingo!=='ACCOUNT')return;
+  accountName=safeName(e.data.name);
+  $('signedUser').textContent='👤 '+accountName;
+  $('myName').textContent=accountName;
+});
+window.addEventListener('beforeunload',cleanup);
+// Parent can also call the handshake from iframe load.
+window.parent.postMessage({apusBingo:'READY'},'*');
+</script>
+<script id="bingo-pixel-art-tombola">
+/* ================================================================
+   ANIMACIÓN VISUAL DE TÓMBOLA · V25 PIXEL ART
+   Dibujo independiente. No envía mensajes, no altera sorteos ni P2P.
+   Inspirada en la tómbola de bolitas físicas del código de referencia.
+   ================================================================ */
+(()=>{
+ const canvas=document.getElementById('tombolaCanvas');
+ if(!canvas)return;
+ const g=canvas.getContext('2d',{alpha:true});g.imageSmoothingEnabled=false;
+ const cx=115,cy=87,R=67;
+ const palette=['#fa9d39','#5fbef1','#e9f6ff','#f0ca70','#86dece','#c9a3f6'];
+ const balls=[];
+ let angle=0,last=performance.now(),drawnSeen=0,drop=null;
+ const rect=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h))};
+ const line=(x,y,x2,y2,c,width=2)=>{g.strokeStyle=c;g.lineWidth=width;g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke()};
+ const circle=(x,y,r,c)=>{g.beginPath();g.arc(Math.round(x),Math.round(y),r,0,Math.PI*2);g.fillStyle=c;g.fill()};
+ for(let i=0;i<29;i++){
+   const a=Math.random()*Math.PI*2,r=Math.sqrt(Math.random())*47;
+   balls.push({x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,vx:(Math.random()-.5)*1.6,vy:(Math.random()-.5)*1.6,r:7+Math.random()*1.2,c:palette[i%palette.length]});
+ }
+ function ballSprite(x,y,r,c){
+   circle(x+1,y+2,r+1,'#0b1c2e');circle(x,y,r,c);
+   rect(x-r*.52,y-r*.62,Math.max(2,r*.55),2,'#ffffff');
+   rect(x-r*.65,y-r*.28,2,Math.max(2,r*.45),'#fffae2');
+   rect(x+r*.3,y+r*.45,Math.max(2,r*.35),2,'#4d557e');
+ }
+ function frame(now){
+   const elapsed=Math.min(2.2,(now-last)/16.667);last=now;
+   // Suspender dibujo fuera del minijuego o con la pestaña oculta.
+   if(document.visibilityState==='hidden'||!document.getElementById('arenaScreen').classList.contains('active')){
+     requestAnimationFrame(frame);return;
+   }
+   g.clearRect(0,0,256,206);
+   const spinning=!!document.getElementById('wheel')?.classList.contains('spinning');
+   const speed=spinning?2.8:.52;
+   angle+=.012*speed*elapsed;
+   // Sombra, nieve y soporte del tambor, con píxeles anchos.
+   rect(31,184,169,11,'#090f20');rect(37,178,159,11,'#34455d');rect(41,176,151,5,'#a9bdce');
+   rect(42,188,150,6,'#18293b');
+   line(64,176,103,103,'#1b293e',9);line(171,176,135,103,'#1b293e',9);
+   line(66,177,104,104,'#93b5cb',3);line(168,177,134,104,'#93b5cb',3);
+   // Canal por el que sale cada nueva bolita.
+   rect(173,147,35,4,'#f4d08a');rect(203,151,26,4,'#f4d08a');
+   rect(176,152,35,3,'#8b522c');rect(206,156,28,3,'#8b522c');
+   rect(207,166,26,6,'#364b60');
+   // Tambor oscuro, hielo interior y contorno pixelado.
+   circle(cx,cy,R+5,'#091223');circle(cx,cy,R+3,'#c8dff0');
+   circle(cx,cy,R-2,'#4e7595');circle(cx,cy,R-7,'#233e59');
+   g.save();g.beginPath();g.arc(cx,cy,R-7,0,Math.PI*2);g.clip();
+   // Rayitas que refuerzan visualmente que gira.
+   for(let j=0;j<10;j++){
+     const a=angle+j*Math.PI/5;
+     line(cx+Math.cos(a)*(R-9),cy+Math.sin(a)*(R-9),cx+Math.cos(a)*(R-23),cy+Math.sin(a)*(R-23),'#496884',2);
+   }
+   // Bolitas individuales que rebotan y se agitan dentro, como la referencia original.
+   for(const b of balls){
+     b.vy+=.11*elapsed;
+     const force=spinning?.8:.15;
+     b.vx+=(Math.random()-.5)*force*elapsed;
+     b.vy+=(Math.random()-.5)*force*elapsed;
+     const vx=(b.x-cx)/R,vy=(b.y-cy)/R;
+     b.vx+=-vy*.13*speed*elapsed;
+     b.vy+=vx*.13*speed*elapsed;
+     b.vx=Math.max(-4.2,Math.min(4.2,b.vx*.993));
+     b.vy=Math.max(-4.2,Math.min(4.2,b.vy*.993));
+     b.x+=b.vx*.48*elapsed;b.y+=b.vy*.48*elapsed;
+     let dx=b.x-cx,dy=b.y-cy,dist=Math.hypot(dx,dy)||1;
+     const limit=R-b.r-9;
+     if(dist>limit){const nx=dx/dist,ny=dy/dist;b.x=cx+nx*limit;b.y=cy+ny*limit;
+       const vn=b.vx*nx+b.vy*ny;if(vn>0){b.vx-=1.6*vn*nx;b.vy-=1.6*vn*ny}
+       b.vx+=-ny*.40*speed;b.vy+=nx*.40*speed;
+     }
+     ballSprite(b.x,b.y,b.r,b.c);
+   }
+   // Rejilla metálica de la jaula, visible por encima de las bolitas.
+   g.save();g.translate(cx,cy);g.rotate(angle);
+   for(let j=0;j<8;j++){
+      const a=j*Math.PI/4;
+      line(Math.cos(a)*11,Math.sin(a)*11,Math.cos(a)*(R-1),Math.sin(a)*(R-1),'#a3cae2',2);
+      line(Math.cos(a)*26,Math.sin(a)*26,Math.cos(a)*(R-1),Math.sin(a)*(R-1),'#446e93',1);
+   }
+   g.strokeStyle='#c7e7f6';g.lineWidth=3;g.beginPath();g.arc(0,0,R*.61,0,2*Math.PI);g.stroke();
+   g.restore();g.restore();
+   // Aros exteriores, tuercas y manivela animada.
+   g.strokeStyle='#eef8ff';g.lineWidth=4;g.beginPath();g.arc(cx,cy,R+2,0,Math.PI*2);g.stroke();
+   g.strokeStyle='#668caf';g.lineWidth=4;g.beginPath();g.arc(cx,cy,R-2,0,Math.PI*2);g.stroke();
+   circle(cx,cy,11,'#071427');circle(cx,cy,7,'#8bb0d0');rect(cx-2,cy-2,4,4,'#f9d593');
+   const hx=cx+Math.cos(angle*1.3)*22,hy=cy+Math.sin(angle*1.3)*22;
+   line(cx,cy,hx,hy,'#f5ab43',5);circle(hx,hy,7,'#512c28');circle(hx,hy,5,'#fdba60');
+   // Decoración de base y nieve.
+   rect(38,193,154,5,'#192d43');rect(47,195,26,3,'#f0f6fa');rect(137,195,38,3,'#bfd8e8');
+   rect(84,177,7,3,'#b4e4f6');rect(154,177,9,3,'#d7f0ff');
+   const total=typeof state!=='undefined'?state.draws.length:0;
+   if(total!==drawnSeen){
+     drawnSeen=total;
+     if(total){drop={n:state.draws[total-1],p:0};}
+   }
+   if(drop){drop.p=Math.min(1,drop.p+.038*elapsed);
+      const p=drop.p,x=175+61*p,y=149+14*Math.sin(p*Math.PI/2)+12*p;
+      ballSprite(x,y,12,'#f6a54b');g.fillStyle='#1e2a42';g.font='bold 10px monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(String(drop.n),Math.round(x),Math.round(y));
+      if(drop.p>=1)drop=null;
+   }
+   requestAnimationFrame(frame);
+ }
+ requestAnimationFrame(frame);
+})();
+</script></body></html>
