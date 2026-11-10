@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.2.1",
-  "bundleId": "apus-31-2-1",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-2-1.zip",
-  "checksum": "91a7ef680b9577584b83a10a2482777b2aede2c817e911ffdf2a4964faa423f0",
-  "signature": "NO21b+hiNrjDjD0AgBJbv0ebAWUV3XleV0UX6Sfu40Kp4KIxSarPNW0TvCiVA2siqmbDSU80R8ZAyhafAytVyTz9kqGBv33qYzeKaeDmGXwh4kn1gtnocJ+HA+J1waHbJZJKAzFV6ixlJRLt5e5Urbfx6127Zmi89al5Y7ykFvTx9Ejgyw0Up7nYTyOaxv0vcCzlihHe5eyhxboeCJNzn4nVGyPVpx8Ichs8gHWsQlc3BkcyUhzbikS2CG6X70bH1p1bJstVlQJ8gU0Vr4BH+WUPz+Oq7gYvgzgC3lhWXhLw7+wnV2wQy/k/vRmnct22XtW9T/zKowG/d6AauqpRxWXYjq8Wa2W0iS1oognL8iLE99TCTLksffNKC1FSxoMls6iSU9RomULgn8ir/m4lV05Aa2EN8TXt03ICWoqZZaMm0fCgNibQ6sIpfZtJl4g7u1D4OKJvnr0SXBJCxkGkseUeSr8snQcqaIUYW4N+NlcNmg1m9wFROfAX9PcyXD+4",
-  "minNativeVersionCode": 2,
-  "notes": "Primera prueba de actualizacion automatica"
+  "version": "31.2.3",
+  "bundleId": "apus-31-2-3",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-2-3.zip",
+  "checksum": "5e8e5d815e44c8e4a76333b6e81db105079a8256aca27a3bfe34b98e9d7033bc",
+  "signature": "JsyPOg1UjM5js6NcRHwUNdhRhnulDmKgpHNKjRCoQi5xkiQJs43pdusc6NJqHG4INMXOB0Q9rvev91p0vcoUDm2OUG/ZQkUGZE6h4sxl6ENu/sDnvyFKdjLdXePlTWifAdi8W+dsLAWHj3C/1P8Wjmf042wEl2Ld4cKdrSJC8+hpVUR+ws+keB1WWjPPayWjgRoo76WOaj2svZF4rP69mG+lvmPpRJVwdHz+o/IE0Dev6higBf5RAAtuvL2LJgkZ+xYTLNPt0PDI0/VnImunAwe+4CFgGqJj7YS5IU4Hw0fBFmRCwTdSxNWdI2xfz/wCGk+x0J+Jh7w1VhMgTGjdq7EzSV3RgjZVERV4Osr8c4mlHt836CIF4XkkLjsQWqTyB4tpY8NJXULJipqzDkqfm2fvS5+i3YSm/u81mCVlVncnar1h8QZLeNzKJ44+cDW+3rqZoertsIUsf9EZlUcsEdsS+zcOQV0kCGG0gbOyztzHmFFYk5Z9EzpC28LI03Q+",
+  "minNativeVersionCode": 3,
+  "notes": "Mejoras del sistema de actualizaciones y estabilidad del juego"
 }
