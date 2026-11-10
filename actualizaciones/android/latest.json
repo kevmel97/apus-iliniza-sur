@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "enabled": false,
+  "channel": "production",
+  "version": "31.2.0",
+  "notes": "Sin actualización OTA publicada todavía. La versión inicial está dentro de la APK."
+}
