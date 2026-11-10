@@ -1,7 +1,12 @@
 {
   "schema": 1,
-  "enabled": false,
+  "enabled": true,
   "channel": "production",
-  "version": "31.2.0",
-  "notes": "Sin actualización OTA publicada todavía. La versión inicial está dentro de la APK."
+  "version": "31.2.1",
+  "bundleId": "apus-31-2-1",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-2-1.zip",
+  "checksum": "91a7ef680b9577584b83a10a2482777b2aede2c817e911ffdf2a4964faa423f0",
+  "signature": "NO21b+hiNrjDjD0AgBJbv0ebAWUV3XleV0UX6Sfu40Kp4KIxSarPNW0TvCiVA2siqmbDSU80R8ZAyhafAytVyTz9kqGBv33qYzeKaeDmGXwh4kn1gtnocJ+HA+J1waHbJZJKAzFV6ixlJRLt5e5Urbfx6127Zmi89al5Y7ykFvTx9Ejgyw0Up7nYTyOaxv0vcCzlihHe5eyhxboeCJNzn4nVGyPVpx8Ichs8gHWsQlc3BkcyUhzbikS2CG6X70bH1p1bJstVlQJ8gU0Vr4BH+WUPz+Oq7gYvgzgC3lhWXhLw7+wnV2wQy/k/vRmnct22XtW9T/zKowG/d6AauqpRxWXYjq8Wa2W0iS1oognL8iLE99TCTLksffNKC1FSxoMls6iSU9RomULgn8ir/m4lV05Aa2EN8TXt03ICWoqZZaMm0fCgNibQ6sIpfZtJl4g7u1D4OKJvnr0SXBJCxkGkseUeSr8snQcqaIUYW4N+NlcNmg1m9wFROfAX9PcyXD+4",
+  "minNativeVersionCode": 2,
+  "notes": "Primera prueba de actualizacion automatica"
 }
