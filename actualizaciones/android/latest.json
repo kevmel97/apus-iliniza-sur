@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.3.0",
-  "bundleId": "apus-31-3-0",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-3-0.zip",
-  "checksum": "742760b42b89258a3e7acdabb85c211347d297d3aa373bd32e88b4e20412cf3b",
-  "signature": "JL5+CVuCx1KEBJzNeGkUeHGQdeT4hFWG8vOl9AOO/pm5xGRaf9wZ1s63puXX3lypNT0Nk9KcQLT3GNHJ42K+DrW8wv0stSg3s29tMTfLa1YJYPRiusX7w9L9JYUQ4aKhvBtM7+9bJAao+yccOKcVGr1cjkTABDvF+1s4UJ2SAzDRlnMAYLyaziYWE+QW6egwwxDO9Zs/ydw8vnqcdFjZGehP4L6bgqX/lUqmq0/Ix1mk9s5wl35yZVypV5BWNVZ+N6vleM1Pm6AIuPjsD4+5/5+PjL4qJJgt1qTfSbtbKhM/tRG/J2jW3R+5HT4v1ZK6CfO5IONGzrhZaO2/yku3LaQZZEZfTRkkIE8SrYupC4Yq8FrFZQxQbnm2Ri0ROFLWSOq2ANbHQ1iWX+7CJJz/VfXsO0PSdzmnFXlll53ucXm4lSx8B42ho2iYVuAL34IhhEwg2uREgpyyuc7WoQYO/Em5xoB8eNPdsOtPT+KUBZmAx7p4yQTY2bXPNjGbQX9r",
+  "version": "31.3.2",
+  "bundleId": "apus-31-3-2",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-3-2.zip",
+  "checksum": "cfeb988932b0d469a18837b8052a85105c76899c740a0c4ae38c11294b17c8c9",
+  "signature": "m2HuhzZPXBsWz/vvNEYKWEJlZdxKekZrOz0wVMDYNnqrVLvSIjDWwHsolazX6wOgWd9KpEFI8iZegvoZ0tUfTsqigCiTlpCGLGz3QS0r1nYWyFrF2AHQFQATh40+CqRILnF70kBiW10/FMl189wQMMKHI6VmpxPpgRtu5jjYwKLoc9CSgyUunHnjw/lg9ly0m3hI/5QAWrXVwv//iAPG3ObdSjNatpnddgdcxv3PODKZ0FTKYADJ5kfDWTUiQMldXbsvAEor7GhPjz/Fp8HqYezhgVkbfFAYodmUyzx3ELihU9sOThIZ23oMJIpaq3u5mgN8lhlE8m4PrbhWxEs3lKLcrv24HgC1GGRSMf3srTdvwJaijfVOPssPMzi1Jrxwfm8a2HfkhgxWTtJpD46VtkNrQHBcu7aGF5VhIvEPpcgLYvi9tFdlmuH2rcxmBBuGGbWDQzmIPOZt14r7rRd7TKnnD/dUvref2hhPXwdKPKUCpvWSxBNBKjQWC2VPHz7s",
   "minNativeVersionCode": 3,
-  "notes": "Perfil sin internet, partidas y personajes locales"
+  "notes": "Prueba de perfil offline y actualizador corregido"
 }
