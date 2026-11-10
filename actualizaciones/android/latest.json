@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.2.3",
-  "bundleId": "apus-31-2-3",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-2-3.zip",
-  "checksum": "5e8e5d815e44c8e4a76333b6e81db105079a8256aca27a3bfe34b98e9d7033bc",
-  "signature": "JsyPOg1UjM5js6NcRHwUNdhRhnulDmKgpHNKjRCoQi5xkiQJs43pdusc6NJqHG4INMXOB0Q9rvev91p0vcoUDm2OUG/ZQkUGZE6h4sxl6ENu/sDnvyFKdjLdXePlTWifAdi8W+dsLAWHj3C/1P8Wjmf042wEl2Ld4cKdrSJC8+hpVUR+ws+keB1WWjPPayWjgRoo76WOaj2svZF4rP69mG+lvmPpRJVwdHz+o/IE0Dev6higBf5RAAtuvL2LJgkZ+xYTLNPt0PDI0/VnImunAwe+4CFgGqJj7YS5IU4Hw0fBFmRCwTdSxNWdI2xfz/wCGk+x0J+Jh7w1VhMgTGjdq7EzSV3RgjZVERV4Osr8c4mlHt836CIF4XkkLjsQWqTyB4tpY8NJXULJipqzDkqfm2fvS5+i3YSm/u81mCVlVncnar1h8QZLeNzKJ44+cDW+3rqZoertsIUsf9EZlUcsEdsS+zcOQV0kCGG0gbOyztzHmFFYk5Z9EzpC28LI03Q+",
+  "version": "31.3.0",
+  "bundleId": "apus-31-3-0",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-3-0.zip",
+  "checksum": "742760b42b89258a3e7acdabb85c211347d297d3aa373bd32e88b4e20412cf3b",
+  "signature": "JL5+CVuCx1KEBJzNeGkUeHGQdeT4hFWG8vOl9AOO/pm5xGRaf9wZ1s63puXX3lypNT0Nk9KcQLT3GNHJ42K+DrW8wv0stSg3s29tMTfLa1YJYPRiusX7w9L9JYUQ4aKhvBtM7+9bJAao+yccOKcVGr1cjkTABDvF+1s4UJ2SAzDRlnMAYLyaziYWE+QW6egwwxDO9Zs/ydw8vnqcdFjZGehP4L6bgqX/lUqmq0/Ix1mk9s5wl35yZVypV5BWNVZ+N6vleM1Pm6AIuPjsD4+5/5+PjL4qJJgt1qTfSbtbKhM/tRG/J2jW3R+5HT4v1ZK6CfO5IONGzrhZaO2/yku3LaQZZEZfTRkkIE8SrYupC4Yq8FrFZQxQbnm2Ri0ROFLWSOq2ANbHQ1iWX+7CJJz/VfXsO0PSdzmnFXlll53ucXm4lSx8B42ho2iYVuAL34IhhEwg2uREgpyyuc7WoQYO/Em5xoB8eNPdsOtPT+KUBZmAx7p4yQTY2bXPNjGbQX9r",
   "minNativeVersionCode": 3,
-  "notes": "Mejoras del sistema de actualizaciones y estabilidad del juego"
+  "notes": "Perfil sin internet, partidas y personajes locales"
 }
