@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.4.0",
-  "bundleId": "apus-31-4-0",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-4-0.zip",
-  "checksum": "a4d7100980a387b779a53dbb979b1e8431bb32eff260a44e7744de49bbe4465e",
-  "signature": "VgszzVqVbsQyGzCKfVzRaO7Cdi8hN2duXnXGapOdcz+jcp8+gGY31nwvWMbgses5ON29hoU3JZEJSAaec78UqiSutPDil4V8gxQZdiCDBZY+Rcp5aDfvBpvEAwuOj2bZGg/jJYn8GJuvRqQQL3xn8W+YUrDWpRYG4gKNY5ZovuF5EAx0xqMoQ4YdfjPpeJG4dochjV9jDbjnhMILzl89RfajVBm56iv5OguUqoZIaS7U/2SlDl2F0euveDeW3+Mue1zECVn70kQW5yeV2s1G4GuPkSMndgmbUzPKl4+KwDHQODRDa9DFyGz4Sv7NMP1JZMcohMntXG+nq/Kfv0Offnjvb/0GHg0oJCNmFMl/XrNp5Fod1gFR5UNu1GmeaMmae0W/DA9vB6dL82TXkVwGiE1joj26SqOudDT49doSDxen2JYAtLB617LINKCGtrgcYqWF3Z0JFXSCWAXG5lvsNmZEzuHNMGvBGpzQO58g8rcIg0XXDbPJBa0mGau6rGy9",
+  "version": "31.4.1",
+  "bundleId": "apus-31-4-1",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-4-1.zip",
+  "checksum": "5333e2b2a997735265755bf85b4e71d10f4f8e9fa899423931dd5e652a66406d",
+  "signature": "a9qAMsmra9xX4F9vypxOTeAs3VwFQF30PcUHkB7yTN9lzAwi9/bkFD04YZB4D/Ge1E6ynrkAsg+gS3/CB+ccDny/bfczVG7Jg6bnWdGncsj/82GCQ1JZv2ZluiYVVdV18mKv96bXF0eRUQkHfOwbyzH3l5hJ8X9kSVq8f3E7EWGaO6oHNFKfWna/XooaUyW+PhwIacnDLSFevbMUJyMTi7f8e8EbkOiPmI76MVyW8D3V0ZGyXx4cRCgp1qe0MJIHTKLKvHWzIPPPwmVzAFlKBhO6zLWfRM+9cYSZykiwuCexGFT9xjE0v2RRL7xLTj1USwLP1iNWt00lPvEeRVpF3ajPBtibQ0DMPh6ZG4n/QmrfMKoHlipJM3c9cgEHr75Qxa8mC4f5tmWvepNCWZa1e+Htb+iOQz1imrB+Cl/1meQXugTbMXQpBGyhU+1Ka0NSP+auko/RO/DuGmu6HjW1kcA6CJvhfUJKmJns43KnbwXXXmUyDSqUv0psenrsoojg",
   "minNativeVersionCode": 3,
-  "notes": "Nueva introduccion: logo Apus Guardians animado, video Reto Iliniza Sur adaptado a vertical y pantalla original de doble toque"
+  "notes": "Intro con video vertical/horizontal y una sola musica; logo mas pequeno"
 }
