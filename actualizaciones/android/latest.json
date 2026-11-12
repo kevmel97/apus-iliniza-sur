@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.5.2",
-  "bundleId": "apus-31-5-2",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-2.zip",
-  "checksum": "45f9423f8fb6f06396d46cd2403a3fb94b632b143cf26fc496224fb4aa66e56c",
-  "signature": "l1WKJ24P214/++etd+oJgrzcWJ56hUyv5f46ZMOPgwck9r3iE0uuzkxyeFZ4qLHkDX4dGoI5zKEQ9QBJRcM2odMVG+eu4aM7WCtmjWjOqeeJTt6YvrOKFFMwgVqxmG7BZX3pwSQ7zKStQluMZ4/1Oe3jx4EHCZBjY1J8otzvmYSzbB5JmMkFlKjMBYvz6E0Za4p5G17JhgvINFx+N4b4AhqxwKujsz641A8JCc6MM/HmfsxjAa2xtIs2dHrNUo5m32fyGaYhHfSRmROtIiXqWYlzomP/sQzVTiIwqvseTtDYQW8HrQWmyqFHfbYbRSjOGAHVR9AqjNNScTuSN1nxdZuFnXS4L0CKDDAmxs4gE6OMiim4lCmKcDgNK3BqDU9oe2fbl88MBiOLJT4FGE7xUjPU93hgkDbUOeBJVRPy26K9D/GxKimcAWKS/8SQ0L1BdDbQRoJmTeZhoC6ZwZ4ijuTro+XByi6VRTAigO1YZejs1AShP2dZKmoRGSmVP1ID",
+  "version": "31.5.3",
+  "bundleId": "apus-31-5-3",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-3.zip",
+  "checksum": "06529f5fc50d3051b1f5f6bc317bf902be09edb05758d3c92e01c22ce3182be9",
+  "signature": "izwilCqp820CrpSgkpJifO/LAuTPwMmfVbX20erZDajhFqIiee+OAq7FZz6OSV/VYsoAAUGsKPI6jJzZqgvGcJ7dvOZQZido/FFgALfZTp+y6WuKs38okEoARqZCjdolLaejkOxFapkQ6ZvNleCRSAkdADLItMTmQjKuaO9wc4zl2MHkcrczLrwDWrrF53UvanOEeVbYeJOvzeu+60zPgZpzr3pPssZH9dQrdnsRBYqtSStoi3jH1V+0Ah/QE1LzszyIO/UZ5HsdGStPRkABj0com/aCCGl3OECT/R6pph8c/2gOyHpbl7El3J1jvtrPtPbxAVfB52h1/mw7z59WdsI86DRWdnOZqRsSAZ5K7OeNnDHIb+uicTreFbVyfYO6xi4MMg5byWKho4xePxUP3pGgkrJfrUFPVX0kIYJsAkhe+lJTLCwvYD2NVdLF38AKnOfvntpJ/4zkrgm7YBvgPb12vyJCdCi86kQuP1o9GL3jgm61z18+wExirL9ciqDj",
   "minNativeVersionCode": 3,
-  "notes": "Omitir video, clic de botones configurable, panel audio pixel art claro y oscuro"
+  "notes": "Sonidos originales en descenso, vuelco y K.O.; intro web con audio predeterminado"
 }
