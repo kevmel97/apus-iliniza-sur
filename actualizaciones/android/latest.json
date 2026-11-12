@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.5.1",
-  "bundleId": "apus-31-5-1",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-1.zip",
-  "checksum": "93c82482cd215d20550712a0d93dd2dd42c278ac1e33ce036ef83f465cf792c9",
-  "signature": "Y6pQqUfg/j7ZoOgN/jueKrz9+n2zkX09xbUKu8fx3TUAs+3S3CooQJfwHKatGgqGDuj3HTo+WPqExZ+cU4OJRCGqB8IeFb/8Gzx90bKYuQw9wos7FC7C+UqgMeK5IAMRiaeXBTwhEvJM1P49FB93Ap8gghgFBAQX+6hy4/9An3B8eclJsOgDvjZQFWf8iGf0uYgUPBRXN2fFkdx5K1SeJCDnY8MjujsO5JcT8zfyPLK1fA3xCAIX1eluhllFS871vxJgFLcw9t9UTysF6vSmDnUmnd1ffYSuFwVQqdEgtF2p2JnxBf5g7i2yukMIabp/qTuuEipe2SzG7dA+Zuby4DCIANX1ZTifRx92Fv5bjC316W7DJunuOUcXlFIPpzKnc3CsPy+z71fnqFklIbmtWXVZ0xAXLJUopyjqmacQDwiPKoeCsBejla4AJfuZvCLq4+26URUHmuMde6gPeEUcsyuv7TjXupfq5CS+HKRs/p8WEoabEJso5aO+SCERTjjI",
+  "version": "31.5.2",
+  "bundleId": "apus-31-5-2",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-2.zip",
+  "checksum": "45f9423f8fb6f06396d46cd2403a3fb94b632b143cf26fc496224fb4aa66e56c",
+  "signature": "l1WKJ24P214/++etd+oJgrzcWJ56hUyv5f46ZMOPgwck9r3iE0uuzkxyeFZ4qLHkDX4dGoI5zKEQ9QBJRcM2odMVG+eu4aM7WCtmjWjOqeeJTt6YvrOKFFMwgVqxmG7BZX3pwSQ7zKStQluMZ4/1Oe3jx4EHCZBjY1J8otzvmYSzbB5JmMkFlKjMBYvz6E0Za4p5G17JhgvINFx+N4b4AhqxwKujsz641A8JCc6MM/HmfsxjAa2xtIs2dHrNUo5m32fyGaYhHfSRmROtIiXqWYlzomP/sQzVTiIwqvseTtDYQW8HrQWmyqFHfbYbRSjOGAHVR9AqjNNScTuSN1nxdZuFnXS4L0CKDDAmxs4gE6OMiim4lCmKcDgNK3BqDU9oe2fbl88MBiOLJT4FGE7xUjPU93hgkDbUOeBJVRPy26K9D/GxKimcAWKS/8SQ0L1BdDbQRoJmTeZhoC6ZwZ4ijuTro+XByi6VRTAigO1YZejs1AShP2dZKmoRGSmVP1ID",
   "minNativeVersionCode": 3,
-  "notes": "Panel de audio unificado en Friki Bingo y 4x4; efectos de acciones mas audibles"
+  "notes": "Omitir video, clic de botones configurable, panel audio pixel art claro y oscuro"
 }
