@@ -93,6 +93,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   vsWinner = null;
   vsWinnerIdx = -1;
   vsEndAnimTimer = 0;
+  window.apusStopVersusOutcomeJingle?.();
   updateVersusResultActions();
   gameState = "MINIGAME";
   updateTouchControlsVisibility();
@@ -239,8 +240,16 @@ function declareVersusWinner(idx) {
   vsWinner = w.displayName || w.char;
   vsEndAnimTimer = 180;
   projectiles = [];
-  sound.playSFX("sfx_checkpoint");
-  if (tournament && tournament.status === 'playing') tourNotifyWin(idx);
+  // La música Boss Rush debe pausarse ANTES de reproducir el resultado.
+  window.apusRouteMusic?.();
+  if (tournament && tournament.status === 'playing') {
+    // En torneo el ganador oficial llega en tourShowResult; evita tocarlo dos veces.
+    tourNotifyWin(idx);
+  } else if(typeof window.apusPlayVersusOutcomeJingle==='function') {
+    window.apusPlayVersusOutcomeJingle(idx===0?'victory':'defeat');
+  } else {
+    sound.playSFX("sfx_checkpoint");
+  }
 }
 
 /* Aplica daño (o lo bloquea) y muestra el número flotante.

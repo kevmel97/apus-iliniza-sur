@@ -33,6 +33,8 @@ window.addEventListener('message',e=>{
 function apusOwnSceneAudio(){
   if(typeof descentExtraActive!=='undefined'&&descentExtraActive)return true;
   if(shown('apus-descent-shell'))return true;
+  // APUS_AUDIO_CUMBRE_V3154: conservar el audio propio de la animación final.
+  if(typeof summitCelebrationActive!=='undefined'&&summitCelebrationActive)return true;
   const state=(typeof gameState!=='undefined')?gameState:'';
   if((state==='MINIGAME'||state==='TOURNAMENT_WATCH')&&typeof vsWinner!=='undefined'&&!!vsWinner)return true;
   if(apus4x4LossAudioActive&&shown('apus-4x4-shell'))return true;
@@ -166,7 +168,9 @@ window.addEventListener('message',e=>{
  if(allowed)playUiClick();
 });
 // Llamadas de acción también sirven para desbloquear audio en móviles.
-document.addEventListener('pointerdown',()=>{if(prefs.musicEnabled)requestPlay(true);},true);
+document.addEventListener('pointerdown',()=>{
+ if(prefs.musicEnabled){splashMidiRoute();requestPlay(true);}
+},true);
 document.addEventListener('apus:opening-finished',()=>{routeMusic();});
 function shown(id){const e=document.getElementById(id);return !!e&&getComputedStyle(e).display!=='none';}
 function activeOverlay(){return document.querySelector('.overlay.active')?.id||'';}
@@ -185,7 +189,92 @@ function desired(){
  if(/(?:versus|tournament)/.test(overlay))return 'bgm_versus';
  return 'bgm_menu';
 }
+// APUS_MIDI_DOBLE_TOQUE_V3154: notas ORIGINALES del antiguo bgm_menu.
+// Solo pantalla de doble toque; no se tocan los seis MP3 del juego.
+const splashNotes=[220,261.63,329.63,440,392,329.63,293.66,246.94];
+const splashBass=[110,110,130.81,130.81];
+let splashMidiTimer=null,splashMidiStep=0;
+function splashIsVisible(){
+ const opening=document.getElementById('apus-opening');
+ return typeof introActive!=='undefined'&&introActive===true&&
+        (!opening||window.apusOpeningFinished===true);
+}
+function splashMidiStop(){
+ if(splashMidiTimer!==null){clearInterval(splashMidiTimer);splashMidiTimer=null;}
+ splashMidiStep=0;
+}
+function splashMidiNote(ctx,freq,duration,type,baseVolume){
+ try{
+  const now=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain();
+  osc.type=type;osc.frequency.setValueAtTime(freq,now);
+  // Es música: volumen de música, independiente de efectos de acciones.
+  const volume=Math.min(.09,baseVolume*prefs.musicVolume/.58);
+  if(volume<=0)return;
+  gain.gain.setValueAtTime(volume,now);
+  gain.gain.exponentialRampToValueAtTime(.001,now+duration);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(now);osc.stop(now+duration);
+ }catch(_){ }
+}
+function splashMidiTick(){
+ if(!splashIsVisible()||!prefs.musicEnabled||prefs.musicVolume<=0){splashMidiStop();return;}
+ const ctx=sound.ctx;
+ if(!ctx||ctx.state!=='running')return;
+ const step=splashMidiStep++;
+ splashMidiNote(ctx,splashNotes[step%splashNotes.length],.230*.85,'square',.05);
+ if(step%2===0){
+  splashMidiNote(ctx,splashBass[Math.floor(step/2)%splashBass.length],.230*1.6,'triangle',.07);
+ }
+}
+function splashMidiRoute(){
+ if(!splashIsVisible()||!prefs.musicEnabled||prefs.musicVolume<=0){splashMidiStop();return;}
+ try{sound.initContext();}catch(_){ }
+ if(splashMidiTimer!==null)return;
+ splashMidiStep=0;
+ splashMidiTick();
+ splashMidiTimer=setInterval(splashMidiTick,230);
+}
+
+// APUS_MIDI_RESULTADOS_V3154: fanfarrias MIDI de victoria y derrota.
+// Se reproducen como efectos de la cinemática, no como canción de fondo.
+// La secuencia de victoria conserva las notas ascendentes clásicas de sfx_checkpoint.
+let apusVersusOutcomeNodes=[];
+function stopVersusOutcomeJingle(){
+  const voices=apusVersusOutcomeNodes.splice(0);
+  for(const node of voices){try{node.stop();}catch(_){}}
+}
+window.apusStopVersusOutcomeJingle=stopVersusOutcomeJingle;
+window.apusPlayVersusOutcomeJingle=function(result){
+  stopVersusOutcomeJingle();
+  if(!prefs.fxEnabled||prefs.fxVolume<=0)return;
+  try{
+    sound.initContext();
+    const ac=sound.ctx;if(!ac)return;
+    if(ac.state==='suspended'){
+      const resumed=ac.resume();if(resumed&&typeof resumed.catch==='function')resumed.catch(()=>{});
+    }
+    const start=ac.currentTime+.012;
+    const win=result==='victory';
+    const melody=win
+      ? [[440,0,.17],[554.37,.12,.17],[659.25,.24,.19],[880,.39,.34],[659.25,.82,.12],[783.99,.97,.14],[1046.5,1.13,.45]]
+      : [[220,0,.21],[196,.22,.20],[174.61,.44,.20],[146.83,.68,.30],[130.81,1.06,.18],[110,1.31,.45]];
+    for(const [freq,offset,len] of melody){
+      const osc=ac.createOscillator(),gain=ac.createGain();
+      osc.type=win?'square':'triangle';
+      osc.frequency.setValueAtTime(freq,start+offset);
+      const peak=Math.max(.0005,Math.min(.11,prefs.fxVolume*(win?.083:.075)));
+      gain.gain.setValueAtTime(.0001,start+offset);
+      gain.gain.linearRampToValueAtTime(peak,start+offset+.015);
+      gain.gain.exponentialRampToValueAtTime(.0001,start+offset+len);
+      osc.connect(gain);gain.connect(ac.destination);
+      osc.start(start+offset);osc.stop(start+offset+len+.015);
+      apusVersusOutcomeNodes.push(osc);
+    }
+  }catch(error){console.warn('[APUS] MIDI victoria/derrota',error);}
+};
+
 function routeMusic(){
+ splashMidiRoute();
  // En descenso, K.O. de Chugo vs Jordy y vuelco de 4x4: pausa la música MP3;
  // conserva su posición para reanudarla una vez finalice la escena.
  if(apusOwnSceneAudio()){if(!player.paused)player.pause();return;}

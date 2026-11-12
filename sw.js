@@ -1,5 +1,5 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v31.5.3';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v31.5.4';
 const PRECACHE_URLS = [
   "./assets/intro/logo-apus-guardians.png",
   "./assets/intro/fondo-video.webp",

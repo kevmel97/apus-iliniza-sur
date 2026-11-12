@@ -17,7 +17,8 @@
   var HORIZONTAL = 'assets/intro/reto-iliniza-sur.mp4';
   var VERTICAL = 'assets/intro/reto-iliniza-sur-vertical.mp4';
   var active = false, finished = false, videoStarted = false;
-  var soundEnabled = true, selectedSource = '';
+  // APUS_INTRO_SONIDO_WEB_V3154: web opt-in; Android mantiene audio inicial.
+  var soundEnabled = isNative(), selectedSource = '';
   var logoTimer = 0, endTimer = 0, stallTimer = 0;
   var orientation = window.matchMedia('(orientation: portrait)');
 
@@ -26,7 +27,7 @@
   soundtrack.loop = false;
   soundtrack.preload = 'auto';
   soundtrack.volume = 0.9;
-  if(soundBtn) soundBtn.textContent='🔊 SILENCIAR';
+  if(soundBtn) soundBtn.textContent=soundEnabled?'🔊 SILENCIAR':'🔇 ACTIVAR AUDIO';
 
   function isNative() {
     try {
@@ -80,9 +81,8 @@
     } catch (_) {}
   }
 
-  // APUS_AUDIO_ESCENAS_V3153: música encendida de forma predeterminada también en web.
-  // Si el navegador prohíbe autoplay con audio, pedir una pulsación ANTES de mostrar
-  // el vídeo silencioso. El botón SILENCIAR siempre significa silenciar.
+  // En GitHub Pages el video empieza sin sonido y ACTIVAR AUDIO lo habilita.
+  // En Android se conserva el audio inicial como ya estaba.
   function trySoundtrack() {
     if (!soundEnabled || finished) return;
     soundtrackSync(false);

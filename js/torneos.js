@@ -685,6 +685,16 @@ function tourShowResult(matchId,winner,reason,waitForWinner){
     vsWinnerIdx=winner===first?0:1;
   }
   vsEndAnimTimer=180;
+  // APUS_MIDI_RESULTADOS_V3154: victoria/derrota del jugador sin doble disparo
+  // aunque TOUR_FINISH llegue repetido o se sincronice más de una vez.
+  window.apusRouteMusic?.();
+  if(t._apusJingleMatch!==matchId){
+    t._apusJingleMatch=matchId;
+    const playerWasInFight=!!m&&(m.a===t.me||m.b===t.me);
+    if(playerWasInFight){
+      window.apusPlayVersusOutcomeJingle?.(winner===t.me?'victory':'defeat');
+    }
+  }
   document.getElementById('vs-end-actions').style.display='none';
   tourUpdateHud('🏆 '+vsWinner+' · '+reason);
   updateVersusResultActions();
