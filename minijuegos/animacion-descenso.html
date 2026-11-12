@@ -754,6 +754,16 @@
          ***********************************************************************/
         let audioCtx = null;
         let isPlayingAudio = false;
+        // APUS_AUDIO_ESCENAS_V3153: conservar el audio ORIGINAL del descenso.
+        let apusDescentSoundEnabled=true;
+        let apusDescentFxVolume=1;
+        window.addEventListener('message', e=>{
+          if(e.source!==window.parent||e.data?.apusDescent!=='SOUND')return;
+          apusDescentSoundEnabled=e.data.enabled!==false;
+          if(Number.isFinite(e.data.fxVolume))apusDescentFxVolume=Math.max(0,Math.min(1,e.data.fxVolume));
+          if(!apusDescentSoundEnabled||apusDescentFxVolume===0)isPlayingAudio=false;
+          else ensureAudioStarted();
+        });
         let lastMidiNoteTime = 0;
         let noteCursor = 0;
         let crashSoundPlayedInCycle = false;
@@ -793,7 +803,7 @@
             const gain = audioCtx.createGain();
             osc.type = waveType;
             osc.frequency.setValueAtTime(freq, now);
-            gain.gain.setValueAtTime(0.07, now);
+            gain.gain.setValueAtTime(0.07*apusDescentFxVolume, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.92);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -805,7 +815,7 @@
                 const bGain = audioCtx.createGain();
                 bass.type = 'triangle';
                 bass.frequency.setValueAtTime(bassFreq * 0.5, now);
-                bGain.gain.setValueAtTime(0.10, now);
+                bGain.gain.setValueAtTime(0.10*apusDescentFxVolume, now);
                 bGain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.95);
                 bass.connect(bGain);
                 bGain.connect(audioCtx.destination);
@@ -825,7 +835,7 @@
             oscHit.type = 'sawtooth';
             oscHit.frequency.setValueAtTime(190, now);
             oscHit.frequency.exponentialRampToValueAtTime(38, now + 0.38);
-            gainHit.gain.setValueAtTime(0.20, now);
+            gainHit.gain.setValueAtTime(0.20*apusDescentFxVolume, now);
             gainHit.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
             oscHit.connect(gainHit);
             gainHit.connect(audioCtx.destination);
@@ -841,7 +851,7 @@
                 const baseF = 320 + Math.random() * 520;
                 bOsc.frequency.setValueAtTime(baseF, startT);
                 bOsc.frequency.exponentialRampToValueAtTime(baseF * 1.45, startT + 0.05);
-                bGain.gain.setValueAtTime(0.05, startT);
+                bGain.gain.setValueAtTime(0.05*apusDescentFxVolume, startT);
                 bGain.gain.exponentialRampToValueAtTime(0.001, startT + 0.055);
                 bOsc.connect(bGain);
                 bGain.connect(audioCtx.destination);
@@ -868,8 +878,8 @@
 
             // Durante la rodada (0 a 4.6s): música rápida de descenso + rebotes
             if (loopSec < IMPACT_TIME) {
-                /* Música MIDI deshabilitada en v31.5; conservar efectos de caída. */
-                if (false && nowMs - lastMidiNoteTime > 115) {
+                /* Música original de esta escena: solo descenso, no fondo MP3. */
+                if (nowMs - lastMidiNoteTime > 115) {
                     const n = ROLLING_NOTES[noteCursor % ROLLING_NOTES.length];
                     // Aumentar ligeramente el tono a medida que Chugo se acerca a la cámara
                     const pitchMultiplier = 1 + (loopSec / IMPACT_TIME) * 0.25;
@@ -889,6 +899,7 @@
         }
 
         function ensureAudioStarted() {
+            if(!apusDescentSoundEnabled||apusDescentFxVolume===0)return;
             try {
                 if (!audioCtx) {
                     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -896,22 +907,21 @@
                 }
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume().then(() => {
-                        isPlayingAudio = true;
+                        isPlayingAudio = apusDescentSoundEnabled && apusDescentFxVolume>0;
                     }).catch(() => {});
                 } else {
-                    isPlayingAudio = true;
+                    isPlayingAudio = apusDescentSoundEnabled && apusDescentFxVolume>0;
                 }
             } catch (e) {
                 // Ignorar bloqueo de autoplay hasta interacción
             }
         }
 
-        // Clic o toque en cualquier parte inicia o alterna el sonido MIDI
+        // Los toques reactivan sonido bloqueado por autoplay; ya no lo silencian.
+        // Silenciar se gobierna exclusivamente desde las preferencias generales.
         window.addEventListener('pointerdown', () => {
-            if (!audioCtx || audioCtx.state === 'suspended' || !isPlayingAudio) {
+            if(apusDescentSoundEnabled&&(!audioCtx||audioCtx.state==='suspended'||!isPlayingAudio)){
                 ensureAudioStarted();
-            } else {
-                isPlayingAudio = false;
             }
         });
 

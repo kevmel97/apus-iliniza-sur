@@ -80,6 +80,9 @@
     } catch (_) {}
   }
 
+  // APUS_AUDIO_ESCENAS_V3153: música encendida de forma predeterminada también en web.
+  // Si el navegador prohíbe autoplay con audio, pedir una pulsación ANTES de mostrar
+  // el vídeo silencioso. El botón SILENCIAR siempre significa silenciar.
   function trySoundtrack() {
     if (!soundEnabled || finished) return;
     soundtrackSync(false);
@@ -87,14 +90,17 @@
       var promise = soundtrack.play();
       if (promise && typeof promise.catch === 'function') {
         promise.catch(function () {
-          // Algunos navegadores requieren pulsar ACTIVAR AUDIO una vez.
-          soundEnabled = false;
-          soundBtn.textContent = '🔇 ACTIVAR AUDIO';
+          if(!soundEnabled||finished||!active||!opening.classList.contains('is-video'))return;
+          try{video.pause();soundtrack.pause();video.currentTime=0; }catch(_){}
+          if(replayBtn) replayBtn.textContent='▶ REPRODUCIR CON AUDIO';
+          showVideoHelp('Tu navegador requiere tocar Reproducir para escuchar la música.');
         });
       }
     } catch (_) {
-      soundEnabled = false;
-      soundBtn.textContent = '🔇 ACTIVAR AUDIO';
+      if(soundEnabled && !finished){
+        try{video.pause();}catch(e){}
+        showVideoHelp('Toca Reproducir con audio para comenzar.');
+      }
     }
   }
 
@@ -206,6 +212,8 @@
   });
   replayBtn.addEventListener('click', function () {
     videoStarted = false;
+    // Reintentar la música DENTRO del gesto del usuario permite desbloquear audio web.
+    if(soundEnabled)trySoundtrack();
     tryPlay();
   });
   continueBtn.addEventListener('click', finish);

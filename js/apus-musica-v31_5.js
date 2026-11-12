@@ -22,12 +22,29 @@ try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
 }catch(_){ }
 const player=new Audio();player.loop=true;player.preload='none';player.playsInline=true;
 let wanted='',current='',lastRequested=0;
+// APUS_AUDIO_ESCENAS_V3153: la cinemática de derrota del 4x4 se comunica por postMessage.
+let apus4x4LossAudioActive=false;
+window.addEventListener('message',e=>{
+  const frame=document.getElementById('apus-4x4-frame');
+  if(!frame||e.source!==frame.contentWindow||e.data?.apus4x4!=='LOSS_SCENE_AUDIO')return;
+  apus4x4LossAudioActive=e.data.active===true;
+  routeMusic();
+});
+function apusOwnSceneAudio(){
+  if(typeof descentExtraActive!=='undefined'&&descentExtraActive)return true;
+  if(shown('apus-descent-shell'))return true;
+  const state=(typeof gameState!=='undefined')?gameState:'';
+  if((state==='MINIGAME'||state==='TOURNAMENT_WATCH')&&typeof vsWinner!=='undefined'&&!!vsWinner)return true;
+  if(apus4x4LossAudioActive&&shown('apus-4x4-shell'))return true;
+  return false;
+}
+
 const originalTone=sound.playTone.bind(sound);
 const originalStopBGM=sound.stopBGM.bind(sound);
 const menu=document.getElementById('apus-audio-panel');
 function store(){try{localStorage.setItem(KEY,JSON.stringify(prefs));}catch(_){}}
 function changeVolume(){player.volume=prefs.musicEnabled?prefs.musicVolume:0;}
-function requestPlay(force=false){if(!current||!prefs.musicEnabled||!prefs.musicVolume)return;
+function requestPlay(force=false){if(!current||!prefs.musicEnabled||!prefs.musicVolume||apusOwnSceneAudio())return;
   if(!force&&Date.now()-lastRequested<1800)return;
   if(typeof introActive!=='undefined'&&introActive)return;
   const intro=document.getElementById('apus-opening');
@@ -53,6 +70,10 @@ sound.playTone=function(freq,duration,type,vol,slideFreq){
 // SoundSystem antiguo solo usa .enabled para efectos, no para música.
 sound.enabled=prefs.fxEnabled;
 function broadcast(){
+  const descentFrame=document.getElementById('apus-descent-frame');
+  if(descentFrame&&descentFrame.contentWindow&&typeof descentExtraActive!=='undefined'&&descentExtraActive){
+    try{descentFrame.contentWindow.postMessage({apusDescent:'SOUND',enabled:prefs.fxEnabled,fxVolume:prefs.fxVolume},'*');}catch(_){}
+  }
   ['apus-wiki-frame','apus-bingo-frame','apus-4x4-frame'].forEach(id=>{
     const f=document.getElementById(id);
     if(!f||!f.contentWindow)return;
@@ -164,7 +185,11 @@ function desired(){
  if(/(?:versus|tournament)/.test(overlay))return 'bgm_versus';
  return 'bgm_menu';
 }
-function routeMusic(){const target=desired();
+function routeMusic(){
+ // En descenso, K.O. de Chugo vs Jordy y vuelco de 4x4: pausa la música MP3;
+ // conserva su posición para reanudarla una vez finalice la escena.
+ if(apusOwnSceneAudio()){if(!player.paused)player.pause();return;}
+ const target=desired();
  if(target!==current)choose(target);
  else if(!player.paused&&(!prefs.musicEnabled||!prefs.musicVolume))player.pause();
  else if(target&&prefs.musicEnabled&&player.paused)requestPlay();

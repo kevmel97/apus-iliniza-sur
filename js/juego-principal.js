@@ -1677,6 +1677,11 @@ function startDescentExtra() {
   exitBtn.style.display = 'none';
   shell.style.display = 'block';
   // V31: animación local separada, incluida en la caché offline.
+  // APUS_AUDIO_ESCENAS_V3153: pasar al descenso solo la preferencia de efectos.
+  frame.addEventListener('load', function descentAudioReady(){
+    const p=window.apusAudioSettings||{};
+    try{frame.contentWindow?.postMessage({apusDescent:'SOUND',enabled:p.fxEnabled!==false,fxVolume:p.fxVolume??1},'*');}catch(_){}
+  },{once:true});
   frame.src = "minijuegos/animacion-descenso.html";
   // Animación de una sola pasada (~11 segundos). Al finalizar, se habilita salir.
   descentExitTimer = setTimeout(() => {

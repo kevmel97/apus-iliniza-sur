@@ -3907,7 +3907,13 @@ function apus4x4StartIntroScene() {
     if (host) { host.classList.add('active'); host.setAttribute('aria-hidden', 'false'); }
 }
 
+// APUS_AUDIO_ESCENAS_V3153: silencio de música externa, NO de sonidos del vuelco.
+function apus4x4SignalLossAudio(active){
+  if(window.parent===window)return;
+  try{window.parent.postMessage({apus4x4:'LOSS_SCENE_AUDIO',active:!!active},'*');}catch(_){}
+}
 function apus4x4HideLossScene() {
+    apus4x4SignalLossAudio(false);
     const el = document.getElementById('apus4x4-loss-scene');
     if (el) { el.classList.remove('active'); el.setAttribute('aria-hidden', 'true'); }
     const caption = document.getElementById('apus4x4-loss-caption');
@@ -4247,6 +4253,7 @@ function apus4x4RenderLossCinematic(nowMs=performance.now()){
     ctx.restore();
     if(t>=APUS4X4_LOSS_MENU_AT){
        scene.finished=true;
+       apus4x4SignalLossAudio(false);
        // En último fotograma, Chugo conserva la cerveza detrás del menú.
        if(caption)caption.classList.remove('visible');
        if(fin)fin.classList.remove('visible');
@@ -4306,6 +4313,7 @@ function returnToMainMenu() {
 
 function triggerTrailerFlipGameOver(reasonText) {
     if (game.lossCinematic) return; // Avoid re-entering while animation is playing.
+    apus4x4SignalLossAudio(true);
     game.ended = true;
     game.running = false;
     controls.gas = controls.brake = controls.tiltLeft = controls.tiltRight = false;
