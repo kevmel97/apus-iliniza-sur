@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.5.4",
-  "bundleId": "apus-31-5-4",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-4.zip",
-  "checksum": "379c760bd6cca62d994e5b0c6b0aeec6f1f699be67f01152720c72a54940bc11",
-  "signature": "ihbiEpyPNyBE6KkVD6L6J8rJJB8zlQPP4+hNddc31k5vxmcc0PhuziobAsnG8uCbCROhBbT0sZRQVpNIOxw1wS3pllW9KKlwXak5b3DUZDcvzqwJ8gD/fPS+DwCQ1NWsP0HstqjXpDIxF3qeGvrKErRxDAodUN+oHs/iByU2/hbIc7UmbqklRO9VJ+A3ww+xL42MU0wqler6NEKU/D2Zk5A47oTZd7WL9GC+gEiWOVf1JvqqIcCJlFIfbqCD68kFFsvKHvp6IJmBYaEr73tBg9PWu7LDDrr0lIigAk1RMAf9x4UCsp9sWhdstkJPzeqD44tH5FwjjVciPaG5pvWbgJgk03jeaL/TTsuhN7lPDaqaCtSQQxHBg3IwzIJ7JGnvS5ApEpPANFNzbm6lMXmY8yp945qemHAx+7+6KKJ+atSRE/Q1rBntgsqWuO7zROMFyhCt14scl5a8wIRrgw9yDA17vEe6q4DNvVW7axCGctq2k/JP2aRQqXbHt8djySc1",
+  "version": "31.5.5",
+  "bundleId": "apus-31-5-5",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-5.zip",
+  "checksum": "3ec561641e57e12bb5ef62b8812935d4677ea54e14185f50c91e0c88b0cdcb6f",
+  "signature": "LDL0voeaB+jHy4eljADwzVkBe0Ycx4BfAr+VrL3omj38KEzhQlg36kjV57+b7xlG8Q5jTSH3UCpfYuICRhJQh52kKl8wVA7akQmvHX3QalBFX3bwgcNQ+1qj8XU8uLI8d2BUrkZOvROQ0xxe3Xyyio2qaGVzKlw98irEfVu9Y5lrPi06x9sBKB2f4aRPPT92qQd0kv2+YHCqaU/fh9EfBv/RcJoIRAdItSxR5jNIcHan+jfpbyvHRXzEBp8vhysqUVIcPPudFrD5Y8Vwu0ux3lY9t13WMwNo7ZUDuEAeW5N79VyqD9J+LbBMbv+upnKupNgjpYzfFqn4M4jZOQiWwG94/598DgalfleeYY3sSiTaTOR1+5MFPTLETHeLiuWkfeg3URxIso4yqc0KN4zRmhbau0sonS2OFvqUswuK3tF4YXAq4/xbvTytRAOGOzqBn7o7t38ZiRzhupbS4tGD1GzXBmson8qb+yudfudQwdS9UsG+tmqFqQ9JTNbYy4yo",
   "minNativeVersionCode": 3,
-  "notes": "Intro web audio opcional, MIDI de doble toque y MIDI victoria derrota Chugo vs Jordy"
+  "notes": "MIDI victoria burlona y derrota audible Chugo vs Jordy"
 }

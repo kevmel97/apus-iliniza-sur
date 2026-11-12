@@ -244,34 +244,74 @@ function stopVersusOutcomeJingle(){
   for(const node of voices){try{node.stop();}catch(_){}}
 }
 window.apusStopVersusOutcomeJingle=stopVersusOutcomeJingle;
+// APUS_MIDI_RESULTADOS_V3155: fanfarria de checkpoint recuperada (más rápida,
+// burlona y audible) y derrota diferenciada. Son EFECTOS, no música MP3.
 window.apusPlayVersusOutcomeJingle=function(result){
   stopVersusOutcomeJingle();
   if(!prefs.fxEnabled||prefs.fxVolume<=0)return;
   try{
     sound.initContext();
-    const ac=sound.ctx;if(!ac)return;
+    const ac=sound.ctx;
+    if(!ac)return;
     if(ac.state==='suspended'){
-      const resumed=ac.resume();if(resumed&&typeof resumed.catch==='function')resumed.catch(()=>{});
+      const resume=ac.resume();
+      if(resume&&typeof resume.catch==='function')resume.catch(()=>{});
     }
-    const start=ac.currentTime+.012;
     const win=result==='victory';
-    const melody=win
-      ? [[440,0,.17],[554.37,.12,.17],[659.25,.24,.19],[880,.39,.34],[659.25,.82,.12],[783.99,.97,.14],[1046.5,1.13,.45]]
-      : [[220,0,.21],[196,.22,.20],[174.61,.44,.20],[146.83,.68,.30],[130.81,1.06,.18],[110,1.31,.45]];
-    for(const [freq,offset,len] of melody){
-      const osc=ac.createOscillator(),gain=ac.createGain();
-      osc.type=win?'square':'triangle';
-      osc.frequency.setValueAtTime(freq,start+offset);
-      const peak=Math.max(.0005,Math.min(.11,prefs.fxVolume*(win?.083:.075)));
-      gain.gain.setValueAtTime(.0001,start+offset);
-      gain.gain.linearRampToValueAtTime(peak,start+offset+.015);
-      gain.gain.exponentialRampToValueAtTime(.0001,start+offset+len);
-      osc.connect(gain);gain.connect(ac.destination);
-      osc.start(start+offset);osc.stop(start+offset+len+.015);
-      apusVersusOutcomeNodes.push(osc);
+    const start=ac.currentTime+0.035;
+    // La victoria conserva el motivo ORIGINAL del checkpoint:
+    // 440 -> 554 -> 659 -> 880, seguido de un remate "tiri-ti-ti" burlón.
+    // La derrota desciende en registro y acaba en un golpe grave.
+    const notes=win
+      ? [
+          [440.00,0.00,.15],[554.37,.14,.15],[659.25,.28,.15],
+          [880.00,.43,.24],[1046.50,.71,.11],[987.77,.84,.11],
+          [880.00,.97,.11],[1046.50,1.10,.11],[1174.66,1.23,.12],
+          [1318.51,1.37,.40]
+        ]
+      : [
+          [392.00,0.00,.22],[349.23,.24,.22],[311.13,.48,.23],
+          [261.63,.75,.26],[196.00,1.03,.34],[146.83,1.40,.42],
+          [110.00,1.82,.48]
+        ];
+    // Compresor suave: más presencia sin saturar en altavoces pequeños.
+    const comp=ac.createDynamicsCompressor();
+    comp.threshold.value=-17;comp.knee.value=12;
+    comp.ratio.value=5;comp.attack.value=.004;comp.release.value=.13;
+    const output=ac.createGain();output.gain.value=.95;
+    comp.connect(output);output.connect(ac.destination);
+    for(let i=0;i<notes.length;i++){
+      const [hz,offset,duration]=notes[i];
+      const a=start+offset;
+      const main=ac.createOscillator(),amp=ac.createGain();
+      main.type=win?'square':'sawtooth';
+      main.frequency.setValueAtTime(hz,a);
+      if(!win&&i===notes.length-1){
+        main.frequency.exponentialRampToValueAtTime(Math.max(65,hz*.72),a+duration);
+      }
+      const base=(win?.245:.27)*prefs.fxVolume;
+      amp.gain.setValueAtTime(.0001,a);
+      amp.gain.linearRampToValueAtTime(base,a+.012);
+      amp.gain.setValueAtTime(base*.87,a+Math.min(.065,duration*.33));
+      amp.gain.exponentialRampToValueAtTime(.0001,a+duration);
+      main.connect(amp);amp.connect(comp);
+      main.start(a);main.stop(a+duration+.006);
+      apusVersusOutcomeNodes.push(main);
+      // Segunda voz para darle cuerpo al MIDI; es más tenue que la principal.
+      if(i%2===0||i===notes.length-1){
+        const harmon=ac.createOscillator(),hgain=ac.createGain();
+        harmon.type='triangle';harmon.frequency.setValueAtTime(win?hz*.5:hz*1.5,a);
+        const hvol=base*(win?.45:.29);
+        hgain.gain.setValueAtTime(.0001,a);
+        hgain.gain.linearRampToValueAtTime(hvol,a+.012);
+        hgain.gain.exponentialRampToValueAtTime(.0001,a+duration);
+        harmon.connect(hgain);hgain.connect(comp);
+        harmon.start(a);harmon.stop(a+duration+.006);
+        apusVersusOutcomeNodes.push(harmon);
+      }
     }
-  }catch(error){console.warn('[APUS] MIDI victoria/derrota',error);}
-};
+  }catch(error){console.warn('[APUS] MIDI victoria/derrota 31.5.5',error);}
+}
 
 function routeMusic(){
  splashMidiRoute();
