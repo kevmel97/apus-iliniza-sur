@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.5.0",
-  "bundleId": "apus-31-5-0",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-0.zip",
-  "checksum": "f7cdf2aced90ca6116b8c9f1a5b7a7e54ec506fd44acbb8d84314ce96777e821",
-  "signature": "Kh7fqi9OnTJT2wPufR+HjN5m65/i5J6yTGbQ1ofYiIIQFhT8HCiW+yjbon10SDa6oWJrJieO4iFYvo606ei8pCIfhHdWPO341pJ5ZLascx015c49zygKUzIcJWIocEFpr7dEIu1NmSTpGFBJgZEqLN4faXvONRkI3q8qilXhhxZ0sjMHZFLtR4rVFpzZg8DqZnKiFUWIlBP3TY4TBJCbgUmgo+W9ibSH54uMUSOwlvKf6EtcOcZMNrT4+bvHnJxunvGORHrH5kA5n0EQNvMIdogWcXRrBIFWyz1kjbpKHweLgwMmEs30O2O773rIdWgSgA7PSGuXE4Fd4duLucXCpgaubzK2woN81L8K6yv883GtXnZwExKLXd3fhhCgxTvK3/dEKHvDdif4isvAfUH2ZzgKu7vRqIrv7VxlJCRJwGTqLXZeUc3asmQR8Q3q3bSr7jKqSrEwnm1EQHGILkF9Gg+3XzWL71oX5MezDp3GAp7Gk34TdG5ibzAbzPB1myM7",
+  "version": "31.5.1",
+  "bundleId": "apus-31-5-1",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-1.zip",
+  "checksum": "93c82482cd215d20550712a0d93dd2dd42c278ac1e33ce036ef83f465cf792c9",
+  "signature": "Y6pQqUfg/j7ZoOgN/jueKrz9+n2zkX09xbUKu8fx3TUAs+3S3CooQJfwHKatGgqGDuj3HTo+WPqExZ+cU4OJRCGqB8IeFb/8Gzx90bKYuQw9wos7FC7C+UqgMeK5IAMRiaeXBTwhEvJM1P49FB93Ap8gghgFBAQX+6hy4/9An3B8eclJsOgDvjZQFWf8iGf0uYgUPBRXN2fFkdx5K1SeJCDnY8MjujsO5JcT8zfyPLK1fA3xCAIX1eluhllFS871vxJgFLcw9t9UTysF6vSmDnUmnd1ffYSuFwVQqdEgtF2p2JnxBf5g7i2yukMIabp/qTuuEipe2SzG7dA+Zuby4DCIANX1ZTifRx92Fv5bjC316W7DJunuOUcXlFIPpzKnc3CsPy+z71fnqFklIbmtWXVZ0xAXLJUopyjqmacQDwiPKoeCsBejla4AJfuZvCLq4+26URUHmuMde6gPeEUcsyuv7TjXupfq5CS+HKRs/p8WEoabEJso5aO+SCERTjjI",
   "minNativeVersionCode": 3,
-  "notes": "Musica por modo, efectos y volumenes independientes; intro sin destello de menu"
+  "notes": "Panel de audio unificado en Friki Bingo y 4x4; efectos de acciones mas audibles"
 }
