@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.4.1",
-  "bundleId": "apus-31-4-1",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-4-1.zip",
-  "checksum": "5333e2b2a997735265755bf85b4e71d10f4f8e9fa899423931dd5e652a66406d",
-  "signature": "a9qAMsmra9xX4F9vypxOTeAs3VwFQF30PcUHkB7yTN9lzAwi9/bkFD04YZB4D/Ge1E6ynrkAsg+gS3/CB+ccDny/bfczVG7Jg6bnWdGncsj/82GCQ1JZv2ZluiYVVdV18mKv96bXF0eRUQkHfOwbyzH3l5hJ8X9kSVq8f3E7EWGaO6oHNFKfWna/XooaUyW+PhwIacnDLSFevbMUJyMTi7f8e8EbkOiPmI76MVyW8D3V0ZGyXx4cRCgp1qe0MJIHTKLKvHWzIPPPwmVzAFlKBhO6zLWfRM+9cYSZykiwuCexGFT9xjE0v2RRL7xLTj1USwLP1iNWt00lPvEeRVpF3ajPBtibQ0DMPh6ZG4n/QmrfMKoHlipJM3c9cgEHr75Qxa8mC4f5tmWvepNCWZa1e+Htb+iOQz1imrB+Cl/1meQXugTbMXQpBGyhU+1Ka0NSP+auko/RO/DuGmu6HjW1kcA6CJvhfUJKmJns43KnbwXXXmUyDSqUv0psenrsoojg",
+  "version": "31.5.0",
+  "bundleId": "apus-31-5-0",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-0.zip",
+  "checksum": "f7cdf2aced90ca6116b8c9f1a5b7a7e54ec506fd44acbb8d84314ce96777e821",
+  "signature": "Kh7fqi9OnTJT2wPufR+HjN5m65/i5J6yTGbQ1ofYiIIQFhT8HCiW+yjbon10SDa6oWJrJieO4iFYvo606ei8pCIfhHdWPO341pJ5ZLascx015c49zygKUzIcJWIocEFpr7dEIu1NmSTpGFBJgZEqLN4faXvONRkI3q8qilXhhxZ0sjMHZFLtR4rVFpzZg8DqZnKiFUWIlBP3TY4TBJCbgUmgo+W9ibSH54uMUSOwlvKf6EtcOcZMNrT4+bvHnJxunvGORHrH5kA5n0EQNvMIdogWcXRrBIFWyz1kjbpKHweLgwMmEs30O2O773rIdWgSgA7PSGuXE4Fd4duLucXCpgaubzK2woN81L8K6yv883GtXnZwExKLXd3fhhCgxTvK3/dEKHvDdif4isvAfUH2ZzgKu7vRqIrv7VxlJCRJwGTqLXZeUc3asmQR8Q3q3bSr7jKqSrEwnm1EQHGILkF9Gg+3XzWL71oX5MezDp3GAp7Gk34TdG5ibzAbzPB1myM7",
   "minNativeVersionCode": 3,
-  "notes": "Intro con video vertical/horizontal y una sola musica; logo mas pequeno"
+  "notes": "Musica por modo, efectos y volumenes independientes; intro sin destello de menu"
 }
