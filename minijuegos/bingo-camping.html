@@ -184,7 +184,7 @@ body.theme-light .square.free {background:#1979bf;border-color:#72c4ff;color:whi
 
 </style></head><body>
 <div class="landscape"><div class="mountain"></div><div class="snowcap"></div><div class="mist"></div></div>
-<div class="app"><header class="top"><div class="brand"><div class="mark">🏕️</div><div><b>BINGO CAMPING</b><small>APUS ILINIZA SUR · MINIJUEGO · VER. 0.26</small></div></div><div class="topright"><span class="tiny" id="signedUser">👤 INVITADO</span><button class="smallbtn" id="soundBtn" onclick="toggleAudio()" title="Activar o silenciar sonidos del Bingo" aria-label="Desactivar sonidos del Bingo" aria-pressed="true">🔊 SÍ</button><button class="smallbtn red" onclick="leaveBingo()">⬅ VOLVER A APUS</button></div></header>
+<div class="app"><header class="top"><div class="brand"><div class="mark">🏕️</div><div><b>BINGO CAMPING</b><small>APUS ILINIZA SUR · MINIJUEGO · VER. 0.26</small></div></div><div class="topright"><span class="tiny" id="signedUser">👤 INVITADO</span><button class="smallbtn" id="soundBtn" onclick="toggleAudio()" title="Configurar música y efectos en Apus" aria-label="Configurar música y efectos" aria-haspopup="dialog">🎵 AUDIO</button><button class="smallbtn red" onclick="leaveBingo()">⬅ VOLVER A APUS</button></div></header>
 <section class="screen active" id="homeScreen"><div class="intro glass"><div class="camp-banner"><svg class="pixel-summit" viewBox="0 0 160 84" shape-rendering="crispEdges" aria-hidden="true"><path fill="#0b1528" d="M0 79L20 46L39 63L76 6L111 58L133 40L160 76V84H0Z"/><path fill="#4d6180" d="M3 82L20 48L39 69L76 9L112 64L134 41L160 80V84H0Z"/><path fill="#eaf4ff" d="M55 39L76 9L101 46L86 39L81 49L75 31L68 42L64 36Z"/><path fill="#b7dbed" d="M54 40L76 9L74 33L68 42L64 35Z"/><path fill="#26394c" d="M4 83L22 66L39 78L46 72L61 83Z"/><path fill="#ec9b3e" d="M110 81L125 53L142 81Z"/><path fill="#ffc879" d="M115 78L126 57L137 78Z"/><path fill="#733f2d" d="M124 67L124 79L129 79L129 68Z"/><path fill="#d8ecf5" d="M135 16h12v2h-12zm-10 7h20v2h-20zM9 24h26v2H9z"/><path fill="#ffcc85" d="M32 12h4v4h-4zm19 7h3v3h-3Z"/></svg><div><strong>⛺ APUS · CAMPAMENTO BASE</strong><small>75 BOLAS · 16 MONTAÑISTAS · UN CAMPEÓN</small></div><span class="spark">✦</span></div><h1>🏔️ ¡BINGO CAMPING!</h1><p>Reúnete en el campamento, gira la tómbola de <b>75 números</b> y completa los <b>24 números</b> de tu cartón (centro libre).</p><div class="notice">👤 Tu nombre se toma de la cuenta de APUS. No se necesitan personajes, rostros ni avatares.</div><div class="grid2"><div class="box"><h2>🤖 CONTRA LA CPU</h2><p class="muted">Juega sin conexión. Tú sacas cada bola y compites con los rivales de la máquina.</p><label class="muted" for="botCount">Total de jugadores: <b id="botCountLabel">8</b></label><input id="botCount" type="range" min="2" max="16" value="8" style="width:100%;accent-color:#eaa961" oninput="document.getElementById('botCountLabel').textContent=this.value"><button class="bigbtn orange" onclick="startOffline()">▶ JUGAR OFFLINE</button></div><div class="box"><h2>🌐 SALA ONLINE</h2><p class="muted">Hasta <b>16 jugadores</b> reales por sala. Solo el anfitrión saca números. Si sale, se elige un nuevo anfitrión.</p><button class="bigbtn green" onclick="createRoom()">➕ CREAR SALA</button><div class="row" style="margin-top:11px"><input class="input" id="joinCode" maxlength="4" placeholder="4 DÍGITOS" aria-label="Código de sala" style="flex:1"><button class="smallbtn orange" onclick="joinRoom()">UNIRSE</button></div><div class="muted" style="margin-top:7px">Las salas online requieren internet y que PeerJS pueda conectarse.</div></div></div></div></section>
 <section class="screen" id="lobbyScreen"><div class="lobby glass"><h2>⛺ CAMPAMENTO · SALA DE ESPERA</h2><div class="row space"><div><div class="muted">CÓDIGO PARA COMPARTIR</div><div class="row" style="gap:7px"><div style="color:var(--gold);font-weight:950;font-size:27px;letter-spacing:5px" id="roomDisplay">----</div><button class="smallbtn" onclick="copyBingoRoomCode()">📋 COPIAR</button></div></div><div class="chip" id="lobbyCount">1/16 JUGADORES</div></div><div class="notice" id="lobbyStatus">Conectando...</div><div class="roster" id="lobbyRoster"></div><button class="bigbtn orange" id="startOnlineBtn" onclick="startOnline()">▶ INICIAR PARTIDA (ANFITRIÓN)</button><button class="bigbtn red" onclick="backHome()">SALIR DE LA SALA</button></div></section>
 <section class="screen" id="arenaScreen"><div class="arena"><div class="centercol"><div class="glass" style="padding:14px;margin-bottom:12px"><div class="scorehead"><span class="chip" id="modeText">CPU</span><span class="chip" id="hostText">🎤 Anfitrión</span><span class="chip" id="drawCount">0/75 BOLAS</span></div><div class="tombola"><div class="wheel" id="wheel"><canvas id="tombolaCanvas" width="256" height="206" aria-label="Tómbola pixel art con bolas girando y rebotando"></canvas></div><div class="ball" id="lastBall"><span class="letter" id="ballLetter">LISTO</span><span class="number" id="ballNumber">--</span></div><div class="callpanel"><b id="turnText">¡Comienza el bingo!</b><div class="hint" id="turnDesc">Gira la tómbola para anunciar un número.</div><button class="bigbtn orange" id="spinBtn" onclick="drawBall()">🎲 SACAR NÚMERO</button></div></div><div class="pixel-mini-ribbon">❄ TÓMBOLA DEL CAMPAMENTO · SOLO EL ANFITRIÓN SACA BOLAS ❄</div><div class="muted">Bolas que salieron:</div><div class="history" id="history"><span class="muted">Aún no hay números.</span></div></div>
@@ -379,28 +379,35 @@ function again(){if(state.mode==='cpu'){startOffline();$('winOverlay').classList
 function renderLobby(){const l=$('lobbyRoster');l.replaceChildren();$('roomDisplay').textContent=state.room||'----';$('lobbyCount').textContent=state.players.length+'/16 JUGADORES';$('lobbyStatus').textContent=hostElection?'⚠️ ANFITRIÓN DESCONECTADO · ESPERANDO ACEPTACIÓN':state.status==='playing'?'Partida en curso':host()?'Eres el anfitrión: cuando todos estén listos, comienza la partida.':'Esperando al anfitrión. Solo él puede sacar bolas.';for(const p of state.players){const d=document.createElement('div');d.className='player'+(p.id===state.hostId?' host':'')+(p.id===myId?' me':'');const name=document.createElement('b');name.textContent=p.name+(p.id===myId?' (TÚ)':'');const label=document.createElement('small');label.textContent=p.id===state.hostId?'👑 ANFITRIÓN':'🏕️ PARTICIPANTE';d.append(name,label);l.append(d)}$('startOnlineBtn').classList.toggle('hide',!host()||state.status!=='lobby');$('startOnlineBtn').disabled=!!hostElection||state.players.length<2}
 function renderAll(){if(state.status==='lobby'){renderLobby();return}let me=getMe();if(me&&myCard.join(',')!==me.card.join(',')){myCard=me.card.slice();marked=new Set([12])} $('modeText').textContent=state.mode==='cpu'?'🤖 VS CPU':'🌐 SALA '+state.room;$('hostText').textContent=host()?'👑 TÚ GIRAS':'🎤 '+(state.players.find(p=>p.id===state.hostId)?.name||'Anfitrión');$('drawCount').textContent=state.draws.length+'/75 BOLAS';$('myName').textContent=accountName;$('hitsDisplay').textContent=(marked.size-1)+'/24 MARCADOS';$('spinBtn').disabled=!!hostElection||!host()||isBusy||state.status!=='playing';$('spinBtn').textContent=host()?'🎲 GIRAR TÓMBOLA':'🔒 SOLO ANFITRIÓN';$('turnText').textContent=state.draws.length?'ÚLTIMA BOLA: '+formatBall(state.draws[state.draws.length-1]):'¡Gira la tómbola!';$('turnDesc').textContent=host()?'Eres anfitrión: solo tú puedes sacar los números.':'Espera al anfitrión y marca los números anunciados.';const last=state.draws.at(-1);$('ballLetter').textContent=last?letter(last):'LISTO';$('ballNumber').textContent=last||'--';const hist=$('history');hist.replaceChildren();if(!state.draws.length){const x=document.createElement('span');x.textContent='Aún no hay números';x.className='muted';hist.append(x)}else for(const n of [...state.draws].reverse()){const x=document.createElement('span');x.className='pill';x.textContent=formatBall(n);hist.append(x)}const b=$('cardGrid');b.replaceChildren();myCard.forEach((n,i)=>{const btn=document.createElement('button');btn.className='square'+(i===12?' free':marked.has(i)?' marked':state.draws.includes(n)?' called':'');btn.textContent=i===12?'LIBRE':String(n);btn.disabled=i===12||state.status!=='playing';btn.onclick=()=>toggleMark(i);b.append(btn)});$('bingoBtn').classList.toggle('hide',marked.size!==25||state.status!=='playing');const opponents=$('opponentList');opponents.replaceChildren();const competitors=state.players.filter(p=>p.id!==myId).sort(orderForHost);competitors.forEach(p=>{const item=document.createElement('div');item.className='opponent';const row=document.createElement('div');row.className='mini';const name=document.createElement('strong');name.textContent=(p.id===state.hostId?'👑 ':'')+p.name;const score=document.createElement('b');score.textContent=hits(p)+'/24';row.append(name,score);const bar=document.createElement('div');bar.className='bar';const fi=document.createElement('i');fi.style.width=(hits(p)/24*100)+'%';bar.append(fi);item.append(row,bar);opponents.append(item)});const all=$('allNums');all.replaceChildren();const set=new Set(state.draws);for(let i=1;i<=75;i++){const n=document.createElement('div');n.className='num'+(set.has(i)?' done':'');n.textContent=i;all.append(n)}if(state.status==='ended'&&state.winner)showWinner(state.winner)}
 function toggleAudio(){
-  setBingoAudio(!audioEnabled);
-  try { if(window.parent!==window) window.parent.postMessage({apusBingo:'REQUEST_SOUND',enabled:audioEnabled},'*'); }catch(e){}
+  if(window.parent!==window){
+    window.parent.postMessage({apusBingo:'OPEN_AUDIO_PANEL'},'*');
+    return;
+  }
+  setBingoAudio(!audioEnabled); // uso de Bingo como página suelta
 }
 function setBingoAudio(enabled){
   enabled=!!enabled;
   if(audioEnabled===enabled)return;
   audioEnabled=enabled;
   const btn=$('soundBtn');
-  btn.textContent=audioEnabled?'🔊 SÍ':'🔇 NO';
-  btn.title=audioEnabled?'Desactivar sonidos del Bingo':'Activar sonidos del Bingo';
-  btn.setAttribute('aria-pressed',String(audioEnabled));
+  btn.textContent='🎵 AUDIO';
+  btn.title='Configurar música y efectos de todo Apus';
+  btn.removeAttribute('aria-pressed');
   btn.setAttribute('aria-label',btn.title);
-  if(audioMaster&&audio){audioMaster.gain.setValueAtTime(audioEnabled?1:0,audio.currentTime);}
+  if(audioMaster&&audio){audioMaster.gain.setValueAtTime(audioEnabled?(window.apusFxVolume??1):0,audio.currentTime);}
   if(audioEnabled)playFx('mark');
 }
 let audio=null,audioMaster=null;
 function playFx(type){if(!audioEnabled)return;try{
- if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();audioMaster=audio.createGain();audioMaster.gain.value=audioEnabled?1:0;audioMaster.connect(audio.destination);}
- audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audioMaster);o.type=type==='error'?'sawtooth':'triangle';const f=type==='win'?850:type==='ball'?680:type==='mark'?550:type==='error'?175:260;o.frequency.setValueAtTime(f,audio.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.35,audio.currentTime+.13);g.gain.setValueAtTime(.07,audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.22);o.start();o.stop(audio.currentTime+.23)}catch(e){}}
+ if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();audioMaster=audio.createGain();audioMaster.gain.value=audioEnabled?(window.apusFxVolume??1):0;audioMaster.connect(audio.destination);}
+ audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audioMaster);o.type=type==='error'?'sawtooth':'triangle';const f=type==='win'?850:type==='ball'?680:type==='mark'?550:type==='error'?175:260;o.frequency.setValueAtTime(f,audio.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.35,audio.currentTime+.13);g.gain.setValueAtTime(.20,audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.22);o.start();o.stop(audio.currentTime+.23)}catch(e){}}
 window.addEventListener('message',e=>{
   if(e.source!==window.parent||!e.data)return;
-  if(e.data.apusBingo==='SOUND'){setBingoAudio(e.data.enabled);return;}
+  if(e.data.apusBingo==='SOUND'){
+    if(Number.isFinite(e.data.fxVolume))window.apusFxVolume=Math.max(0,Math.min(1,e.data.fxVolume));
+    setBingoAudio(e.data.enabled);
+    if(audioMaster&&audio)audioMaster.gain.setValueAtTime(audioEnabled?(window.apusFxVolume??1):0,audio.currentTime);
+    return;}
   if(e.data.apusBingo==='THEME'){
     document.body.classList.toggle('theme-light',e.data.theme==='light');
     return;
@@ -521,4 +528,26 @@ window.parent.postMessage({apusBingo:'READY'},'*');
  }
  requestAnimationFrame(frame);
 })();
-</script></body></html>
+</script>
+<!-- APUS 31.5.2: clic de interfaz administrado por el mismo audio del juego padre -->
+<script id="apus-unified-button-sound-3152">
+(function(){
+ 'use strict';
+ const match='button,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"]';
+ let last=null,lastAt=0;
+ function emit(){if(window.parent===window)return;
+   try{window.parent.postMessage({apusUiButtonPress:true},'*');}catch(_){}}
+ document.addEventListener('pointerdown',function(e){
+   const b=e.target&&e.target.closest&&e.target.closest(match);
+   if(!b||b.disabled)return;
+   last=b;lastAt=performance.now();emit();
+ },true);
+ document.addEventListener('click',function(e){
+   const b=e.target&&e.target.closest&&e.target.closest(match);
+   if(!b||b.disabled)return;
+   if(b===last&&performance.now()-lastAt<500)return;
+   emit();
+ },true);
+})();
+</script>
+</body></html>

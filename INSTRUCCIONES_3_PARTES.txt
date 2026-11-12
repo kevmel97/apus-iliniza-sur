@@ -1,0 +1,11 @@
+APUS ILINIZA SUR v31.5.2 - VERSION WEB MODULAR EN 3 PARTES
+
+1. Descarga las TRES partes ZIP en la misma carpeta de Descargas.
+2. Descomprime las tres partes. Cada una contiene carpetas de estructura igual: assets/, js/, css/, etc.
+3. Abre GitHub Desktop > Repository > Show in Finder.
+4. COPIA EL CONTENIDO de la parte 1 en la carpeta del repositorio (index.html debe quedar en la raiz).
+5. COPIA EL CONTENIDO de las partes 2 y 3 en LA MISMA carpeta del repositorio, FUSIONANDO assets/ e introduciendo los archivos en sus subcarpetas originales.
+6. NO BORRES la carpeta .git ni actualizaciones/android del repositorio.
+7. En GitHub Desktop, confirma los cambios con Commit to main y Push origin.
+
+NO copies los ZIP al repositorio. NO reemplaces completamente assets/ si macOS ofrece sustituir la carpeta sin combinar su contenido. Las tres partes juntas forman el mismo proyecto que el ZIP web completo.

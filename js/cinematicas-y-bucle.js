@@ -92,9 +92,10 @@ function renderIntroCinematic() {
   ctx.fillText(introPrompt, GW / 2, isPortrait ? (GH - 60) : (GH - 40));
   ctx.restore();
 
-  if (!exitCinematicActive && introTimer >= INTRO_DURATION_FRAMES) {
-    finishIntroAndOpenMenu();
-  }
+  // El menú se abre exclusivamente tras DOBLE TOQUE, no por tiempo.
+  // Anteriormente el contador avanzaba oculto durante el video y mostraba
+  // brevemente el menú antes de regresar a esta animación.
+
 }
 
 /* ============================================================================

@@ -839,3 +839,85 @@
   @media(min-width:560px){.apus-stage-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
   @media(max-width:390px){.apus-stage-grid{gap:5px}.apus-stage-cell{padding:3px;font-size:7px}.apus-stage-preview{font-size:19px}}
 
+
+/* APUS AUDIO 31.5: modal independiente, utilizable en móvil vertical */
+.apus-audio-modal[hidden]{display:none!important}
+.apus-audio-modal{position:fixed;inset:0;z-index:1100090;background:rgba(3,8,20,.87);display:grid;place-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px));font-family:system-ui,sans-serif;color:#f8fafc}
+.apus-audio-dialog{width:min(100%,480px);max-height:90dvh;overflow-y:auto;background:#12213a;border:2px solid #6bb9ff;border-radius:16px;box-shadow:0 18px 50px #000;padding:22px 18px}
+.apus-audio-dialog h2{margin:0 0 20px;font-size:clamp(19px,4vw,25px);text-align:center;color:#facc15}
+.apus-audio-setting{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #41546d;font-size:16px;cursor:pointer}
+.apus-audio-setting input{width:22px;height:22px;accent-color:#22c55e}
+.apus-audio-slider{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;margin:18px 2px;font-size:15px}
+.apus-audio-slider input{grid-column:1 / -1;width:100%;height:28px;accent-color:#22c55e}
+.apus-audio-slider output{font-size:13px;color:#a5f3fc}
+.apus-audio-notice{font-size:12px;line-height:1.5;color:#cbd5e1;margin:10px 0 18px}
+.apus-audio-buttons{display:flex;gap:9px}
+.apus-audio-buttons button{flex:1;min-height:48px;background:#166534;color:white;border:2px solid #86efac;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer}
+.apus-audio-buttons #apus-audio-mute-all{background:#7f1d1d;border-color:#fca5a5}
+
+/* APUS 31.5.2 AUDIO PIXEL ART / TEMA DEL JUEGO */
+.apus-audio-modal{
+  --audio-bg:#142039;--audio-ink:#f5f8ff;--audio-title:#ffce57;
+  --audio-border:#8198bc;--audio-divider:#465876;--audio-sub:#c9d4e5;
+  --audio-control:#1d3355;--audio-control-line:#f6a743;
+  background:rgba(3,8,20,.84);
+  color:var(--audio-ink);
+  font-family:'Press Start 2P',monospace,sans-serif;
+}
+.apus-audio-dialog{
+  width:min(100%,510px);max-height:min(88dvh,680px);
+  padding:clamp(15px,3.5vw,24px);
+  background:var(--audio-bg);color:var(--audio-ink);
+  border:3px solid var(--audio-border);border-radius:7px;
+  box-shadow:0 8px 0 #060d1a,0 22px 45px #0009;
+  font-family:inherit;
+}
+.apus-audio-dialog h2{
+  font:normal clamp(11px,2.8vw,15px)/1.85 'Press Start 2P',monospace;
+  color:var(--audio-title);text-shadow:2px 2px 0 #0009;margin:0 0 16px;
+}
+.apus-audio-setting{
+  padding:13px 1px;gap:11px;
+  font:normal clamp(9px,2.35vw,11px)/1.65 'Press Start 2P',monospace;
+  color:var(--audio-ink);border-bottom:1px solid var(--audio-divider);
+}
+.apus-audio-setting input{flex:0 0 21px;width:21px;height:21px;accent-color:#18a57f;cursor:pointer}
+.apus-audio-slider{
+  margin:16px 1px;gap:12px;
+  font:normal clamp(9px,2.1vw,11px)/1.7 'Press Start 2P',monospace;
+  color:var(--audio-ink);
+}
+.apus-audio-slider output{font:normal 10px/1.4 'Press Start 2P',monospace;color:var(--audio-title)}
+.apus-audio-slider input{accent-color:#f59e0b;cursor:pointer}
+.apus-audio-notice{
+  margin:11px 0 18px;
+  font:normal clamp(8px,1.9vw,9px)/1.85 'Press Start 2P',monospace;
+  color:var(--audio-sub);
+}
+.apus-audio-buttons button{
+  background:var(--audio-control);border:2px solid var(--audio-control-line);
+  border-radius:5px;box-shadow:0 3px 0 #0008;
+  min-height:49px;padding:10px 7px;
+  font:normal clamp(8px,2vw,10px)/1.5 'Press Start 2P',monospace;
+  color:var(--audio-ink);
+}
+.apus-audio-buttons #apus-audio-mute-all{background:#8b2734;border-color:#fca5a5;color:#fff}
+.apus-audio-dialog button:focus-visible,.apus-audio-dialog input:focus-visible{
+  outline:2px solid var(--audio-title);outline-offset:3px;
+}
+body.theme-light .apus-audio-modal{
+  --audio-bg:#f1f5f9;--audio-ink:#17233b;--audio-title:#975018;
+  --audio-border:#6f86ac;--audio-divider:#b7c5d6;--audio-sub:#475569;
+  --audio-control:#d9e7f6;--audio-control-line:#416f9b;
+  background:rgba(151,170,192,.65);
+}
+body.theme-light .apus-audio-dialog{box-shadow:0 7px 0 #566b87,0 20px 42px #14203355}
+body.theme-light .apus-audio-dialog h2{text-shadow:none}
+body.theme-light .apus-audio-buttons button{box-shadow:0 3px 0 #4a6077}
+@media(max-width:390px){
+ .apus-audio-modal{padding:calc(8px + env(safe-area-inset-top,0px)) 9px calc(8px + env(safe-area-inset-bottom,0px))}
+ .apus-audio-dialog{padding:13px 12px;max-height:92dvh}
+ .apus-audio-setting{font-size:8px;padding:11px 0}
+ .apus-audio-buttons{gap:6px}
+ .apus-audio-buttons button{font-size:8px}
+}

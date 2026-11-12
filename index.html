@@ -12,8 +12,33 @@
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async defer></script>
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
+<link rel="stylesheet" href="css/apus-intro-video.css">
 </head>
 <body>
+<!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
+<div id="apus-opening" role="dialog" aria-modal="true" aria-label="Introducción de Apus Guardians">
+  <div class="apus-opening-logo-panel">
+    <img class="apus-opening-brand" alt="Apus Guardians Adventure" src="assets/intro/logo-apus-guardians.png">
+  </div>
+  <div class="apus-opening-film-panel">
+    <div class="apus-opening-backdrop" aria-hidden="true"></div>
+    <div class="apus-opening-movie-frame">
+      <video id="apus-opening-movie" class="apus-opening-movie" muted playsinline preload="metadata"
+             disablepictureinpicture controlslist="nodownload noplaybackrate"
+             src="assets/intro/reto-iliniza-sur.mp4" aria-label="Jordy y Chugo ascienden al Iliniza Sur"></video>
+      <audio id="apus-opening-music" preload="auto" src="assets/intro/musica-intro.m4a"></audio>
+    </div>
+    <div class="apus-opening-film-shade" aria-hidden="true"></div>
+    <button id="apus-opening-sound" class="apus-opening-sound" type="button">🔊 SILENCIAR</button>
+    <button id="apus-opening-skip" class="apus-opening-skip" type="button" aria-label="Omitir video de introducción y pasar a la animación de doble toque">⏭ OMITIR</button>
+    <div id="apus-opening-controls" class="apus-opening-controls" aria-hidden="true">
+      <p id="apus-opening-help-text">Toca para reproducir el video.</p>
+      <button id="apus-opening-replay" type="button">▶ REPRODUCIR INTRODUCCIÓN</button>
+      <button id="apus-opening-continue" type="button">IR AL INICIO NORMAL</button>
+    </div>
+  </div>
+</div>
+
 
 <div id="game-container">
   <canvas id="gameCanvas" width="960" height="540"></canvas>
@@ -54,7 +79,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 31</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 31.5.1</div>
     </div>
   </div>
 
@@ -511,7 +536,7 @@
     <div class="retro-box">
       <h1>⚙️ CONFIGURACIÓN</h1>
       <button class="menu-btn" onclick="toggleTheme()" id="settings-theme-btn" style="background:#0284c7;">🌙 TEMA MENÚ: OSCURO</button>
-      <button class="menu-btn" onclick="toggleSound()" id="settings-sound-btn">🔊 SONIDO: ACTIVADO</button>
+      <button class="menu-btn" onclick="toggleSound()" id="settings-sound-btn">🎵 CONFIGURAR MÚSICA Y SONIDOS</button>
       <button class="menu-btn" onclick="toggleTouchUI()" id="settings-touch-btn">📱 CONTROLES TÁCTILES: ACTIVADOS</button>
       <button class="menu-btn" id="settings-story-save-btn" onclick="saveCurrentProgress()">💾 GUARDAR PARTIDA ACTUAL</button>
       <button class="menu-btn" onclick="resumeFromSettings()">▶️ VOLVER AL JUEGO</button>
@@ -592,6 +617,23 @@
 <div id="apus-4x4-shell" style="display:none;position:fixed;inset:0;width:100vw;height:100dvh;z-index:100001;background:#0b1020;">
   <iframe id="apus-4x4-frame" title="Apus 4x4 — Terreneitor" style="width:100%;height:100%;border:0;display:block;" allow="autoplay"></iframe>
 </div>
+<!-- Audio independiente: efectos de acciones y música por segmento -->
+<div id="apus-audio-panel" class="apus-audio-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Opciones de sonido">
+  <section class="apus-audio-dialog">
+    <h2>🎵 AUDIO DEL JUEGO</h2>
+    <label class="apus-audio-setting"><input id="apus-audio-fx" type="checkbox" checked> 🔊 SONIDOS DE ACCIONES</label>
+    <label class="apus-audio-setting"><input id="apus-audio-ui-buttons" type="checkbox" checked> 🎮 SONIDO DE BOTONES</label>
+    <label class="apus-audio-setting"><input id="apus-audio-music" type="checkbox" checked> 🎼 MÚSICA DE FONDO</label>
+    <label class="apus-audio-slider">Volumen de sonidos <output id="apus-audio-fx-number">80%</output>
+      <input type="range" id="apus-audio-fx-volume" min="0" max="100" value="80" aria-label="Volumen de sonidos">
+    </label>
+    <label class="apus-audio-slider">Volumen de música <output id="apus-audio-music-number">58%</output>
+      <input type="range" id="apus-audio-music-volume" min="0" max="100" value="58" aria-label="Volumen de música">
+    </label>
+    <p class="apus-audio-notice">El volumen de sonidos controla los efectos y los botones. La música se ajusta aparte. Las opciones quedan guardadas.</p>
+    <div class="apus-audio-buttons"><button type="button" id="apus-audio-mute-all">🔇 SILENCIAR TODO</button><button type="button" id="apus-audio-close">✓ VOLVER</button></div>
+  </section>
+</div>
 <script src="js/puentes-minijuegos.js"></script>
 <script src="js/juego-principal.js"></script>
 <script src="js/conexion-y-ascenso.js"></script>
@@ -599,6 +641,8 @@
 <script src="js/cinematicas-y-bucle.js"></script>
 <script src="js/torneos.js"></script>
 <script src="js/inicio.js"></script>
+<script src="js/apus-musica-v31_5.js"></script>
+<script src="js/apus-intro-video.js"></script>
 
 <script src="js/actualizaciones-v30.js"></script>
 

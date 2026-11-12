@@ -20,7 +20,7 @@ function openApus4x4(){
 }
 function sendApus4x4Sound(){
   const frame=document.getElementById('apus-4x4-frame');
-  if(apus4x4Loaded&&frame?.contentWindow) frame.contentWindow.postMessage({apus4x4:'SOUND',enabled:sound.enabled},'*');
+  if(apus4x4Loaded&&frame?.contentWindow) frame.contentWindow.postMessage({apus4x4:'SOUND',enabled:sound.enabled,fxVolume:(window.apusAudioSettings?.fxVolume??1)},'*');
 }
 function sendApus4x4Theme(){
   const frame=document.getElementById('apus-4x4-frame');
@@ -37,22 +37,24 @@ window.addEventListener('message',function apus4x4Messages(event){
   const frame=document.getElementById('apus-4x4-frame');
   if(!frame || event.source!==frame.contentWindow || !event.data) return;
   if(event.data.apus4x4==='READY') {sendApus4x4Sound();sendApus4x4Theme();}
+  if (event.data.apus4x4 === 'OPEN_AUDIO_PANEL' && typeof window.apusOpenAudioPanel === 'function') window.apusOpenAudioPanel();
   if(event.data.apus4x4==='REQUEST_SOUND' && typeof event.data.enabled==='boolean') setApusGlobalSound(event.data.enabled);
   if(event.data.apus4x4==='CLOSE') closeApus4x4();
   if(event.data.apus4x4==='FINISH') saveApus4x4GlobalFinish(event.data).catch(err=>console.warn('Apus 4x4 global:',err));
 });
 
 function setApusGlobalSound(enabled){
-  if(sound.enabled!==!!enabled)toggleSound();
+  if(typeof window.apusSetFxEnabled==='function')window.apusSetFxEnabled(enabled);
+  else if(sound.enabled!==!!enabled)toggleSound();
   sendApusBingoSound();sendFrikiSound();sendApus4x4Sound();
 }
 function sendApusBingoSound(){
   const frame=document.getElementById('apus-bingo-frame');
-  if(apusBingoLoaded&&frame?.contentWindow)frame.contentWindow.postMessage({apusBingo:'SOUND',enabled:sound.enabled},'*');
+  if(apusBingoLoaded&&frame?.contentWindow)frame.contentWindow.postMessage({apusBingo:'SOUND',enabled:sound.enabled,fxVolume:(window.apusAudioSettings?.fxVolume??1)},'*');
 }
 function sendFrikiSound(){
   const frame=document.getElementById('apus-wiki-frame');
-  if(apusWikiLoaded&&frame?.contentWindow)frame.contentWindow.postMessage({apusWikiApus:'SOUND',enabled:sound.enabled},'*');
+  if(apusWikiLoaded&&frame?.contentWindow)frame.contentWindow.postMessage({apusWikiApus:'SOUND',enabled:sound.enabled,fxVolume:(window.apusAudioSettings?.fxVolume??1)},'*');
 }
 function sendFrikiAccount(){
   const frame=document.getElementById('apus-wiki-frame');
@@ -103,6 +105,7 @@ window.addEventListener('message', function apusBingoMessages(event) {
     sendApusBingoTheme();
     sendApusBingoSound();
   }
+  if (event.data.apusBingo === 'OPEN_AUDIO_PANEL' && typeof window.apusOpenAudioPanel === 'function') window.apusOpenAudioPanel();
   if (event.data.apusBingo === 'REQUEST_SOUND' && typeof event.data.enabled === 'boolean') setApusGlobalSound(event.data.enabled);
   if (event.data.apusBingo === 'CLOSE') closeBingoCamping();
 });
@@ -142,6 +145,7 @@ window.addEventListener('message', function apusWikiMessages(event) {
   const frame = document.getElementById('apus-wiki-frame');
   if (!frame || event.source !== frame.contentWindow || !event.data) return;
   if (event.data.apusWikiApus === 'READY') {sendWikiApusTheme();sendFrikiSound();sendFrikiAccount();}
+  if (event.data.apusWikiApus === 'OPEN_AUDIO_PANEL' && typeof window.apusOpenAudioPanel === 'function') window.apusOpenAudioPanel();
   if (event.data.apusWikiApus === 'REQUEST_SOUND' && typeof event.data.enabled === 'boolean') setApusGlobalSound(event.data.enabled);
   if (event.data.apusWikiApus === 'SUBMIT_SCORE') saveFrikiScore(event.data);
   if (event.data.apusWikiApus === 'REQUEST_THEME' && ['dark','light'].includes(event.data.theme)) applyTheme(event.data.theme);

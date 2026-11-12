@@ -1,6 +1,20 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v31.0.0';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v31.5.2';
 const PRECACHE_URLS = [
+  "./assets/intro/logo-apus-guardians.png",
+  "./assets/intro/fondo-video.webp",
+  "./assets/intro/reto-iliniza-sur.mp4",
+  "./assets/intro/musica-intro.m4a",
+  "./assets/intro/reto-iliniza-sur-vertical.mp4",
+  "./css/apus-intro-video.css",
+  "./js/apus-intro-video.js",
+  "./js/apus-musica-v31_5.js",
+  "./assets/musica/waltz-of-the-andean-ridge.mp3",
+  "./assets/musica/the-great-ascent.mp3",
+  "./assets/musica/lucky-number-bounce.mp3",
+  "./assets/musica/cold-iron-ascent.mp3",
+  "./assets/musica/boss-rush.mp3",
+  "./assets/musica/mountain-pass-derby.mp3",
   "./LEEME_VERSION_31.md",
   "./assets/escenarios/imagen_06cbc52a0cb825.webp",
   "./assets/escenarios/imagen_1a6279d63f8638.jpg",
@@ -84,6 +98,38 @@ self.addEventListener('fetch', event => {
   if(req.method !== 'GET') return;
   const url = new URL(req.url);
   if(url.origin !== self.location.origin) return; // Firebase y PeerJS no se cachean.
+  // Video MP4: responder a rangos (206) desde caché para reproducirlo offline.
+  if (/\/assets\/intro\/(?:reto-iliniza-sur(?:-vertical)?\.mp4|musica-intro\.m4a)$/.test(url.pathname)) {
+    event.respondWith((async () => {
+      const cache = await caches.open(APUS_CACHE_VERSION);
+      let stored = await cache.match(url.href);
+      if (!stored) {
+        const online = await fetch(new Request(url.href, {cache:'no-store'}));
+        if (!online.ok) return online;
+        await cache.put(url.href, online.clone());
+        stored = online;
+      }
+      const range = req.headers.get('range');
+      if (!range) return stored;
+      const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+      if (!match) return new Response(null, {status:416});
+      const data = await stored.arrayBuffer();
+      const size = data.byteLength;
+      let begin = match[1] ? Number(match[1]) : Math.max(0,size-Number(match[2] || 0));
+      let end = match[2] && match[1] ? Math.min(size-1,Number(match[2])) : size-1;
+      if (!Number.isFinite(begin) || begin >= size || begin < 0 || end < begin)
+        return new Response(null, {status:416,headers:{'Content-Range':'bytes */'+size}});
+      const body = data.slice(begin,end+1);
+      return new Response(body,{status:206,headers:{
+        'Content-Type':url.pathname.endsWith('.m4a')?'audio/mp4':'video/mp4',
+        'Accept-Ranges':'bytes',
+        'Content-Range':'bytes '+begin+'-'+end+'/'+size,
+        'Content-Length':String(body.byteLength)
+      }});
+    })());
+    return;
+  }
+
   event.respondWith((async () => {
     const cache = await caches.open(APUS_CACHE_VERSION);
     if (req.mode === 'navigate') {

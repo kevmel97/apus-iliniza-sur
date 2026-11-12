@@ -1596,7 +1596,7 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
           <div class="apus-hud-stat" title="Velocidad">⚡ <span id="hudSpeed">0 km/h</span></div>
           <div class="apus-hud-stat" title="Tiempo">⏱ <span id="hudTimer">00:00</span></div>
           <div class="apus-hud-actions">
-            <button id="btnAudio" onclick="toggleAudio()" title="Activar/desactivar sonido">🔊</button>
+            <button id="btnAudio" onclick="toggleAudio()" title="Configurar música y efectos de todo Apus" aria-label="Abrir ajustes de audio" aria-haspopup="dialog">🎛️</button>
             <button onclick="returnToMainMenu()" title="Volver a los mini juegos">🏠 <span class="apus-hud-menu-label">MENÚ</span></button>
             <button onclick="resetGameSession()" title="Reiniciar ruta">🔄</button>
           </div>
@@ -1803,7 +1803,7 @@ function playBeep(freq, type, duration, delay = 0, vol = 0.1) {
         const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+        gain.gain.setValueAtTime(Math.min(0.42,Math.max(0,vol)*2.25)*(window.apusFxVolume??1), audioCtx.currentTime + delay);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -1856,15 +1856,18 @@ function sfxVictory() {
 }
 
 function toggleAudio() {
-    audioEnabled = !audioEnabled;
-    document.getElementById('btnAudio').textContent = audioEnabled ? '🔊' : '🔇';
-    try { if (window.parent !== window) window.parent.postMessage({apus4x4:'REQUEST_SOUND',enabled:audioEnabled},'*'); } catch(e){}
+    if(window.parent!==window){
+      window.parent.postMessage({apus4x4:'OPEN_AUDIO_PANEL'},'*');
+      return;
+    }
+    audioEnabled=!audioEnabled; // uso de la página sin el juego padre
 }
 window.addEventListener('message', e => {
     if (!e.data || e.data.apus4x4!=='SOUND' && e.data.apus4x4!=='THEME') return;
     if (e.data.apus4x4==='SOUND') {
         audioEnabled=!!e.data.enabled;
-        const b=document.getElementById('btnAudio'); if(b)b.textContent=audioEnabled?'🔊':'🔇';
+        if(Number.isFinite(e.data.fxVolume))window.apusFxVolume=Math.max(0,Math.min(1,e.data.fxVolume));
+        const b=document.getElementById('btnAudio'); if(b){b.textContent='🎛️';b.title='Ajustes globales de música y efectos';}
         if(!audioEnabled && audioCtx) audioCtx.suspend().catch(()=>{});
         if(audioEnabled && audioCtx) audioCtx.resume().catch(()=>{});
     }
@@ -4513,5 +4516,27 @@ window.onload = function () {
 })();
 </script>
 
+
+<!-- APUS 31.5.2: clic de interfaz administrado por el mismo audio del juego padre -->
+<script id="apus-unified-button-sound-3152">
+(function(){
+ 'use strict';
+ const match='button,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"]';
+ let last=null,lastAt=0;
+ function emit(){if(window.parent===window)return;
+   try{window.parent.postMessage({apusUiButtonPress:true},'*');}catch(_){}}
+ document.addEventListener('pointerdown',function(e){
+   const b=e.target&&e.target.closest&&e.target.closest(match);
+   if(!b||b.disabled)return;
+   last=b;lastAt=performance.now();emit();
+ },true);
+ document.addEventListener('click',function(e){
+   const b=e.target&&e.target.closest&&e.target.closest(match);
+   if(!b||b.disabled)return;
+   if(b===last&&performance.now()-lastAt<500)return;
+   emit();
+ },true);
+})();
+</script>
 </body>
 </html>

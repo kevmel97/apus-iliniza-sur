@@ -1,0 +1,121 @@
+/* APUS v31.4.1: intro con vídeo vertical/horizontal y una pista musical común.
+   No se altera el motor ni el splash de doble toque del juego. */
+#apus-opening {
+  position:fixed;inset:0;z-index:2147483645;
+  width:100%;height:100%;height:100dvh;
+  background:#000;color:#fff;isolation:isolate;
+  overflow:hidden;display:grid;place-items:center;
+  touch-action:manipulation;overscroll-behavior:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#apus-opening[hidden]{display:none!important}
+#apus-opening *{box-sizing:border-box}
+#apus-opening .apus-opening-logo-panel,
+#apus-opening .apus-opening-film-panel{
+  position:absolute;inset:0;display:grid;place-items:center;
+  pointer-events:none;opacity:0;
+}
+#apus-opening.is-logo .apus-opening-logo-panel{opacity:1}
+#apus-opening .apus-opening-logo-panel{background:#000}
+#apus-opening .apus-opening-brand{
+  display:block;width:min(77vw,410px);max-height:68dvh;height:auto;
+  object-fit:contain;image-rendering:pixelated;opacity:0;
+  filter:drop-shadow(0 0 10px rgba(255,142,13,.1));
+}
+#apus-opening.is-logo .apus-opening-brand{
+  animation:apus-opening-brand 2.35s cubic-bezier(.15,.65,.2,1) both;
+}
+@keyframes apus-opening-brand {
+  0%{opacity:0;transform:scale(.86);filter:drop-shadow(0 0 0 rgba(248,140,30,0))}
+  19%{opacity:1;transform:scale(.97);filter:drop-shadow(0 0 11px rgba(248,140,30,.22))}
+  53%{opacity:1;transform:scale(1.025);filter:drop-shadow(0 0 23px rgba(248,140,30,.29))}
+  74%{opacity:1;transform:scale(1.01)}
+  100%{opacity:0;transform:scale(1.065);filter:drop-shadow(0 0 32px rgba(248,140,30,.05))}
+}
+#apus-opening .apus-opening-film-panel{
+  background:#000;transition:opacity .46s ease;
+}
+#apus-opening.is-video .apus-opening-film-panel{opacity:1}
+#apus-opening .apus-opening-backdrop{display:none}
+#apus-opening .apus-opening-movie-frame{
+  position:relative;
+  width:min(100vw,177.78dvh);
+  max-height:100dvh;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  background:#000;
+  transform:none;
+  box-shadow:0 0 36px rgba(0,0,0,.38);
+}
+#apus-opening video.apus-opening-movie{
+  display:block;width:100%;height:100%;object-fit:contain;
+  background:#000;border:0;outline:0;
+  filter:contrast(1.025) saturate(1.015);
+}
+#apus-opening .apus-opening-film-shade{display:none}
+#apus-opening .apus-opening-controls{
+  display:none;position:absolute;z-index:5;
+  bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  left:50%;transform:translateX(-50%);width:min(90vw,360px);
+  pointer-events:auto;text-align:center;
+  font:500 13px/1.6 system-ui,sans-serif;
+}
+#apus-opening.needs-tap .apus-opening-controls{display:block}
+#apus-opening .apus-opening-controls button{
+  display:block;width:100%;padding:14px 12px;margin-top:10px;
+  border:2px solid #ffba5b;border-radius:10px;
+  color:#fff;background:rgba(13,28,51,.96);
+  font:700 13px system-ui,sans-serif;
+}
+#apus-opening .apus-opening-sound{
+  position:absolute;z-index:5;
+  top:calc(13px + env(safe-area-inset-top,0px));
+  right:calc(12px + env(safe-area-inset-right,0px));
+  border:1px solid rgba(255,255,255,.5);
+  background:rgba(5,13,26,.62);color:#fff;
+  border-radius:24px;padding:9px 13px;
+  font:600 12px system-ui,sans-serif;pointer-events:auto;
+  opacity:0;transition:opacity .2s ease;
+}
+#apus-opening.is-video .apus-opening-sound{opacity:1}
+#apus-opening.is-closing{opacity:0;transition:opacity .45s ease}
+@media (orientation:portrait){
+  #apus-opening .apus-opening-brand{width:min(82vw,410px)}
+  #apus-opening .apus-opening-movie-frame{
+    width:min(100vw,56.25dvh);
+    max-width:100vw;
+    max-height:100dvh;
+    aspect-ratio:9/16;
+  }
+  #apus-opening.is-finale .apus-opening-movie-frame{transform:none}
+}
+@media (orientation:landscape){
+  #apus-opening .apus-opening-movie-frame{
+    width:min(100vw,177.78dvh);
+    max-height:100dvh;
+    aspect-ratio:16/9;
+  }
+  #apus-opening.is-finale .apus-opening-movie-frame{transform:scale(1.012)}
+}
+@media (prefers-reduced-motion:reduce){
+  #apus-opening.is-logo .apus-opening-brand{animation-duration:2.35s}
+}
+
+/* APUS 31.5.2 INTRO OMITIR */
+#apus-opening .apus-opening-skip{
+  display:none;position:absolute;z-index:7;
+  left:50%;bottom:clamp(34px,13dvh,152px);transform:translateX(-50%);
+  min-width:min(56vw,230px);min-height:45px;
+  padding:11px 18px;border:2px solid #ffb54b;border-radius:7px;
+  background:rgba(9,19,37,.86);color:#fff8e1;
+  font:700 clamp(9px,2.2vw,12px)/1.6 'Press Start 2P',monospace;
+  letter-spacing:.1px;text-shadow:0 2px 0 #000;
+  box-shadow:0 4px 0 #5c360c,0 8px 22px #0009;
+  pointer-events:auto;touch-action:manipulation;cursor:pointer;
+}
+#apus-opening.is-video:not(.is-closing) .apus-opening-skip{display:block}
+#apus-opening .apus-opening-skip:active{transform:translate(-50%,3px);box-shadow:0 1px 0 #5c360c}
+#apus-opening .apus-opening-skip:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media (orientation:portrait){
+ #apus-opening .apus-opening-skip{bottom:calc(42px + env(safe-area-inset-bottom,0px));font-size:10px}
+}

@@ -250,14 +250,14 @@ body.theme-light #quizReactionBanner{background:#e0f2fe!important;color:#075985!
             </div>
 
             <button id="wikiSettingsBtn" onclick="toggleWikiSettings()" aria-expanded="false" aria-controls="wikiSettingsPanel" class="bg-slate-800 hover:bg-slate-700 border-2 border-cyan-400 px-2.5 py-1 text-lg text-white" title="Configuración de Friki Apus">⚙️ CONFIG.</button>
-            <button id="btnAudio" onclick="toggleSound()" aria-label="Activar o silenciar los sonidos del minijuego" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-400 px-2.5 py-1 text-lg text-amber-300">🔊 SONIDO: SÍ</button>
+            <button id="btnAudio" onclick="toggleSound()" aria-label="Configurar música y efectos de Apus" aria-haspopup="dialog" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-400 px-2.5 py-1 text-lg text-amber-300">🎵 AUDIO</button>
             <button id="wikiCloseBtn" onclick="closeWikiApus()" class="bg-red-900 hover:bg-red-800 border-2 border-red-300 px-2.5 py-1 text-base text-white">⬅ VOLVER A APUS</button>
         </div>
         <div id="wikiSettingsPanel" hidden aria-label="Configuración de Friki Apus">
             <div class="wiki-settings-title">⚙️ CONFIGURACIÓN</div>
             <button id="wikiThemeBtn" onclick="toggleWikiTheme()" class="wiki-settings-control">🌙 TEMA: OSCURO</button>
             <button id="btnDemoUnlock" onclick="toggleDemoMode()" class="wiki-settings-control" title="Habilitar todos los niveles para explorar sin cambiar tus récords"><span>🔓</span> <span id="demoModeLabel">MODO EXPLORAR: OFF</span></button>
-            <p class="wiki-settings-note">El sonido se activa o silencia con el botón de arriba.</p>
+            <p class="wiki-settings-note">Usa 🎵 AUDIO para ajustar la música y los efectos en todo el juego.</p>
         </div>
     </header>
 
@@ -610,7 +610,7 @@ function initAudio() {
         if (AudioContext) {
             audioCtx = new AudioContext();
             wikiAudioMaster = audioCtx.createGain();
-            wikiAudioMaster.gain.value = soundEnabled ? 1 : 0;
+            wikiAudioMaster.gain.value = soundEnabled ? (window.apusFxVolume??1) : 0;
             wikiAudioMaster.connect(audioCtx.destination);
         }
     }
@@ -628,7 +628,7 @@ function playTone(freq, type, duration, delay = 0, vol = 0.12) {
         const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+        gain.gain.setValueAtTime(Math.min(0.44, Math.max(0, vol) * 2.6), audioCtx.currentTime + delay);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration);
         osc.connect(gain);
         gain.connect(wikiAudioMaster);
@@ -657,7 +657,7 @@ function sfxFanfare() {
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
-    if (wikiAudioMaster && audioCtx) wikiAudioMaster.gain.setValueAtTime(soundEnabled ? 1 : 0, audioCtx.currentTime);
+    if (wikiAudioMaster && audioCtx) wikiAudioMaster.gain.setValueAtTime(soundEnabled ? (window.apusFxVolume??1) : 0, audioCtx.currentTime);
     const btn = document.getElementById('btnAudio');
     if (btn) {
         btn.textContent = soundEnabled ? '🔊 SONIDO: SÍ' : '🔇 SONIDO: NO';
@@ -2174,11 +2174,15 @@ window.onload = function () {
     enabled=!!enabled;
     if(soundEnabled!==enabled) originalSoundToggle();
     const button=document.getElementById('btnAudio');
-    if(button){button.textContent=soundEnabled?'🔊 SONIDO: SÍ':'🔇 SONIDO: NO';button.setAttribute('aria-pressed',String(soundEnabled));}
+    if(button){button.textContent='🎵 AUDIO';button.title='Configurar música y efectos (todos los modos)';button.removeAttribute('aria-pressed');}
   };
   window.toggleSound = function(){
-    window.frikiSetSound(!soundEnabled);
-    try { if(window.parent!==window) window.parent.postMessage({apusWikiApus:'REQUEST_SOUND',enabled:soundEnabled},'*'); }catch(e){}
+    // Todos los modos comparten exactamente el mismo panel y preferencias.
+    if(window.parent!==window){
+      window.parent.postMessage({apusWikiApus:'OPEN_AUDIO_PANEL'},'*');
+      return;
+    }
+    window.frikiSetSound(!soundEnabled); // apertura independiente fuera de Apus
   };
 
   window.closeWikiApus = function(){
@@ -2187,7 +2191,11 @@ window.onload = function () {
   window.addEventListener('message', (e)=>{
     if(!e.data) return;
     if(e.data.apusWikiApus === 'THEME') applyTheme(e.data.theme);
-    if(e.data.apusWikiApus === 'SOUND') window.frikiSetSound(e.data.enabled);
+    if(e.data.apusWikiApus === 'SOUND') {
+      if(Number.isFinite(e.data.fxVolume))window.apusFxVolume=Math.max(0,Math.min(1,e.data.fxVolume));
+      window.frikiSetSound(e.data.enabled);
+      if(wikiAudioMaster&&audioCtx)wikiAudioMaster.gain.setValueAtTime(soundEnabled?(window.apusFxVolume??1):0,audioCtx.currentTime);
+    }
     if(e.data.apusWikiApus === 'ACCOUNT') {const msg=document.getElementById('frikiCloudHint');if(msg)msg.textContent=e.data.signedIn?`✅ Cuenta conectada: ${e.data.name}`:'⚠️ Inicia sesión en Apus para guardar puntos en el ranking mundial.';}
     if(e.data.apusWikiApus === 'SCORE_RESULT'){for(const id of ['frikiCloudHint','frikiResultCloudHint']){const msg=document.getElementById(id);if(msg)msg.textContent=e.data.ok?`✅ Puntos enviados a la nube · Total: ${Number(e.data.total)||0}`:('⚠️ '+(e.data.message||'No se pudieron guardar los puntos en la nube.'));}}
   });
@@ -3411,6 +3419,28 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     const l = LANDSCAPES.find(item=>item.id===Number(id));
     if(l) Object.assign(l,metadata);
   }
+})();
+</script>
+
+<!-- APUS 31.5.2: clic de interfaz administrado por el mismo audio del juego padre -->
+<script id="apus-unified-button-sound-3152">
+(function(){
+ 'use strict';
+ const match='button,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"]';
+ let last=null,lastAt=0;
+ function emit(){if(window.parent===window)return;
+   try{window.parent.postMessage({apusUiButtonPress:true},'*');}catch(_){}}
+ document.addEventListener('pointerdown',function(e){
+   const b=e.target&&e.target.closest&&e.target.closest(match);
+   if(!b||b.disabled)return;
+   last=b;lastAt=performance.now();emit();
+ },true);
+ document.addEventListener('click',function(e){
+   const b=e.target&&e.target.closest&&e.target.closest(match);
+   if(!b||b.disabled)return;
+   if(b===last&&performance.now()-lastAt<500)return;
+   emit();
+ },true);
 })();
 </script>
 </body>
