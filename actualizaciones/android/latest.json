@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.1",
-  "bundleId": "apus-32-0-1",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-1.zip",
-  "checksum": "10eacf0728efcb5783a37d3e1d865d4c689458b6e9d655e9a11dee0d069a6a62",
-  "signature": "oeSicvonHuGkE8VfGdBipgFqaoObCgrbu6Y9EwpTY1nEIKc7/4I5dfGqcXx0FAbofVZeZ0tnB7lF0jsuo5lElWHwh8t696pswlCr5Rj8nYtFDurQIq7v6R5ofuGTKGazWaPttaRraxljAgnTrXwcS5BONHlYilavSL9la1Fp5iejDuXPxvgtdAo4MnssSRyZidwe1k+UA8ZwQkQXkGPL4Eyo6ayXFDWhR+Zc1YmNWrwqW5+T+nIFFrdF/W2I9e58kZ0cNiQhBTJVA5XpMArSTgdvbG3A1nAtjjMwp8H+2qaIpYm9srnCuYqCElUbW9rQC18Q7kgcseiNwv+8CbIBDSq9rVuurljZGKhRqyBjLKXbSNO2S0fwNFqVLTtLiMMe1BXoSDOwOkkjlcFv9IfV04RjmL2RvsZmUZxO1UIvv4AUpUkgXfIQRiYnd9vxNTKTPncXsMC7DWsMk0plZXPDbiJmV/EqvO+852ywyaDdlqe8qZnpTtdBHB1Sm4PWrUHv",
+  "version": "32.0.2",
+  "bundleId": "apus-32-0-2",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-2.zip",
+  "checksum": "48775b6e78342a2da30c0d4f113cef0e37ab47a130bb33b8f6a50f9591f3dc44",
+  "signature": "pP3z34JYJDntDL0/ELxqWBGNZGXYfISdRGqVW6Mp0zGqrsi3I81jYqJOoOp3NdHDYZxxrpmDJnhlPhXyVDROj5MBGJo8CEhpYWY/7q9vg6c/IrGlL5JEVBFHWmPqIQyJrCyH1ki6c9E6BwV8Pp0BzIZrRkzcjJQoLo++J2kHMTE7zKBvQkaxU6t9JGK2Y5tPgF3W0SEZWyk7xOZwFkHmmlA+n+EjWFQYiXmay2rIVj7wDqI3MZQVAISLv9edeUp9Rjp5xLTvxX6cxVJWcolze5rwLwBO6HUabrhJK2v/l6XW4vYQITjZeKdgQC13D8Bk2kga2IdkRps2HUFuHKjkXvqKZmDN5S70D7ljt0/VVN+0QkEZH+TxAIIhx/fU+EvHBwPxNrEtZyW+le7iICwgWYWjtldr27vwAH03b3vediCLlDl6/bnb7l1x+2dk5d0Wn/6FEgL5r/X2qUJYoxzD0vmyURJnEnl/G3yZkejCdiGECIbpqAohwSKZKwFmSqPg",
   "minNativeVersionCode": 3,
-  "notes": "Refugio Apus: mapa fijo, avatar caminando, corregido arranque Android y navegación táctil"
+  "notes": "Recuperacion de arranque Android; Refugio pausado temporalmente"
 }
