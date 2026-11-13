@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.5.5",
-  "bundleId": "apus-31-5-5",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-5.zip",
-  "checksum": "3ec561641e57e12bb5ef62b8812935d4677ea54e14185f50c91e0c88b0cdcb6f",
-  "signature": "LDL0voeaB+jHy4eljADwzVkBe0Ycx4BfAr+VrL3omj38KEzhQlg36kjV57+b7xlG8Q5jTSH3UCpfYuICRhJQh52kKl8wVA7akQmvHX3QalBFX3bwgcNQ+1qj8XU8uLI8d2BUrkZOvROQ0xxe3Xyyio2qaGVzKlw98irEfVu9Y5lrPi06x9sBKB2f4aRPPT92qQd0kv2+YHCqaU/fh9EfBv/RcJoIRAdItSxR5jNIcHan+jfpbyvHRXzEBp8vhysqUVIcPPudFrD5Y8Vwu0ux3lY9t13WMwNo7ZUDuEAeW5N79VyqD9J+LbBMbv+upnKupNgjpYzfFqn4M4jZOQiWwG94/598DgalfleeYY3sSiTaTOR1+5MFPTLETHeLiuWkfeg3URxIso4yqc0KN4zRmhbau0sonS2OFvqUswuK3tF4YXAq4/xbvTytRAOGOzqBn7o7t38ZiRzhupbS4tGD1GzXBmson8qb+yudfudQwdS9UsG+tmqFqQ9JTNbYy4yo",
+  "version": "31.5.6",
+  "bundleId": "apus-31-5-6",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-6.zip",
+  "checksum": "e8fa019483af1e0f9c45134aa17d473d948ac09409685e82350ca8200c8b360d",
+  "signature": "N9Yw761DAM0VLAjngY7dAeRUqvjs4OXlR/bt5+LALduuJJunWMzgsvblihsh2ydcVjffptICbak/oS6EdcGnKUrrT5Z5dSmUvv1XbQaho7WW5ygvFwHwP2KoO+JKB9GbjDNj2E22kRC1OHWTZwZgZ9FPZv7yDuRU606LuJfjL2yea80c97H1Ncnp1kFJ6FtST+BT7j7f6/065Q18q+/3MqtA/tGDkBpV01JriEsaFTriRJ5DO3Qgy5YRROf0RZe7npklzIyludm7SYItA5n7SMIQ5VXibJXL1nruYWJh0zi3u6QTgtDqznGwTXAH1fvC1nfXf/5Zv1s4yCjwBoSBjZQ1wWC05p1qvGsPYVHfQ/Hcg+ZZ2Ius04xSW+TzFCQJUCyKSMkvRb3Hn3NgDDx2VMsczt65cNeOgWH+qjvaMkiS2s/nxQgRcgq62CjjLI4IUVeijJ1Tkc3x+GUrUmLSgD3cpZkHHCDffAod/uSFGCGhTUcoF8u5NgLjMJpX563l",
   "minNativeVersionCode": 3,
-  "notes": "MIDI victoria burlona y derrota audible Chugo vs Jordy"
+  "notes": "Ranking Friki Apus unificado por cuenta, con puntos antiguos protegidos y partidas pendientes"
 }

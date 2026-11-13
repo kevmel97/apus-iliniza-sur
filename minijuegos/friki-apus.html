@@ -1112,6 +1112,9 @@ const QUESTION_DATABASE = buildWikiApusQuestionDatabase();
 /* ============================================================================
    4. GAME STATE & PROGRESSION LOGIC (25 Levels, >10 unlocks next, >=15 unlocks animation)
    ============================================================================ */
+// V31.5.6: el puntaje histórico del dispositivo se conserva, pero el puntaje
+// de cuentas Firebase se muestra exclusivamente desde el registro por UID.
+window.__apusFrikiRankState = null;
 let gameState = {
     totalScore: 0,
     unlockedLevel: 1,       // Highest unlocked level (1 to 25)
@@ -1125,6 +1128,14 @@ function loadProgress() {
         const saved = localStorage.getItem('apus_ecuador_pixel_save_v1');
         if (saved) {
             const parsed = JSON.parse(saved);
+            // Copia histórica NO atribuida a ningún usuario. Nunca sobrescribir
+            // un respaldo más alto ni enviarlo solo al ranking global.
+            const key='apus_friki_legacy_backup_v3156';
+            let previous={};
+            try{previous=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+            const oldPts=Number(parsed?.totalScore)||0, backed=Number(previous?.totalScore)||0;
+            if(Number.isSafeInteger(oldPts)&&oldPts>backed)
+              localStorage.setItem(key,JSON.stringify({totalScore:oldPts,savedAt:Date.now(),source:'legacy-local-unassigned'}));
             gameState = { ...gameState, ...parsed };
         }
     } catch (e) {}
@@ -1139,7 +1150,13 @@ function saveProgress() {
 }
 
 function updateHeaderUI() {
-    document.getElementById('headerScore').textContent = gameState.totalScore;
+    const official=window.__apusFrikiRankState;
+    const header=document.getElementById('headerScore');
+    if(header)header.textContent=official?.signedIn
+      ?Math.max(0,Number(official.confirmed)||0).toLocaleString('es-EC')
+      :gameState.totalScore.toLocaleString('es-EC');
+    const caption=header?.previousElementSibling;
+    if(caption)caption.textContent=official?.signedIn?'PUNTOS GLOBALES:':'PUNTOS EN ESTE DISPOSITIVO:';
     let postcardCount = 0;
     for (let i = 1; i <= 25; i++) {
         if (isPostcardUnlocked(i)) postcardCount++;
@@ -2196,7 +2213,27 @@ window.onload = function () {
       window.frikiSetSound(e.data.enabled);
       if(wikiAudioMaster&&audioCtx)wikiAudioMaster.gain.setValueAtTime(soundEnabled?(window.apusFxVolume??1):0,audioCtx.currentTime);
     }
-    if(e.data.apusWikiApus === 'ACCOUNT') {const msg=document.getElementById('frikiCloudHint');if(msg)msg.textContent=e.data.signedIn?`✅ Cuenta conectada: ${e.data.name}`:'⚠️ Inicia sesión en Apus para guardar puntos en el ranking mundial.';}
+    if(e.data.apusWikiApus === 'ACCOUNT') {
+      const uid=String(e.data.uid||'');
+      const prev=window.__apusFrikiRankState;
+      window.__apusFrikiRankState=e.data.signedIn&&uid
+        ?{signedIn:true,uid,confirmed:prev?.uid===uid?prev.confirmed:0,pending:0,pendingSessions:0}
+        :null;
+      updateHeaderUI();
+      const msg=document.getElementById('frikiCloudHint');
+      if(msg)msg.textContent=e.data.signedIn?`✅ Cuenta conectada: ${e.data.name} · Consultando total global...`:'⚠️ Inicia sesión para usar el ranking global.';
+    }
+    if(e.data.apusWikiApus === 'SCORE_SYNC') {
+      const state=window.__apusFrikiRankState;
+      if(!state?.signedIn||String(e.data.uid||'')!==state.uid)return;
+      const confirmed=Math.max(0,Math.floor(Number(e.data.confirmed)||0));
+      const pending=Math.max(0,Math.floor(Number(e.data.pending)||0));
+      const pendingSessions=Math.max(0,Math.floor(Number(e.data.pendingSessions)||0));
+      window.__apusFrikiRankState={signedIn:true,uid:state.uid,confirmed,pending,pendingSessions};
+      updateHeaderUI();
+      const msg=document.getElementById('frikiCloudHint');
+      if(msg)msg.textContent=`⭐ Puntaje global: ${confirmed.toLocaleString('es-EC')} · ${pendingSessions?`⏳ +${pending.toLocaleString('es-EC')} pendiente(s) por sincronizar`:'✅ Sin partidas pendientes'}`;
+    }
     if(e.data.apusWikiApus === 'SCORE_RESULT'){for(const id of ['frikiCloudHint','frikiResultCloudHint']){const msg=document.getElementById(id);if(msg)msg.textContent=e.data.ok?`✅ Puntos enviados a la nube · Total: ${Number(e.data.total)||0}`:('⚠️ '+(e.data.message||'No se pudieron guardar los puntos en la nube.'));}}
   });
 
@@ -3235,6 +3272,14 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     }
     return total;
   }
+  // Guardar el avance completo de una partida aun cuando no se alcancen
+  // las 20 preguntas: nunca usar el acumulado compartido como dato oficial.
+  function frikiSendProgress(final=false){
+    if(!frikiSessionId||window.parent===window||!frikiSessionPoints)return;
+    try{window.parent.postMessage({apusWikiApus:final?'SUBMIT_SCORE':'QUEUE_PROGRESS',
+      sessionId:frikiSessionId,points:frikiSessionPoints,
+      level:currentQuiz.level,correct:currentQuiz.correctCount},'*');}catch(e){}
+  }
   function showFrikiEarnedPoints(){
     let label=document.getElementById('frikiEarnedPoints');
     if(!label){
@@ -3291,6 +3336,7 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     document.getElementById('quizStreakCount').textContent = `🔥${currentQuiz.streak}`;
     renderQuizDotsBar();
     saveProgress();
+    if(isCorrect)frikiSendProgress(false); // conservar puntos antes de cerrar inesperadamente
     const nextBtn = document.getElementById('btnNextQuestion');
     nextBtn.textContent = (currentQuiz.currentIndex === 19) ? 'VER RESULTADOS 🏁' : 'SIGUIENTE PREGUNTA ➡';
     feedbackBar.classList.remove('hidden');
@@ -3321,7 +3367,7 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     showFrikiEarnedPoints();
     if(!frikiSessionSubmitted && frikiSessionId){
       frikiSessionSubmitted=true;
-      try { if(window.parent!==window) window.parent.postMessage({apusWikiApus:'SUBMIT_SCORE',sessionId:frikiSessionId,points:frikiSessionPoints,level:lvl,correct:score},'*'); } catch(e) {}
+      frikiSendProgress(true); // contabilizar solo lo que falta de la sesión
     }
   };
 
@@ -3375,7 +3421,7 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     const h1 = document.querySelector('header h1'); if(h1) h1.textContent = 'FRIKI APUS';
     const p = document.querySelector('header p'); if(p) p.textContent = 'TRIVIA PIXEL ART • CAMPING APUS';
     const headerScoreLabel=document.getElementById('headerScore')?.previousElementSibling;
-    if(headerScoreLabel)headerScoreLabel.textContent='PUNTOS LOCALES:';
+    if(headerScoreLabel)headerScoreLabel.textContent=window.__apusFrikiRankState?.signedIn?'PUNTOS GLOBALES:':'PUNTOS EN ESTE DISPOSITIVO:';
     const promo = document.querySelector('#screen-menu .inline-block'); if(promo) promo.textContent = `FRIKI APUS • ${QUESTION_DATABASE.length} PREGUNTAS • 5 ETAPAS / 25 NIVELES`;
     const h2 = document.querySelector('#screen-menu h2'); if(h2) h2.textContent = 'FRIKI APUS DEL ECUADOR';
     const desc = document.querySelector('#screen-menu p.text-xl'); if(desc) desc.innerHTML = 'Responde preguntas sobre el Ecuador junto a <span class="text-amber-300 font-bold">Miguel</span>, <span class="text-teal-300 font-bold">Chugo</span>, <span class="text-orange-300 font-bold">Jordy</span> y sus amigos del campamento. Supera <span class="text-emerald-400 font-bold">&gt;10 respuestas</span> para avanzar de nivel y observa cómo cambia la fogata en cada partida.';
