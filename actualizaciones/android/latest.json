@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.0",
-  "bundleId": "apus-32-0-0",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-0.zip",
-  "checksum": "35dbad29a016986eae90f7b05fe5c6a05a9f066329981eb5863eea0029cd2f14",
-  "signature": "fRY03/8IrWWndtOyBmMedtCj0ZJaMsXjQE8geQLCa1RkijE5sE6JpdJIG7CvzP7v5O3CXA2lSceRVrjUU6PKNaj+1vurgrHUYoMN/S0NIPK+LqkIKvsj8sNb/GoJD5si2KUogoGHO2yokvtRQ/4Spqz4zP2DP3DzDBwADJGwo4RziFefl7J04Y5aYIQlPHDKGEi6ptRw6+COTDUQIULEN/qxDM8XRJuYByJJQ0SvXsGtdNcNDRvS6lnuInZdz3+AI9SOQfkjG91OfJwvpricKPP5iSJYeDT+0DVn3jajWdTbMgkwaFvA4sKayKUEQBC1v9KhRyGK7ejdc2Rbmjhxf94WYFnX6vcrUCAUSyWmD625oCxNeMRFLSGodXovMGWVYfRKT1AP+xV+gTbilk8vvlfD9124DkjnP+zCmQdHIVIuIum70pXVAnbWAcNIh4i1WF9MZiPIITS1MZwYkKsZHSKz4vUXnnxNRx+iw4WRI52C8IZuPsE06r2FWXYOM0Oi",
+  "version": "32.0.1",
+  "bundleId": "apus-32-0-1",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-1.zip",
+  "checksum": "10eacf0728efcb5783a37d3e1d865d4c689458b6e9d655e9a11dee0d069a6a62",
+  "signature": "oeSicvonHuGkE8VfGdBipgFqaoObCgrbu6Y9EwpTY1nEIKc7/4I5dfGqcXx0FAbofVZeZ0tnB7lF0jsuo5lElWHwh8t696pswlCr5Rj8nYtFDurQIq7v6R5ofuGTKGazWaPttaRraxljAgnTrXwcS5BONHlYilavSL9la1Fp5iejDuXPxvgtdAo4MnssSRyZidwe1k+UA8ZwQkQXkGPL4Eyo6ayXFDWhR+Zc1YmNWrwqW5+T+nIFFrdF/W2I9e58kZ0cNiQhBTJVA5XpMArSTgdvbG3A1nAtjjMwp8H+2qaIpYm9srnCuYqCElUbW9rQC18Q7kgcseiNwv+8CbIBDSq9rVuurljZGKhRqyBjLKXbSNO2S0fwNFqVLTtLiMMe1BXoSDOwOkkjlcFv9IfV04RjmL2RvsZmUZxO1UIvv4AUpUkgXfIQRiYnd9vxNTKTPncXsMC7DWsMk0plZXPDbiJmV/EqvO+852ywyaDdlqe8qZnpTtdBHB1Sm4PWrUHv",
   "minNativeVersionCode": 3,
-  "notes": "Refugio Apus fase 1: mapa pixel art, acceso con cuenta, tres avatares y zonas interactivas"
+  "notes": "Refugio Apus: mapa fijo, avatar caminando, corregido arranque Android y navegación táctil"
 }

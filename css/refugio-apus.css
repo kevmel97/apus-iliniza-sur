@@ -1,54 +1,91 @@
-/* REFUGIO APUS — fase 1 · interfaz aislada, consistente con el pixel art de Apus. */
-#apus-refugio-overlay{z-index:80;justify-content:flex-start;background:linear-gradient(180deg,#070e1d,#142944);padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(10px + env(safe-area-inset-bottom,0px));gap:8px;touch-action:auto}
-#apus-refugio-overlay .ref-head,#apus-refugio-overlay .ref-foot,#apus-refugio-overlay .ref-stage{width:min(100%,1120px)}
-#apus-refugio-overlay .ref-head{display:flex;align-items:center;justify-content:space-between;gap:9px;background:#16263b;border:3px solid #86abc5;box-shadow:4px 4px 0 #050b18;padding:10px 12px;flex:none;text-align:left}
-#apus-refugio-overlay .ref-title{font-size:clamp(10px,2.1vw,17px);color:#ffb65c;line-height:1.45;text-shadow:2px 2px #422a1c}
-#apus-refugio-overlay .ref-subtitle{font-size:clamp(6px,1.15vw,9px);line-height:1.7;color:#bfe7f0;margin-top:5px}
-#apus-refugio-overlay .ref-btn{font:inherit;font-size:clamp(7px,1.45vw,10px);line-height:1.6;color:#fff;background:#243d60;border:3px solid #7ea5c6;padding:9px 12px;cursor:pointer;text-shadow:1px 2px #0b1625;box-shadow:3px 3px 0 #091524;touch-action:manipulation;border-radius:2px}
-#apus-refugio-overlay .ref-btn:hover,#apus-refugio-overlay .ref-btn:focus-visible{background:#41698d;border-color:#ffd06a;outline:none}
-#apus-refugio-overlay .ref-btn:active{transform:translateY(2px);box-shadow:1px 1px 0 #091524}
-#apus-refugio-overlay .ref-btn-orange{background:#a65a2a;border-color:#ffcf77}
-#apus-refugio-overlay .ref-stage{position:relative;flex:1 1 auto;min-height:180px;max-height:calc(100% - 170px);overflow:hidden;background:#142d45;border:4px solid #648ba7;box-shadow:4px 4px 0 #090f1c;touch-action:none}
-#apus-refugio-canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair}
-#apus-refugio-overlay .ref-stage-tag{position:absolute;left:9px;top:9px;background:#111c32d9;border:2px solid #62859b;padding:7px;font-size:8px;color:#ffeab3;pointer-events:none;text-align:left;line-height:1.6}
-#apus-refugio-overlay .ref-stage-tip{position:absolute;bottom:9px;left:9px;right:9px;background:#09182dcf;border:2px solid #648daa;padding:7px 9px;font-size:clamp(7px,1.15vw,9px);color:#fff3d3;line-height:1.7;pointer-events:none}
-#apus-refugio-overlay .ref-foot{flex:none;display:flex;align-items:stretch;gap:8px;min-height:0;max-height:28vh}
-#apus-refugio-overlay .ref-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;flex:1}
-#apus-refugio-overlay .ref-actions .ref-btn{padding:9px 3px;font-size:clamp(7px,1.4vw,9px)}
-#apus-refugio-overlay .ref-movement{display:none;grid-template-columns:repeat(3,34px);grid-template-rows:repeat(3,30px);gap:2px;align-content:center;justify-content:center}
-#apus-refugio-overlay .ref-movement .ref-btn{padding:0;font-size:15px;min-width:30px}
-#apus-refugio-overlay .ref-movement [data-ref-dir="up"]{grid-column:2;grid-row:1}
-#apus-refugio-overlay .ref-movement [data-ref-dir="left"]{grid-column:1;grid-row:2}
-#apus-refugio-overlay .ref-movement [data-ref-dir="down"]{grid-column:2;grid-row:3}
-#apus-refugio-overlay .ref-movement [data-ref-dir="right"]{grid-column:3;grid-row:2}
-#apus-refugio-overlay .ref-toast{position:absolute;z-index:3;left:50%;bottom:54px;transform:translateX(-50%);width:min(92%,480px);border:3px solid #ffcf83;background:#13233df2;padding:12px;line-height:1.8;font-size:clamp(8px,1.5vw,10px);color:#fff5df;text-align:center;box-shadow:4px 4px 0 #0b0b19;pointer-events:none}
-#apus-refugio-overlay .ref-dialog{position:absolute;z-index:6;inset:0;display:flex;justify-content:center;align-items:center;padding:12px;background:#020817c7;overflow-y:auto}
-#apus-refugio-overlay .ref-dialog[hidden],#apus-refugio-overlay .ref-toast[hidden]{display:none!important}
-#apus-refugio-overlay .ref-dialog-inner{width:min(100%,520px);max-height:100%;overflow-y:auto;background:#192c44;border:4px solid #f6c375;padding:16px;box-shadow:5px 5px 0 #070a11;color:#f9f5e7;text-align:left}
-#apus-refugio-overlay .ref-dialog h3{font-size:12px;color:#ffd280;line-height:1.65;margin-bottom:11px}
-#apus-refugio-overlay .ref-dialog p{font-size:9px;line-height:2;margin-bottom:12px;color:#e0ebf0}
-#apus-refugio-overlay .ref-dialog-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-#apus-refugio-overlay .ref-dialog-actions>.ref-btn{flex:1 1 160px}
-#apus-refugio-overlay .ref-slot-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
-#apus-refugio-overlay .ref-slot-card{font:inherit;border:3px solid #7696b5;background:#11223b;color:#fff;padding:6px 4px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;line-height:1.4;font-size:7px;overflow-wrap:anywhere}
-#apus-refugio-overlay .ref-slot-card[aria-pressed="true"]{border-color:#ffd05f;background:#304a5b}
-#apus-refugio-overlay .ref-slot-card canvas{width:68px;height:80px;max-width:100%;image-rendering:pixelated}
-#apus-refugio-overlay .ref-slot-card strong{font-size:8px;line-height:1.5;color:#ffd06f}
-body.theme-light #apus-refugio-overlay .ref-head,body.theme-light #apus-refugio-overlay .ref-dialog-inner{background:#ebf1f2;border-color:#507797;color:#17334e}
-body.theme-light #apus-refugio-overlay .ref-title{color:#8f490b;text-shadow:none}
-body.theme-light #apus-refugio-overlay .ref-subtitle,body.theme-light #apus-refugio-overlay .ref-dialog p{color:#25476a}
-body.theme-light #apus-refugio-overlay .ref-dialog h3{color:#86430b}
-body.theme-light #apus-refugio-overlay{background:linear-gradient(#d2e7f3,#7dabcb)}
-@media(max-width:700px){
-  #apus-refugio-overlay{gap:6px;padding-left:5px;padding-right:5px}
-  #apus-refugio-overlay .ref-head{padding:7px 7px}
-  #apus-refugio-overlay .ref-head .ref-btn{padding:8px 7px;font-size:7px}
-  #apus-refugio-overlay .ref-movement{display:grid}
-  #apus-refugio-overlay .ref-foot{max-height:150px}
-  #apus-refugio-overlay .ref-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
-  #apus-refugio-overlay .ref-actions .ref-btn{font-size:7px;padding:8px 2px}
-  #apus-refugio-overlay .ref-stage-tag{font-size:7px;padding:5px}
-  #apus-refugio-overlay .ref-dialog{align-items:center}
-  #apus-refugio-overlay .ref-dialog-inner{padding:10px;max-height:95%}
+/* APUS GUARDIANS · REFUGIO APUS 32.0.1 · Cámara fija / personaje libre. */
+#apus-refugio-overlay{
+ z-index:90;display:none;flex-direction:column;justify-content:flex-start;align-items:center;
+ gap:7px;background:#0b1929;padding:calc(9px + env(safe-area-inset-top,0px)) 9px calc(7px + env(safe-area-inset-bottom,0px));
+ font-family:'Press Start 2P',monospace;touch-action:manipulation;min-width:0;overflow:hidden;
 }
-#apus-refugio-slots[hidden],#apus-refugio-creator-back[hidden]{display:none!important}
+#apus-refugio-overlay.active{display:flex}
+#apus-refugio-overlay .ref-head,#apus-refugio-overlay .ref-stage,#apus-refugio-overlay .ref-foot{width:min(100%,1200px);min-width:0}
+#apus-refugio-overlay .ref-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:11px 12px;border:3px solid #9abcbd;background:#18344b;box-shadow:3px 3px 0 #081420;text-align:left}
+#apus-refugio-overlay .ref-title{color:#ffcc78;text-shadow:2px 2px #683c31;font-size:clamp(11px,2vw,16px);line-height:1.35}
+#apus-refugio-overlay .ref-subtitle{color:#cfe6e5;margin-top:8px;font-size:clamp(7px,1.1vw,9px);line-height:1.6}
+#apus-refugio-overlay .ref-btn{font:inherit;font-size:clamp(7px,1.2vw,10px);line-height:1.55;color:#f5fbf5;
+ background:#264f66;border:3px solid #91bfc1;border-radius:2px;padding:9px 11px;cursor:pointer;
+ text-shadow:1px 2px #162332;box-shadow:3px 3px 0 #0d1929;touch-action:manipulation}
+#apus-refugio-overlay .ref-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #0d1929}
+#apus-refugio-overlay .ref-btn:focus-visible{outline:3px solid #f9cf76;outline-offset:2px}
+#apus-refugio-overlay .ref-btn-orange{background:#ad6338;border-color:#f5b77a}
+#apus-refugio-overlay .ref-stage{position:relative;flex:1 1 auto;min-height:155px;max-height:none;overflow:hidden;
+ background:#142b43;border:3px solid #92b8b4;box-shadow:4px 4px 0 #07131c;touch-action:none}
+#apus-refugio-canvas{display:block;width:100%;height:100%;object-fit:fill;image-rendering:pixelated;touch-action:none;cursor:crosshair}
+#apus-refugio-overlay .ref-stage-tag{position:absolute;left:8px;top:7px;background:#102d42d9;border:2px solid #9dc3bd;
+ padding:7px;font-size:clamp(6px,1.1vw,8px);color:#ffedca;pointer-events:none;line-height:1.6}
+#apus-refugio-overlay .ref-stage-tip{position:absolute;bottom:7px;left:9px;right:9px;background:#12334be8;border:2px solid #679fa7;
+ padding:8px;font-size:clamp(7px,1.0vw,9px);color:#fff1c8;line-height:1.65;pointer-events:none;text-align:center}
+#apus-refugio-overlay .ref-foot{flex:0 0 auto;display:flex;align-items:stretch;gap:12px;min-height:64px;max-height:25vh}
+#apus-refugio-overlay .ref-actions{flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+#apus-refugio-overlay .ref-actions .ref-btn{padding:8px 4px;font-size:clamp(7px,1.05vw,9px)}
+#apus-refugio-overlay .ref-movement{display:grid;flex:none;grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,31px);gap:1px;justify-content:center;align-content:center}
+#apus-refugio-overlay .ref-movement button{padding:0;min-width:0;font-size:15px;font-family:monospace}
+#apus-refugio-overlay [data-ref-dir="up"]{grid-column:2;grid-row:1}
+#apus-refugio-overlay [data-ref-dir="left"]{grid-column:1;grid-row:2}
+#apus-refugio-overlay [data-ref-dir="right"]{grid-column:3;grid-row:2}
+#apus-refugio-overlay [data-ref-dir="down"]{grid-column:2;grid-row:3}
+#apus-refugio-overlay .ref-toast{position:absolute;z-index:5;left:50%;bottom:52px;transform:translateX(-50%);
+ width:min(93%,470px);padding:12px;background:#173149fa;border:3px solid #ffce86;box-shadow:3px 3px 0 #0b1524;
+ color:#fff2cd;font-size:9px;line-height:1.65;pointer-events:none}
+#apus-refugio-overlay .ref-dialog{position:absolute;z-index:7;inset:0;display:flex;justify-content:center;align-items:center;
+ background:#0b1725d9;padding:12px;overflow-y:auto;touch-action:pan-y}
+#apus-refugio-overlay .ref-dialog-inner{width:min(100%,540px);max-height:100%;overflow-y:auto;border:4px solid #ffcc76;
+ background:#1a384d;color:#fcf4dc;padding:17px;box-shadow:4px 4px 0 #080e1a;text-align:left;touch-action:pan-y}
+#apus-refugio-overlay .ref-dialog h3{font-size:clamp(10px,2.2vw,13px);line-height:1.6;color:#ffdb89;margin-bottom:10px}
+#apus-refugio-overlay .ref-dialog p{font-size:clamp(8px,1.7vw,10px);line-height:2;color:#e1f0ed;margin-bottom:14px}
+#apus-refugio-overlay .ref-dialog-actions{display:flex;flex-wrap:wrap;gap:8px}
+#apus-refugio-overlay .ref-dialog-actions .ref-btn{flex:1 1 155px}
+#apus-refugio-overlay .ref-slot-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:7px 0 15px}
+#apus-refugio-overlay .ref-slot-card{font:inherit;color:#eaf6f1;border:3px solid #8baeb4;cursor:pointer;
+ background:#213c52;padding:5px 3px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;line-height:1.6;
+ font-size:7px;overflow-wrap:anywhere;touch-action:manipulation}
+#apus-refugio-overlay .ref-slot-card[aria-pressed="true"]{border-color:#ffdc86;background:#446071}
+#apus-refugio-overlay .ref-slot-card canvas{height:85px;width:78px;max-width:100%;image-rendering:pixelated}
+#apus-refugio-overlay .ref-slot-card strong{color:#f7d17d;font-size:7px}
+#apus-refugio-overlay .ref-error{position:absolute;z-index:12;top:50%;left:50%;transform:translate(-50%,-50%);
+ width:min(94%,580px);background:#3c202d;color:#ffe9d2;border:4px solid #f9b877;padding:17px;text-align:center;font-size:10px;line-height:1.8}
+#apus-refugio-overlay .ref-error button{margin:12px auto 0;display:block}
+#apus-refugio-overlay .ref-dialog[hidden],#apus-refugio-overlay .ref-toast[hidden],#apus-refugio-overlay .ref-error[hidden],#apus-refugio-creator-back[hidden],#apus-refugio-slots[hidden]{display:none!important}
+body.theme-light #apus-refugio-overlay{background:#c4dae2}
+body.theme-light #apus-refugio-overlay .ref-head,body.theme-light #apus-refugio-overlay .ref-dialog-inner{background:#eaf0ec;color:#213c4b;border-color:#638c95}
+body.theme-light #apus-refugio-overlay .ref-title,body.theme-light #apus-refugio-overlay .ref-dialog h3{color:#92561d;text-shadow:none}
+body.theme-light #apus-refugio-overlay .ref-subtitle,body.theme-light #apus-refugio-overlay .ref-dialog p{color:#2c4c5b}
+@media(max-width:700px){
+ #apus-refugio-overlay{padding-left:5px;padding-right:5px;gap:5px}
+ #apus-refugio-overlay .ref-head{padding:7px 8px}
+ #apus-refugio-overlay .ref-head .ref-btn{padding:8px 6px;font-size:7px}
+ #apus-refugio-overlay .ref-stage-tag{font-size:6px;padding:5px}
+ #apus-refugio-overlay .ref-stage-tip{font-size:7px;padding:6px;bottom:5px}
+ #apus-refugio-overlay .ref-foot{max-height:25vh;min-height:103px;gap:6px}
+ #apus-refugio-overlay .ref-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ #apus-refugio-overlay .ref-actions .ref-btn{padding:8px 3px;font-size:7px}
+ #apus-refugio-overlay .ref-movement{grid-template-columns:repeat(3,31px);grid-template-rows:repeat(3,30px)}
+ #apus-refugio-overlay .ref-dialog-inner{padding:10px;max-height:94%}
+ #apus-refugio-overlay .ref-dialog p{font-size:8px}
+}
+@media(max-height:550px){
+ #apus-refugio-overlay .ref-head{padding:5px 8px}
+ #apus-refugio-overlay .ref-foot{min-height:64px}
+ #apus-refugio-overlay .ref-stage-tag{display:none}
+ #apus-refugio-overlay .ref-stage-tip{display:none}
+}
+
+@media(max-height:550px) and (orientation:landscape){
+ #apus-refugio-overlay{gap:3px;padding-top:calc(3px + env(safe-area-inset-top,0px));padding-bottom:3px}
+ #apus-refugio-overlay .ref-head{padding:3px 8px;min-height:35px}
+ #apus-refugio-overlay .ref-subtitle{margin-top:2px}
+ #apus-refugio-overlay .ref-foot{min-height:39px;max-height:45px;gap:5px}
+ #apus-refugio-overlay .ref-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+ #apus-refugio-overlay .ref-actions .ref-btn{padding:3px 2px;font-size:7px}
+ #apus-refugio-overlay .ref-movement{display:flex;align-items:center;gap:3px}
+ #apus-refugio-overlay .ref-movement .ref-btn{min-width:28px;padding:4px 0;font-size:12px}
+ #apus-refugio-overlay .ref-stage{min-height:165px}
+}

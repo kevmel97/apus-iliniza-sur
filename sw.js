@@ -1,20 +1,11 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.0-refugio';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.1-refugio-fijo';
 const PRECACHE_URLS = [
   "./assets/intro/logo-apus-guardians.png",
   "./assets/intro/fondo-video.webp",
-  "./assets/intro/reto-iliniza-sur.mp4",
-  "./assets/intro/musica-intro.m4a",
-  "./assets/intro/reto-iliniza-sur-vertical.mp4",
   "./css/apus-intro-video.css",
   "./js/apus-intro-video.js",
   "./js/apus-musica-v31_5.js",
-  "./assets/musica/waltz-of-the-andean-ridge.mp3",
-  "./assets/musica/the-great-ascent.mp3",
-  "./assets/musica/lucky-number-bounce.mp3",
-  "./assets/musica/cold-iron-ascent.mp3",
-  "./assets/musica/boss-rush.mp3",
-  "./assets/musica/mountain-pass-derby.mp3",
   "./LEEME_VERSION_31.md",
   "./assets/escenarios/imagen_06cbc52a0cb825.webp",
   "./assets/escenarios/imagen_1a6279d63f8638.jpg",
@@ -91,7 +82,13 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k.startsWith('apus-iliniza-sur-') && k !== APUS_CACHE_VERSION).map(k => caches.delete(k)));
+    // Conservamos el caché inmediatamente anterior: incluye vídeos y música
+    // descargados cuando el usuario estaba en línea. Evita pantallas negras
+    // por re-descargar todos los MP4/MP3 tras una actualización OTA.
+    const gameCaches=keys.filter(k => k.startsWith('apus-iliniza-sur-'));
+    const ordered=[...gameCaches.filter(k=>k!==APUS_CACHE_VERSION),APUS_CACHE_VERSION];
+    const keep=new Set(ordered.slice(-2));
+    await Promise.all(gameCaches.filter(k=>!keep.has(k)).map(k => caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -104,7 +101,7 @@ self.addEventListener('fetch', event => {
   if (/\/assets\/intro\/(?:reto-iliniza-sur(?:-vertical)?\.mp4|musica-intro\.m4a)$/.test(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(APUS_CACHE_VERSION);
-      let stored = await cache.match(url.href);
+      let stored = await cache.match(url.href) || await caches.match(url.href);
       if (!stored) {
         const online = await fetch(new Request(url.href, {cache:'no-store'}));
         if (!online.ok) return online;
@@ -140,11 +137,17 @@ self.addEventListener('fetch', event => {
         if (response.ok) await cache.put(req, response.clone());
         return response;
       } catch (err) {
-        return (await cache.match(req)) || (await cache.match('./index.html')) || Response.error();
+        return (await cache.match(req)) || (await cache.match('./index.html')) || (await caches.match('./index.html')) || Response.error();
       }
     }
     const cached = await cache.match(req);
     if(cached) return cached;
+    // Rescatar audio e imágenes offline del caché anterior; nunca reutilizar
+    // JS/CSS viejos porque podrían romper el arranque del juego actualizado.
+    if (/\.(?:mp3|mp4|m4a|png|jpg|jpeg|webp)$/i.test(url.pathname)) {
+      const older = await caches.match(req);
+      if (older) return older;
+    }
     try {
       const response = await fetch(req);
       if(response.ok && response.type === 'basic') await cache.put(req, response.clone());
