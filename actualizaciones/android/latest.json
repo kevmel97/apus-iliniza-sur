@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "31.5.6",
-  "bundleId": "apus-31-5-6",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-31-5-6.zip",
-  "checksum": "e8fa019483af1e0f9c45134aa17d473d948ac09409685e82350ca8200c8b360d",
-  "signature": "N9Yw761DAM0VLAjngY7dAeRUqvjs4OXlR/bt5+LALduuJJunWMzgsvblihsh2ydcVjffptICbak/oS6EdcGnKUrrT5Z5dSmUvv1XbQaho7WW5ygvFwHwP2KoO+JKB9GbjDNj2E22kRC1OHWTZwZgZ9FPZv7yDuRU606LuJfjL2yea80c97H1Ncnp1kFJ6FtST+BT7j7f6/065Q18q+/3MqtA/tGDkBpV01JriEsaFTriRJ5DO3Qgy5YRROf0RZe7npklzIyludm7SYItA5n7SMIQ5VXibJXL1nruYWJh0zi3u6QTgtDqznGwTXAH1fvC1nfXf/5Zv1s4yCjwBoSBjZQ1wWC05p1qvGsPYVHfQ/Hcg+ZZ2Ius04xSW+TzFCQJUCyKSMkvRb3Hn3NgDDx2VMsczt65cNeOgWH+qjvaMkiS2s/nxQgRcgq62CjjLI4IUVeijJ1Tkc3x+GUrUmLSgD3cpZkHHCDffAod/uSFGCGhTUcoF8u5NgLjMJpX563l",
+  "version": "32.0.0",
+  "bundleId": "apus-32-0-0",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-0.zip",
+  "checksum": "35dbad29a016986eae90f7b05fe5c6a05a9f066329981eb5863eea0029cd2f14",
+  "signature": "fRY03/8IrWWndtOyBmMedtCj0ZJaMsXjQE8geQLCa1RkijE5sE6JpdJIG7CvzP7v5O3CXA2lSceRVrjUU6PKNaj+1vurgrHUYoMN/S0NIPK+LqkIKvsj8sNb/GoJD5si2KUogoGHO2yokvtRQ/4Spqz4zP2DP3DzDBwADJGwo4RziFefl7J04Y5aYIQlPHDKGEi6ptRw6+COTDUQIULEN/qxDM8XRJuYByJJQ0SvXsGtdNcNDRvS6lnuInZdz3+AI9SOQfkjG91OfJwvpricKPP5iSJYeDT+0DVn3jajWdTbMgkwaFvA4sKayKUEQBC1v9KhRyGK7ejdc2Rbmjhxf94WYFnX6vcrUCAUSyWmD625oCxNeMRFLSGodXovMGWVYfRKT1AP+xV+gTbilk8vvlfD9124DkjnP+zCmQdHIVIuIum70pXVAnbWAcNIh4i1WF9MZiPIITS1MZwYkKsZHSKz4vUXnnxNRx+iw4WRI52C8IZuPsE06r2FWXYOM0Oi",
   "minNativeVersionCode": 3,
-  "notes": "Ranking Friki Apus unificado por cuenta, con puntos antiguos protegidos y partidas pendientes"
+  "notes": "Refugio Apus fase 1: mapa pixel art, acceso con cuenta, tres avatares y zonas interactivas"
 }

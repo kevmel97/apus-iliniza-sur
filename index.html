@@ -13,6 +13,7 @@
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/apus-intro-video.css">
+<link rel="stylesheet" href="css/refugio-apus.css">
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -68,6 +69,7 @@
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
       <button class="menu-btn" onclick="openRanking()">🏆 RANKING GLOBAL</button>
       <button class="menu-btn" onclick="showOverlay('minigames-hub-overlay')">🎮 MINI JUEGOS</button>
+      <button class="menu-btn" style="background:#187a75;border-color:#c5f0d7" onclick="openRefugioApus()">🏕️ REFUGIO APUS <span style="font-size:8px">(FASE 1)</span></button>
       <button class="menu-btn" onclick="showOverlay('community-overlay')">🏔️ ÚNETE A NUESTRA COMUNIDAD</button>
       <button class="menu-btn" onclick="exitGame()">🚪 SALIR DEL JUEGO</button>
 
@@ -79,11 +81,54 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 31.5.6</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.0 · REFUGIO</div>
     </div>
   </div>
 
-  <!-- V28.0: COMUNIDAD; módulo de navegación independiente, sin alterar el juego. -->
+
+  <!-- APUS REFUGIO v32 · FASE 1 · La cuenta Firebase vigente es obligatoria. -->
+  <section id="apus-refugio-overlay" class="overlay" aria-label="Refugio Apus, zona de exploración">
+    <header class="ref-head">
+      <div>
+        <div class="ref-title">🏕️ REFUGIO APUS</div>
+        <div class="ref-subtitle"><span id="apus-refugio-user">MONTAÑISTA</span> · V32 FASE 1</div>
+      </div>
+      <button class="ref-btn ref-btn-orange" type="button" onclick="closeRefugioApus()">↩ MENÚ</button>
+    </header>
+    <div class="ref-stage">
+      <canvas id="apus-refugio-canvas" width="960" height="560" aria-label="Mapa del Refugio Apus: desplázate y toca lugares para interactuar"></canvas>
+      <span class="ref-stage-tag" id="apus-refugio-status">FASE 1 · MAPA DE EXPLORACIÓN</span>
+      <p class="ref-stage-tip">TOCA EL MAPA PARA CAMINAR · ACÉRCATE A LAS ZONAS Y ELIGE A TU MONTAÑISTA</p>
+      <div id="apus-refugio-toast" class="ref-toast" hidden role="status"></div>
+      <div id="apus-refugio-dialog" class="ref-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="apus-refugio-dialog-title">
+        <div class="ref-dialog-inner">
+          <h3 id="apus-refugio-dialog-title">REFUGIO APUS</h3>
+          <p id="apus-refugio-dialog-desc"></p>
+          <div id="apus-refugio-slots" class="ref-slot-list" hidden></div>
+          <div class="ref-dialog-actions">
+            <button id="apus-refugio-edit" type="button" class="ref-btn ref-btn-orange" hidden>🧥 PERSONALIZAR</button>
+            <button id="apus-refugio-close-dialog" type="button" class="ref-btn">✓ CERRAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="ref-foot">
+      <nav class="ref-actions" aria-label="Zonas del Refugio Apus">
+        <button type="button" class="ref-btn" data-ref-zone="anuncios">🔥 FOGATA</button>
+        <button type="button" class="ref-btn" data-ref-zone="reunion">🏕️ CABAÑA</button>
+        <button type="button" class="ref-btn" data-ref-zone="carpas">⛺ CARPAS</button>
+        <button type="button" class="ref-btn ref-btn-orange" data-ref-zone="vestuario">🧥 VESTUARIO</button>
+      </nav>
+      <div class="ref-movement" aria-label="Controles de movimiento">
+        <button class="ref-btn" data-ref-dir="up" aria-label="Caminar arriba">▲</button>
+        <button class="ref-btn" data-ref-dir="left" aria-label="Caminar izquierda">◀</button>
+        <button class="ref-btn" data-ref-dir="right" aria-label="Caminar derecha">▶</button>
+        <button class="ref-btn" data-ref-dir="down" aria-label="Caminar abajo">▼</button>
+      </div>
+    </footer>
+  </section>
+
+    <!-- V28.0: COMUNIDAD; módulo de navegación independiente, sin alterar el juego. -->
   <div id="community-overlay" class="overlay">
     <div class="retro-box" style="max-width:480px">
       <h1>🏔️ ÚNETE A NUESTRA COMUNIDAD</h1>
@@ -376,6 +421,7 @@
         <div style="display:flex; gap:8px; margin-top:6px;">
           <button class="menu-btn" style="background:#10ac84; padding:10px;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR</button>
           <button class="menu-btn" style="background:#ee5253; padding:10px;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
+          <button id="apus-refugio-creator-back" hidden class="menu-btn" style="background:#247a72; padding:10px">🏕️ VOLVER AL REFUGIO</button>
         </div>
       </div>
     </div>
@@ -643,6 +689,7 @@
 <script src="js/inicio.js"></script>
 <script src="js/apus-musica-v31_5.js"></script>
 <script src="js/apus-intro-video.js"></script>
+<script src="js/refugio-apus.js"></script>
 
 <script src="js/actualizaciones-v30.js"></script>
 
