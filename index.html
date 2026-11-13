@@ -13,7 +13,7 @@
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/apus-intro-video.css">
-<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.1">
+<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.5">
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -81,17 +81,16 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.1 · REFUGIO CORREGIDO</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.5</div>
     </div>
   </div>
 
-
-  <!-- APUS REFUGIO v32 · FASE 1 · La cuenta Firebase vigente es obligatoria. -->
+  <!-- V28.0: COMUNIDAD; módulo de navegación independiente, sin alterar el juego. -->
   <section id="apus-refugio-overlay" class="overlay" aria-label="Refugio Apus, zona de exploración">
     <header class="ref-head">
       <div>
         <div class="ref-title">🏕️ REFUGIO APUS</div>
-        <div class="ref-subtitle"><span id="apus-refugio-user">MONTAÑISTA</span> · V32.0.1 FASE 1</div>
+        <div class="ref-subtitle"><span id="apus-refugio-user">MONTAÑISTA</span> · EXPLORA TU REFUGIO</div>
       </div>
       <button class="ref-btn ref-btn-orange" type="button" onclick="closeRefugioApus()">↩ MENÚ</button>
     </header>
@@ -117,22 +116,21 @@
       </div>
     </div>
     <footer class="ref-foot">
-      <nav class="ref-actions" aria-label="Zonas del Refugio Apus">
-        <button type="button" class="ref-btn" data-ref-zone="fogata">🔥 FOGATA</button>
-        <button type="button" class="ref-btn" data-ref-zone="cabana">🏕️ CABAÑA</button>
-        <button type="button" class="ref-btn" data-ref-zone="carpas">⛺ CARPAS</button>
-        <button type="button" class="ref-btn ref-btn-orange" data-ref-zone="vestuario">🧥 VESTUARIO</button>
-      </nav>
       <div class="ref-movement" aria-label="Controles de movimiento">
         <button class="ref-btn" data-ref-dir="up" aria-label="Caminar arriba">▲</button>
         <button class="ref-btn" data-ref-dir="left" aria-label="Caminar izquierda">◀</button>
         <button class="ref-btn" data-ref-dir="right" aria-label="Caminar derecha">▶</button>
         <button class="ref-btn" data-ref-dir="down" aria-label="Caminar abajo">▼</button>
       </div>
+      <nav class="ref-actions" aria-label="Zonas del Refugio Apus">
+        <button type="button" class="ref-btn" data-ref-zone="fogata">🔥 FOGATA</button>
+        <button type="button" class="ref-btn" data-ref-zone="cabana">🏕️ CABAÑA</button>
+        <button type="button" class="ref-btn" data-ref-zone="carpas">⛺ CARPAS</button>
+        <button type="button" class="ref-btn ref-btn-orange" data-ref-zone="vestuario">🧥 VESTUARIO</button>
+      </nav>
     </footer>
   </section>
 
-    <!-- V28.0: COMUNIDAD; módulo de navegación independiente, sin alterar el juego. -->
   <div id="community-overlay" class="overlay">
     <div class="retro-box" style="max-width:480px">
       <h1>🏔️ ÚNETE A NUESTRA COMUNIDAD</h1>
@@ -309,7 +307,7 @@
           <button class="tab-btn active" id="creator-slot-0" onclick="switchCreatorSlot(0)">👤 RANURA 1</button>
           <button class="tab-btn" id="creator-slot-1" onclick="switchCreatorSlot(1)">👤 RANURA 2</button>
           <button class="tab-btn" id="creator-slot-2" onclick="switchCreatorSlot(2)">👤 RANURA 3</button>
-        </div>
+</div>
 
         <div class="creator-fixed-top">
           <canvas id="creatorPreviewCanvas" width="130" height="155"></canvas>
@@ -423,9 +421,9 @@
         </div>
 
         <div style="display:flex; gap:8px; margin-top:6px;">
+          <button id="apus-refugio-creator-back" hidden type="button" class="menu-btn" style="background:#247a72;padding:10px">🏕️ VOLVER AL REFUGIO</button>
           <button class="menu-btn" style="background:#10ac84; padding:10px;" onclick="saveAndUseCustomChar()">💾 GUARDAR Y USAR</button>
           <button class="menu-btn" style="background:#ee5253; padding:10px;" onclick="showOverlay('char-overlay')">🔙 VOLVER</button>
-          <button id="apus-refugio-creator-back" hidden class="menu-btn" style="background:#247a72; padding:10px">🏕️ VOLVER AL REFUGIO</button>
         </div>
       </div>
     </div>
@@ -693,14 +691,15 @@
 <script src="js/inicio.js"></script>
 <script src="js/apus-musica-v31_5.js"></script>
 <script src="js/apus-intro-video.js"></script>
-<script src="js/refugio-apus.js?v=32.0.1"></script>
+<script src="js/apus-ota-android.js"></script>
 
 <script src="js/actualizaciones-v30.js"></script>
 
 <script>
 // V31: Precache de archivos locales para uso offline después de la primera descarga.
 // En file:// no se registra; la página sigue siendo navegable desde un servidor local.
-if ('serviceWorker' in navigator && location.protocol === 'https:') {
+if ('serviceWorker' in navigator && location.protocol === 'https:' &&
+    !(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(error => {
       console.warn('APUS: no se pudo habilitar la caché offline:', error);
@@ -708,5 +707,6 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   });
 }
 </script>
+<script src="js/refugio-apus.js?v=32.0.5"></script>
 </body>
 </html>

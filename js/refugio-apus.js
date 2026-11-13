@@ -1,4 +1,4 @@
-/* REFUGIO APUS 32.0.1 · Mundo social en perspectiva 2.5D, CÁMARA FIJA.
+/* REFUGIO APUS 32.0.4 · Mundo social en perspectiva 2.5D, CÁMARA FIJA.
    La cámara nunca sigue al jugador: clic/toque y d-pad/teclado desplazan
    únicamente su avatar. Esta fase NO finge usuarios ni reuniones en línea. */
 (function () {
@@ -90,6 +90,7 @@
     canvas.height=Math.max(1,Math.round(height*pxRatio));
     const scale=Math.min(canvas.width/next.w,canvas.height/next.h);
     state={scale,offsetX:(canvas.width-next.w*scale)/2,offsetY:(canvas.height-next.h*scale)/2,width:next.w,height:next.h,portrait};
+    ctx.imageSmoothingEnabled=false;
     backgroundCanvas=null;
   }
   function tree(x,y,s){
@@ -263,7 +264,7 @@
       r(avatar.x-11,avatar.y-50+bob,24,27,'#df8544');r(avatar.x-8,avatar.y-65+bob,18,17,'#f0ba84');r(avatar.x-13,avatar.y-70+bob,27,11,'#efd36d');
       r(avatar.x-13,avatar.y-23+bob,9,29,'#273f59');r(avatar.x+4,avatar.y-23+bob,9,29,'#273f59');
     }
-    const name=String(cfg?.name||window.currentUser?.username||'MONTAÑISTA').slice(0,19).toUpperCase();
+    const name=String(cfg?.name||(typeof currentUser!=='undefined'?currentUser?.username:'')||'MONTAÑISTA').slice(0,19).toUpperCase();
     r(avatar.x-Math.min(128,name.length*5+15)/2,avatar.y+16,Math.min(128,name.length*5+15),19,'#122c43');
     text(name,avatar.x,avatar.y+26,7,'#fff8df',132);
     ellipse(avatar.x,avatar.y+3,14,3,'#edb45f');
@@ -299,6 +300,7 @@
       if(typeof showOverlay==='function')showOverlay('apus-refugio-overlay');
       else root.classList.add('active');
       root.querySelector('#apus-refugio-dialog').hidden=true;
+      const error=$('apus-refugio-error');if(error)error.hidden=true;
       active=true;
       safeLayout();avatar={...scene.spawn};direction=1;lastFrame=0;
       $('apus-refugio-status').textContent='FASE 1 · MUNDO EXPLORABLE';
@@ -311,12 +313,13 @@
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
     // Nunca dejar al jugador ante una pantalla negra o bloqueada.
     const msg=$('apus-refugio-error');
-    if(msg){msg.hidden=false;msg.textContent='NO SE PUDO INICIAR EL REFUGIO. PULSA VOLVER AL MENÚ Y REINTENTA.';}
+    if(msg){msg.hidden=false;msg.firstChild.textContent='NO SE PUDO INICIAR EL REFUGIO. PULSA VOLVER AL MENÚ Y REINTENTA.';}
     else{if(typeof showOverlay==='function')showOverlay('menu-overlay');alert('No se pudo abrir Refugio Apus. El resto del juego continúa disponible.');}
   }
   function close(){
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
-    target=null;destinationZone=null;
+    target=null;destinationZone=null;keys=Object.create(null);movePressed=Object.create(null);
+    editorReturn=false;const back=$('apus-refugio-creator-back');if(back)back.hidden=true;
     if(noticeTimer)clearTimeout(noticeTimer);
     const msg=$('apus-refugio-error');if(msg)msg.hidden=true;
     if(typeof showOverlay==='function')showOverlay('menu-overlay');else root.classList.remove('active');
@@ -371,6 +374,9 @@
   }
   function fromCreator(){
     if(!editorReturn)return;
+    if(!hasAccount()||currentUser.uid!==accountId){close();return;}
+    if(typeof activeCustomSlot!=='undefined'&&[0,1,2].includes(activeCustomSlot)){slot=activeCustomSlot;remember();}
+    keys=Object.create(null);movePressed=Object.create(null);target=null;destinationZone=null;
     editorReturn=false;
     const back=$('apus-refugio-creator-back');if(back)back.hidden=true;
     // Restablecer panel y avatar sin alterar la cuenta ni guardados.
@@ -428,6 +434,8 @@
   }
   function frame(time){
     if(!active){raf=0;return;}
+    if(!hasAccount()||currentUser.uid!==accountId){close();return;}
+    if(!root.classList.contains('active')){active=false;raf=0;keys=Object.create(null);movePressed=Object.create(null);return;}
     try{
       const dt=lastFrame?clamp(time-lastFrame,0,40):16;lastFrame=time;
       if(!$('apus-refugio-dialog').hidden){} else movementFromInput(dt);
@@ -451,7 +459,7 @@
   window.addEventListener('keydown',e=>{
     if(!active||!$('apus-refugio-dialog').hidden)return;
     if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){
-      e.preventDefault();keys[e.code]=true;
+      e.preventDefault();e.stopImmediatePropagation();keys[e.code]=true;
     }
     if(e.code==='KeyE'&&active){
       const nearby=Object.entries(scene.zones).find(([,z])=>distance(avatar,z)<70);

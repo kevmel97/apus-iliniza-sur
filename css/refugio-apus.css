@@ -89,3 +89,29 @@ body.theme-light #apus-refugio-overlay .ref-subtitle,body.theme-light #apus-refu
  #apus-refugio-overlay .ref-movement .ref-btn{min-width:28px;padding:4px 0;font-size:12px}
  #apus-refugio-overlay .ref-stage{min-height:165px}
 }
+
+#apus-refugio-edit[hidden]{display:none!important}
+
+/* 32.0.5: cruceta a la izquierda, paleta del joystick principal. */
+#apus-refugio-overlay .ref-foot{align-items:center;min-height:124px;max-height:none}
+#apus-refugio-overlay .ref-movement{
+ order:-1;display:grid;position:relative;box-sizing:border-box;
+ width:124px;height:124px;flex:0 0 124px;
+ grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:0;
+ background:rgba(255,255,255,.16);border:3px solid rgba(255,255,255,.55);
+ border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.6);touch-action:none;
+}
+#apus-refugio-overlay .ref-movement .ref-btn{
+ width:38px;height:38px;min-width:0;padding:0;border:3px solid #fff;
+ border-radius:50%;background:rgba(247,147,30,.95);color:#fff;
+ font:700 18px/1 monospace;text-shadow:1px 1px #7a3900;
+ box-shadow:0 3px 8px rgba(0,0,0,.5);touch-action:none;user-select:none;
+}
+#apus-refugio-overlay .ref-movement .ref-btn:active{background:#d9750b;transform:translateY(1px)}
+#apus-refugio-overlay .ref-actions{align-self:stretch}
+@media(max-height:550px) and (orientation:landscape){
+ #apus-refugio-overlay .ref-foot{min-height:96px;max-height:none}
+ #apus-refugio-overlay .ref-movement{width:96px;height:96px;flex-basis:96px;grid-template-columns:repeat(3,29px);grid-template-rows:repeat(3,29px)}
+ #apus-refugio-overlay .ref-movement .ref-btn{width:29px;height:29px;min-width:0;padding:0;font-size:14px;border-width:2px}
+ #apus-refugio-overlay .ref-stage{min-height:100px}
+}
