@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.5",
-  "bundleId": "apus-32-0-5",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-5.zip",
-  "checksum": "9d6066a3c4b276165b4d9352a3aaf2b55e8c25d7c5015b9ab998e3c61ddd7ab3",
-  "signature": "Sj5ElPIvNIJ3uE1ru+0g4sAb46IC9hDLbkN9UrUaneAtG8zViXc0bsSw9B59o2ZJPUp3aP+An29zmbQRYq4x9vmfxr6iFuolklsETPXV6zTPZTy9qNxwctTJ6wIwV5vB3Zl+5YT7Yweez+RXKim8UPRzs4c3J1jwaiYSVcaoW/nuT/3RDrUwgWyiAhykkxrupDZToufVlUnvG1Xu17IwxtsUfalY/ui7CTQPNQaIgCWWEO8HuM3z5xq4ZVQIA8WqahAAfX54m2xLGPiZ6IptP32cIoeGe6a9rk6X97e86Q4bC129eHwsEhmWMPtomQKfXwFQJSCvhKQtk+U15lh1Gcv/qQ1QjM/lXdZ/j30WC9/+73b357y8pK5ZsOapc/Iqna+bng9OIg0YsIVQbz6ecCpfSGzqurUC/pdyVYZIWS4CmCfvU3PwGAtKBTBvVgtVtn4qNEbHKV9IxfQdBINIPTxSm+U48rfv2U57dI0aZwse0eSChGDGB24Baf1m51kA",
+  "version": "32.0.6",
+  "bundleId": "apus-32-0-6",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-6.zip",
+  "checksum": "4fed61d0e9208ed725a5d80e001b6f94dc5f45b494e141e49993ffef9f3b49c4",
+  "signature": "MnRmpmEzlU30nf5yj+OI7PvNMCQBKCHq2KoM5/hw0toeNvrWKnzLJK/i/54TFBqPv7wEFPH6xIuSO34VSeRsG+KkIVHIbl9xO5xTGbCINCRE+Iho0w6cwAdaMyS+goDqjPeJxw8LI5xtdSH2pxs/E2PNJOa87kQ7njTCmcwwHYtx721Q5gHMC/xe5ua45yQ2ewda0+O8/mh0FRDSel7Ugi2YVf/I/XHEdV/fczcgrA/sxHtnqDYzJ27lYd0TyV5jOHWI4abYAcr4HqkHIydvtUCEp/7UlQFkdxUk1dCLcC8G1tdlNfbBED3M8IuxbwrJtljUNVg0alLLBqZ/Otb9OL+vysAAPPiKJ1e2aOQJnpwqA/K2P4ZP8uqsYqVXSLinFKUCNYVdkdxge3oWh8TSNEEP6FuS/4aNkMKEA6v1eNdAucYhCmt19WgPauYVVgm23aEl/DxPWt//GzginUe4BVw7VvqAcNWguI6J1ppuFohvwpUIRyI1InCAeteid6FD",
   "minNativeVersionCode": 3,
-  "notes": "Refugio Apus: controles de movimiento a la izquierda con los colores del joystick original. Versión web y Android actualizadas."
+  "notes": "Refugio Apus compartido: presencia de jugadores con sus personajes, movimiento en tiempo real y salida al desconectarse. Usa cuentas distintas para probar web y Android."
 }

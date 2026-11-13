@@ -115,3 +115,5 @@ body.theme-light #apus-refugio-overlay .ref-subtitle,body.theme-light #apus-refu
  #apus-refugio-overlay .ref-movement .ref-btn{width:29px;height:29px;min-width:0;padding:0;font-size:14px;border-width:2px}
  #apus-refugio-overlay .ref-stage{min-height:100px}
 }
+
+@media(max-height:550px){#apus-refugio-overlay .ref-stage-tag{display:block;top:4px;font-size:6px;padding:4px}}

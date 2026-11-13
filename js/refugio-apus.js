@@ -42,6 +42,63 @@
   let backgroundCanvas = null;
   let lastDrawError = '';
   let noticeTimer = 0;
+  let presence=null,presenceLoading=false,presenceGeneration=0,presenceRetryAt=0;
+  let remotePlayers=new Map(),presenceState='offline';
+  function presenceLabel(value){
+    presenceState=value;
+    const label=$('apus-refugio-status');if(!label)return;
+    const messages={online:'EN LÍNEA · '+(remotePlayers.size+1)+' MONTAÑISTAS',connecting:'CONECTANDO CON EL REFUGIO…',offline:'SIN CONEXIÓN · EXPLORACIÓN LOCAL',denied:'PRESENCIA NO DISPONIBLE · REVISAR PERMISOS',error:'RECONECTANDO…',setup:'EXPLORACIÓN LOCAL · CONEXIÓN SOCIAL PENDIENTE',signin:'INICIA SESIÓN EN LÍNEA PARA VER A OTROS'};
+    label.textContent=messages[value]||messages.offline;
+  }
+  function stopPresence(){
+    presenceGeneration++;presenceLoading=false;
+    if(presence)presence.stop();presence=null;remotePlayers.clear();
+    presenceLabel('offline');
+  }
+  function publicState(){return {x:avatar.x,y:avatar.y,facing:direction,moving:!!(target||moving()),avatar:slotConfig()};}
+  function updateVisitors(list){
+    const next=new Map();
+    for(const visitor of list){const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y});}
+    remotePlayers=next;presenceLabel(presenceState);
+  }
+  async function startPresence(){
+    if(presence||presenceLoading||!active||document.hidden||Date.now()<presenceRetryAt)return;
+    const config=window.APUS_REFUGIO_ONLINE;
+    if(!config?.databaseURL){presenceLabel('setup');return;}
+    const user=typeof apusFirebaseAuth!=='undefined'?apusFirebaseAuth?.currentUser:null;
+    if(!user||user.uid!==accountId){presenceLabel('signin');return;}
+    if(!navigator.onLine){presenceLabel('offline');return;}
+    presenceLoading=true;const generation=++presenceGeneration;presenceLabel('connecting');
+    try{
+      await window.ApusRefugioPresence.loadSDK();
+      if(generation!==presenceGeneration||!active||document.hidden)return;
+      if(apusFirebaseAuth.currentUser?.uid!==accountId)return;
+      const db=firebase.app().database(config.databaseURL);
+      presence=window.ApusRefugioPresence.create({db,uid:accountId,username:currentUser.username,getState:publicState,
+        serverTimestamp:firebase.database.ServerValue.TIMESTAMP,onRoster:updateVisitors,onStatus:presenceLabel});
+    }catch(error){if(generation===presenceGeneration){console.warn('[REFUGIO] Conexión:',error);presenceRetryAt=Date.now()+10000;presenceLabel('error');}}
+    finally{if(generation===presenceGeneration)presenceLoading=false;}
+  }
+  function maintainPresence(){
+    if(document.hidden){if(presence||presenceLoading)stopPresence();return;}
+    if(presence&&(typeof apusFirebaseAuth==='undefined'||apusFirebaseAuth?.currentUser?.uid!==accountId)){stopPresence();return;}
+    startPresence();
+  }
+  function drawVisitor(visitor,t){
+    const dx=visitor.x-visitor.drawX,dy=visitor.y-visitor.drawY;
+    const alpha=1-Math.exp(-clamp(t-(visitor.lastFrame||t-16),0,100)/100);
+    visitor.lastFrame=t;visitor.drawX+=dx*alpha;visitor.drawY+=dy*alpha;
+    const x=visitor.drawX,y=visitor.drawY,walking=visitor.moving||Math.hypot(dx,dy)>2;
+    ellipse(x,y+9,27,8,'#52776f');
+    try{if(typeof drawMountaineerSprite==='function')drawMountaineerSprite(ctx,'CUSTOM',x,y-21,{scale:1.04,facing:visitor.facing,anim:walking?t*.027:0,customConfig:visitor.avatar});}
+    catch(error){console.warn('[REFUGIO] Avatar remoto no disponible',error);}
+    const label=String(visitor.username).slice(0,19).toUpperCase();
+    r(x-65,y+16,130,19,'#153c4c');text(label,x,y+26,7,'#bfffe1',126);
+  }
+  function drawPlayers(t){
+    const players=[...remotePlayers.values(),{local:true,y:avatar.y}].sort((a,b)=>a.y-b.y);
+    for(const player of players){if(player.local)drawAvatar(t);else drawVisitor(player,t);}
+  }
   const dPad = root.querySelectorAll('[data-ref-dir]');
   const palette = {ink:'#111d31',white:'#f6f1d9',gold:'#ffd480',shadow:'#23334d',snow:'#e6eef2',stone:'#879ca9'};
   const r = (x,y,w,h,c) => {ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)));};
@@ -79,7 +136,8 @@
     const width=rect.width||320,height=rect.height||460;
     const portrait=height/width>1.12;
     const previous=scene;
-    const next=chooseLayout(portrait);
+    // Un solo espacio compartido: no cambiar las posiciones de edificios al girar.
+    const next=chooseLayout(false);
     if(previous){avatar.x=clamp(avatar.x/previous.w*next.w,45,next.w-45);
       avatar.y=clamp(avatar.y/previous.h*next.h,next.groundTop+20,next.h-35);
       if(target)target={x:clamp(target.x/previous.w*next.w,45,next.w-45),y:clamp(target.y/previous.h*next.h,next.groundTop+20,next.h-35)};
@@ -234,7 +292,7 @@
       }
     }
     drawCampNPCs(t);
-    drawAvatar(t);
+    drawPlayers(t);
     text('REFUGIO APUS',w/2,24,scene.portrait?14:18,'#ffdb88',w-62);
   }
   function drawCampNPCs(t){
@@ -303,12 +361,13 @@
       const error=$('apus-refugio-error');if(error)error.hidden=true;
       active=true;
       safeLayout();avatar={...scene.spawn};direction=1;lastFrame=0;
-      $('apus-refugio-status').textContent='FASE 1 · MUNDO EXPLORABLE';
+      startPresence();
       if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
       if(typeof window.apusRouteMusic==='function')window.apusRouteMusic();
     }catch(e){recover(e);}
   }
   function recover(error){
+    stopPresence();
     console.error('[REFUGIO APUS] Error protegido:',error);
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
     // Nunca dejar al jugador ante una pantalla negra o bloqueada.
@@ -317,6 +376,7 @@
     else{if(typeof showOverlay==='function')showOverlay('menu-overlay');alert('No se pudo abrir Refugio Apus. El resto del juego continúa disponible.');}
   }
   function close(){
+    stopPresence();
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
     target=null;destinationZone=null;keys=Object.create(null);movePressed=Object.create(null);
     editorReturn=false;const back=$('apus-refugio-creator-back');if(back)back.hidden=true;
@@ -363,6 +423,7 @@
   }
   function editOutfit(){
     if(!hasAccount())return;
+    stopPresence();
     $('apus-refugio-dialog').hidden=true;editorReturn=true;
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
     try{
@@ -381,7 +442,7 @@
     const back=$('apus-refugio-creator-back');if(back)back.hidden=true;
     // Restablecer panel y avatar sin alterar la cuenta ni guardados.
     if(typeof showOverlay==='function')showOverlay('apus-refugio-overlay');
-    active=true;safeLayout();if(!raf)raf=requestAnimationFrame(frame);
+    active=true;safeLayout();startPresence();if(!raf)raf=requestAnimationFrame(frame);
   }
   function approach(zone){
     if(!active||$('apus-refugio-dialog').hidden===false)return;
@@ -435,9 +496,10 @@
   function frame(time){
     if(!active){raf=0;return;}
     if(!hasAccount()||currentUser.uid!==accountId){close();return;}
-    if(!root.classList.contains('active')){active=false;raf=0;keys=Object.create(null);movePressed=Object.create(null);return;}
+    if(!root.classList.contains('active')){stopPresence();active=false;raf=0;keys=Object.create(null);movePressed=Object.create(null);return;}
     try{
       const dt=lastFrame?clamp(time-lastFrame,0,40):16;lastFrame=time;
+      maintainPresence();
       if(!$('apus-refugio-dialog').hidden){} else movementFromInput(dt);
       if(!backgroundCanvas)prepareStaticLayer();
       ctx.setTransform(1,0,0,1,0,0);
@@ -477,6 +539,9 @@
   });
   window.addEventListener('resize',()=>{if(active){safeLayout();lastFrame=0;}});
   document.addEventListener('apus:auth-logout',()=>{if(active)close();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPresence();else if(active)startPresence();});
+  window.addEventListener('pagehide',stopPresence);
+  window.addEventListener('pageshow',()=>{if(active)startPresence();});
   window.openRefugioApus=open;
   window.closeRefugioApus=close;
   window.apusRefugioFase1={
