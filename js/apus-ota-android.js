@@ -5,7 +5,7 @@
 */
 (function () {
   'use strict';
-  var CONTENT_VERSION = '32.0.6';
+  var CONTENT_VERSION = '32.0.7';
   var OTA_SIGNED_BUILD = true;
   var MANIFEST_URL = 'https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/latest.json';
   var ALLOWED_ROOT = 'https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/';

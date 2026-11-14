@@ -127,6 +127,8 @@ function initPreviews() {
 
 function gameLoop() {
   try {
+  // El Refugio ocupa la pantalla completa: no dibujar otro mundo debajo.
+  if(window.apusRefugioFase1?.active)return;
   ctx.clearRect(0, 0, GW, GH);
 
   if (introActive) {

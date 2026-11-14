@@ -7,6 +7,11 @@
   const canvas = document.getElementById('apus-refugio-canvas');
   if (!root || !canvas) return;
   const ctx = canvas.getContext('2d');
+  const map=window.ApusRefugioMap;
+  let spriteScale=1.04;
+  let waypoints=[];
+  const project=p=>{const q=map.project(p,scene?.portrait===true);return {x:q.x*(scene?.w||960)/(scene?.portrait?560:960),y:q.y*(scene?.h||600)/(scene?.portrait?720:600)};};
+  const unproject=p=>map.unproject({x:p.x*(scene.portrait?560:960)/scene.w,y:p.y*(scene.portrait?720:600)/scene.h},scene.portrait);
   if (!ctx) { console.error('[REFUGIO] Canvas 2D no está disponible'); return; }
   const $ = (id) => document.getElementById(id);
   const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
@@ -19,12 +24,12 @@
     },
     cabana: {
       title:'🏡 CABAÑA DE REUNIONES',
-      message:'Aquí estará la única sala de reuniones de Refugio Apus: pública o privada con código de 4 dígitos, máximo 16 participantes. Esta primera fase es solo exploración.',
+      message:'Aquí estará la única sala de reuniones de Refugio Apus: pública o privada con código de 4 dígitos, máximo 16 participantes. Las llamadas se activarán en una próxima fase.',
       label:'REUNIONES'
     },
     carpas: {
       title:'⛺ ZONA DE CARPAS',
-      message:'Las carpas serán el lugar de encuentro de los jugadores. La presencia de amigos conectados se añadirá más adelante; los montañistas decorativos no son jugadores reales.',
+      message:'Encuentra aquí a otros montañistas conectados. Chugo y Jordy, marcados como NPC, son personajes decorativos.',
       label:'CARPAS'
     },
     vestuario: {
@@ -48,7 +53,7 @@
     presenceState=value;
     const label=$('apus-refugio-status');if(!label)return;
     const messages={online:'EN LÍNEA · '+(remotePlayers.size+1)+' MONTAÑISTAS',connecting:'CONECTANDO CON EL REFUGIO…',offline:'SIN CONEXIÓN · EXPLORACIÓN LOCAL',denied:'PRESENCIA NO DISPONIBLE · REVISAR PERMISOS',error:'RECONECTANDO…',setup:'EXPLORACIÓN LOCAL · CONEXIÓN SOCIAL PENDIENTE',signin:'INICIA SESIÓN EN LÍNEA PARA VER A OTROS'};
-    label.textContent=messages[value]||messages.offline;
+    const valueText=messages[value]||messages.offline;if(label.textContent!==valueText)label.textContent=valueText;
   }
   function stopPresence(){
     presenceGeneration++;presenceLoading=false;
@@ -58,7 +63,7 @@
   function publicState(){return {x:avatar.x,y:avatar.y,facing:direction,moving:!!(target||moving()),avatar:slotConfig()};}
   function updateVisitors(list){
     const next=new Map();
-    for(const visitor of list){const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y});}
+    for(const visitor of list){const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y,lastFrame:old?.lastFrame});}
     remotePlayers=next;presenceLabel(presenceState);
   }
   async function startPresence(){
@@ -88,9 +93,10 @@
     const dx=visitor.x-visitor.drawX,dy=visitor.y-visitor.drawY;
     const alpha=1-Math.exp(-clamp(t-(visitor.lastFrame||t-16),0,100)/100);
     visitor.lastFrame=t;visitor.drawX+=dx*alpha;visitor.drawY+=dy*alpha;
-    const x=visitor.drawX,y=visitor.drawY,walking=visitor.moving||Math.hypot(dx,dy)>2;
+    const projected=project({x:visitor.drawX,y:visitor.drawY});
+    const x=projected.x,y=projected.y,walking=visitor.moving||Math.hypot(dx,dy)>2;
     ellipse(x,y+9,27,8,'#52776f');
-    try{if(typeof drawMountaineerSprite==='function')drawMountaineerSprite(ctx,'CUSTOM',x,y-21,{scale:1.04,facing:visitor.facing,anim:walking?t*.027:0,customConfig:visitor.avatar});}
+    try{if(typeof drawMountaineerSprite==='function')drawMountaineerSprite(ctx,'CUSTOM',x,y-21,{scale:spriteScale,facing:visitor.facing,anim:walking?t*.027:0,customConfig:visitor.avatar});}
     catch(error){console.warn('[REFUGIO] Avatar remoto no disponible',error);}
     const label=String(visitor.username).slice(0,19).toUpperCase();
     r(x-65,y+16,130,19,'#153c4c');text(label,x,y+26,7,'#bfffe1',126);
@@ -135,19 +141,29 @@
     const rect=canvas.getBoundingClientRect();
     const width=rect.width||320,height=rect.height||460;
     const portrait=height/width>1.12;
-    const previous=scene;
-    // Un solo espacio compartido: no cambiar las posiciones de edificios al girar.
-    const next=chooseLayout(false);
-    if(previous){avatar.x=clamp(avatar.x/previous.w*next.w,45,next.w-45);
-      avatar.y=clamp(avatar.y/previous.h*next.h,next.groundTop+20,next.h-35);
-      if(target)target={x:clamp(target.x/previous.w*next.w,45,next.w-45),y:clamp(target.y/previous.h*next.h,next.groundTop+20,next.h-35)};
-    } else avatar={...next.spawn};
+    const next=chooseLayout(portrait);
+    const baseHeight=next.h;
+    if(width/height<next.w/next.h)next.h=next.w*height/width;
+    else next.w=next.h*width/height;
+    next.groundTop*=next.h/baseHeight;
+    const world=chooseLayout(false);
+    // Las posiciones de red nunca cambian al girar: solo se proyectan al mapa local.
+    if(!scene)avatar={...world.spawn};
     scene=next;
+    for(const key of ['lodge','cabin','tents','wardrobe','fire'])Object.assign(scene[key],project(world[key]));
+    for(const key of Object.keys(scene.zones)){
+      const foot=project(map.zones[key]);
+      const original=world.zones[key];
+      const focus=project({x:original.focusX,y:original.focusY});
+      Object.assign(scene.zones[key],foot,{focusX:focus.x,focusY:focus.y});
+    }
+    remotePlayers.forEach(player=>{player.lastFrame=0;});
     const pxRatio=Math.min(1.5,window.devicePixelRatio||1);
     canvas.width=Math.max(1,Math.round(width*pxRatio));
     canvas.height=Math.max(1,Math.round(height*pxRatio));
     const scale=Math.min(canvas.width/next.w,canvas.height/next.h);
     state={scale,offsetX:(canvas.width-next.w*scale)/2,offsetY:(canvas.height-next.h*scale)/2,width:next.w,height:next.h,portrait};
+    spriteScale=Math.max(1.04,46/(76*(scale/pxRatio)));
     ctx.imageSmoothingEnabled=false;
     backgroundCanvas=null;
   }
@@ -286,7 +302,7 @@
     // El avatar se pinta SOBRE el suelo. Ningún comando desplaza la cámara.
     for(const key of ['cabana','fogata','carpas','vestuario']){
       const z=scene.zones[key];
-      if(distance(avatar,z)<72){
+      if(distance(avatar,map.zones[key])<72){
         ellipse(z.x,z.y,37,9,'#d7bf71');
         text('PULSA / ENTRAR',z.x,z.y-23,8,'#fff1aa',118);
       }
@@ -299,33 +315,32 @@
     // Figuras decorativas, NO jugadores conectados. Cada uno usa los sprites
     // originales del minijuego de Chugo vs Jordy.
     if(typeof drawMountaineerSprite!=='function')return;
-    const spots=scene.portrait
-      ?[{x:190,y:414,n:'CHUGO',f:-1},{x:370,y:410,n:'JORDY',f:1}]
-      :[{x:367,y:408,n:'CHUGO',f:-1},{x:604,y:415,n:'JORDY',f:1}];
+    const spots=[{...project({x:367,y:448}),n:'CHUGO',f:-1},{...project({x:604,y:448}),n:'JORDY',f:1}];
     for(const p of spots){
-      try{drawMountaineerSprite(ctx,p.n,p.x,p.y-20+Math.sin(t*.002+p.x)*.6,{scale:.75,facing:p.f,anim:0});
+      try{drawMountaineerSprite(ctx,p.n,p.x,p.y-20+Math.sin(t*.002+p.x)*.6,{scale:spriteScale,facing:p.f,anim:0});
         r(p.x-34,p.y+13,68,16,'#163449');text(p.n+' NPC',p.x,p.y+21,6,'#fff1d5',65);
       }catch(_){/* Si falta un sprite, el mapa sigue funcionando. */}
     }
   }
   function drawAvatar(t){
     const cfg=slotConfig();
+    const point=project(avatar);
     const bob=(target||moving())?Math.sin(t*.019)*1.6:0;
-    ellipse(avatar.x,avatar.y+9,27,8,'#52776f');
+    ellipse(point.x,point.y+9,27,8,'#52776f');
     let painted=false;
     if(typeof drawMountaineerSprite==='function'){
-      try{drawMountaineerSprite(ctx,cfg?'CUSTOM':'JORDY',avatar.x,avatar.y-21+bob,{scale:scene.portrait?.91:1.04,facing:direction,anim:(target||moving())?t*.027:0,customConfig:cfg});painted=true;}
+      try{drawMountaineerSprite(ctx,cfg?'CUSTOM':'JORDY',point.x,point.y-21+bob,{scale:spriteScale,facing:direction,anim:(target||moving())?t*.027:0,customConfig:cfg});painted=true;}
       catch(e){if(!lastDrawError){console.warn('[REFUGIO] Sprite: dibujo alternativo',e);lastDrawError=String(e);}}
     }
     if(!painted){
       // Fallback si una versión de WebView no soporta algún sprite.
-      r(avatar.x-11,avatar.y-50+bob,24,27,'#df8544');r(avatar.x-8,avatar.y-65+bob,18,17,'#f0ba84');r(avatar.x-13,avatar.y-70+bob,27,11,'#efd36d');
-      r(avatar.x-13,avatar.y-23+bob,9,29,'#273f59');r(avatar.x+4,avatar.y-23+bob,9,29,'#273f59');
+      r(point.x-11,point.y-50+bob,24,27,'#df8544');r(point.x-8,point.y-65+bob,18,17,'#f0ba84');r(point.x-13,point.y-70+bob,27,11,'#efd36d');
+      r(point.x-13,point.y-23+bob,9,29,'#273f59');r(point.x+4,point.y-23+bob,9,29,'#273f59');
     }
     const name=String(cfg?.name||(typeof currentUser!=='undefined'?currentUser?.username:'')||'MONTAÑISTA').slice(0,19).toUpperCase();
-    r(avatar.x-Math.min(128,name.length*5+15)/2,avatar.y+16,Math.min(128,name.length*5+15),19,'#122c43');
-    text(name,avatar.x,avatar.y+26,7,'#fff8df',132);
-    ellipse(avatar.x,avatar.y+3,14,3,'#edb45f');
+    r(point.x-Math.min(128,name.length*5+15)/2,point.y+16,Math.min(128,name.length*5+15),19,'#122c43');
+    text(name,point.x,point.y+26,7,'#fff8df',132);
+    ellipse(point.x,point.y+3,14,3,'#edb45f');
   }
   function moving(){return Object.keys(movePressed).some(k=>movePressed[k])||Object.keys(keys).some(k=>keys[k]);}
   function slotConfig(){
@@ -360,7 +375,7 @@
       root.querySelector('#apus-refugio-dialog').hidden=true;
       const error=$('apus-refugio-error');if(error)error.hidden=true;
       active=true;
-      safeLayout();avatar={...scene.spawn};direction=1;lastFrame=0;
+      safeLayout();avatar={...chooseLayout(false).spawn};direction=1;lastFrame=0;waypoints=[];
       startPresence();
       if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
       if(typeof window.apusRouteMusic==='function')window.apusRouteMusic();
@@ -444,16 +459,20 @@
     if(typeof showOverlay==='function')showOverlay('apus-refugio-overlay');
     active=true;safeLayout();startPresence();if(!raf)raf=requestAnimationFrame(frame);
   }
+  function startWalk(destination,zone=null){
+    waypoints=map.route(avatar,destination);destinationZone=zone;
+    target=waypoints.shift()||null;
+    if(!target){destinationZone=null;notify('NO HAY PASO POR AQUÍ');}
+  }
   function approach(zone){
     if(!active||$('apus-refugio-dialog').hidden===false)return;
-    const z=scene?.zones?.[zone];if(!z)return;
-    destinationZone=zone;target={x:z.x,y:z.y};
-    if(distance(avatar,target)<45){target=null;destinationZone=null;dialogOpen(zone);}
+    const z=map.zones[zone];if(!z)return;
+    if(distance(avatar,z)<22){target=null;waypoints=[];destinationZone=null;dialogOpen(zone);return;}
+    startWalk(z,zone);
   }
   function moveTo(x,y){
     if(!scene)return;
-    destinationZone=null;
-    target={x:clamp(x,38,scene.w-38),y:clamp(y,scene.groundTop+34,scene.h-30)};
+    startWalk(map.safe({x,y}));
   }
   function waypointClick(event){
     if(!active||!$('apus-refugio-dialog').hidden)return;
@@ -469,7 +488,7 @@
         approach(key);return;
       }
     }
-    moveTo(x,y);
+    const point=unproject({x,y});moveTo(point.x,point.y);
   }
   function movementFromInput(dt){
     let dx=0,dy=0;
@@ -479,17 +498,16 @@
     if(pressed('up')||pressed('ArrowUp')||pressed('KeyW'))dy-=1;
     if(pressed('down')||pressed('ArrowDown')||pressed('KeyS'))dy+=1;
     if(dx||dy){
-      const m=Math.hypot(dx,dy);dx/=m;dy/=m;target=null;destinationZone=null;
-      avatar.x=clamp(avatar.x+dx*dt*.215,38,scene.w-38);
-      avatar.y=clamp(avatar.y+dy*dt*.215,scene.groundTop+32,scene.h-31);
+      const m=Math.hypot(dx,dy);dx/=m;dy/=m;target=null;destinationZone=null;waypoints=[];
+      avatar=map.slide(avatar,dx*dt*.215,dy*dt*.215);
       if(dx)direction=Math.sign(dx);
       return;
     }
-    if(target){const length=distance(avatar,target);if(length<3){avatar={...target};target=null;
-      if(destinationZone){const z=destinationZone;destinationZone=null;dialogOpen(z);}
+    if(target){const length=distance(avatar,target);if(length<3){avatar={...target};target=waypoints.shift()||null;
+      if(!target&&destinationZone){const z=destinationZone;destinationZone=null;dialogOpen(z);}
     }else{
       const step=Math.min(length,dt*.19);const vx=(target.x-avatar.x)/length,vy=(target.y-avatar.y)/length;
-      avatar.x+=step*vx;avatar.y+=step*vy;
+      avatar=map.slide(avatar,step*vx,step*vy);
       if(Math.abs(vx)>.04)direction=vx>0?1:-1;
     }}
   }
@@ -498,7 +516,7 @@
     if(!hasAccount()||currentUser.uid!==accountId){close();return;}
     if(!root.classList.contains('active')){stopPresence();active=false;raf=0;keys=Object.create(null);movePressed=Object.create(null);return;}
     try{
-      const dt=lastFrame?clamp(time-lastFrame,0,40):16;lastFrame=time;
+      const dt=lastFrame?clamp(time-lastFrame,0,50):16;lastFrame=time;
       maintainPresence();
       if(!$('apus-refugio-dialog').hidden){} else movementFromInput(dt);
       if(!backgroundCanvas)prepareStaticLayer();
@@ -524,7 +542,7 @@
       e.preventDefault();e.stopImmediatePropagation();keys[e.code]=true;
     }
     if(e.code==='KeyE'&&active){
-      const nearby=Object.entries(scene.zones).find(([,z])=>distance(avatar,z)<70);
+      const nearby=Object.entries(map.zones).find(([,z])=>distance(avatar,z)<40);
       if(nearby)dialogOpen(nearby[0]);
     }
   },true);

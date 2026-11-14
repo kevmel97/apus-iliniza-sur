@@ -35,21 +35,23 @@
   function create(options){
     const {db,uid,username,getState,onRoster=()=>{},onStatus=()=>{},serverTimestamp}=options;
     const now=options.now||Date.now,schedule=options.setInterval||setInterval,cancel=options.clearInterval||clearInterval;
-    let stopped=false,connected=false,published=false,epoch=0,session=null,pending=false,lastWrite=0,lastBody='',raw={},offset=0,blocked=false,retryAt=0;
+    let stopped=false,connected=false,published=false,epoch=0,session=null,pending=false,lastWrite=0,lastBody='',lastAvatar='',lastReport='',lastExpiry=0,raw={},offset=0,blocked=false,retryAt=0;
     const members=db.ref(PATH),connection=db.ref('.info/connected'),clock=db.ref('.info/serverTimeOffset');
-    const report=()=>onRoster(connected&&published?roster(raw,uid,now()+offset):[]);
+    const report=()=>{const list=connected&&published?roster(raw,uid,now()+offset):[];const key=JSON.stringify(list);if(key!==lastReport){lastReport=key;onRoster(list);}};
     const status=(v)=>onStatus(v);
     function failure(error){if(stopped)return;published=false;onRoster([]);blocked=!!(error&&/permission/i.test(error.code||error.message||''));retryAt=now()+5000;status(blocked?'denied':'error');}
     async function write(force){
       if(stopped||blocked||now()<retryAt||!connected||!session||pending)return;
       const body=state(getState()),signature=JSON.stringify(body),time=now();
-      if(!force&&time-lastWrite<250)return;
+      if(!force&&time-lastWrite<100)return;
       if(!force&&signature===lastBody&&time-lastWrite<20000)return;
-      pending=true;const ref=session,token=epoch;
+      pending=true;const ref=session,token=epoch;lastWrite=time;
+      const outfit=JSON.stringify(body.avatar);
       try{
-        await ref.set({schema:1,username:cleanText(username,24,'MONTAÑISTA'),...body,updatedAt:serverTimestamp});
+        if(force||outfit!==lastAvatar)await ref.set({schema:1,username:cleanText(username,24,'MONTAÑISTA'),...body,updatedAt:serverTimestamp});
+        else await ref.update({x:body.x,y:body.y,facing:body.facing,moving:body.moving,updatedAt:serverTimestamp});
         if(stopped||token!==epoch){ref.remove().catch(()=>{});return;}
-        lastWrite=now();lastBody=signature;published=true;status('online');report();
+        lastAvatar=outfit;lastBody=signature;published=true;status('online');report();
       }catch(error){if(token===epoch)failure(error);}
       finally{if(token===epoch)pending=false;}
     }
@@ -68,7 +70,7 @@
     function receive(snapshot){raw=snapshot.val()||{};report();}
     function clockChanged(snapshot){offset=Number(snapshot.val())||0;}
     members.on('value',receive,failure);clock.on('value',clockChanged);connection.on('value',connect,failure);
-    const timer=schedule(()=>{report();write(false);},250);
+    const timer=schedule(()=>{if(now()-lastExpiry>=1000){lastExpiry=now();report();}write(false);},100);
     return {update:()=>write(false),stop(){
       if(stopped)return;stopped=true;epoch++;cancel(timer);
       connection.off('value',connect);clock.off('value',clockChanged);members.off('value',receive);
