@@ -58,7 +58,7 @@ function choose(name){
   wanted=name||'';
   const path=TRACKS[wanted]||'';
   if(wanted===current){changeVolume();requestPlay();return;}
-  stopPlayer(); current=wanted;
+  stopPlayer(); current=wanted;lastRequested=0;
   sound.currentTrack=wanted;
   if(!path){player.removeAttribute('src');player.load();return;}
   player.src=path;player.load();changeVolume();requestPlay();
@@ -100,13 +100,13 @@ function updateUi(){
  if(sbtn)sbtn.textContent='🎵 CONFIGURAR MÚSICA Y SONIDOS';
 }
 function save(){sound.enabled=prefs.fxEnabled;changeVolume();
- if(!prefs.musicEnabled)player.pause();else requestPlay();
+ if(!prefs.musicEnabled)player.pause();else {routeMusic();requestPlay(true);}
  store();updateUi();broadcast();
 }
 window.apusSetFxEnabled=function(v){prefs.fxEnabled=!!v;save();};
 window.apusAudioSettings=prefs;
 function openPanel(){if(!menu)return;updateUi();menu.hidden=false;menu.setAttribute('aria-hidden','false');}
-function closePanel(){if(!menu)return;menu.hidden=true;menu.setAttribute('aria-hidden','true');requestPlay();}
+function closePanel(){if(!menu)return;menu.hidden=true;menu.setAttribute('aria-hidden','true');routeMusic();requestPlay(true);}
 window.toggleSound=openPanel;
 window.apusOpenAudioPanel=openPanel;
 window.apusCloseAudioPanel=closePanel;
@@ -172,6 +172,8 @@ document.addEventListener('pointerdown',()=>{
  if(prefs.musicEnabled){splashMidiRoute();requestPlay(true);}
 },true);
 document.addEventListener('apus:opening-finished',()=>{routeMusic();});
+// Reintentar dentro del gesto, después de que el botón cambie de modo.
+for(const type of ['pointerup','click','keydown'])document.addEventListener(type,()=>{routeMusic();requestPlay(true);});
 function shown(id){const e=document.getElementById(id);return !!e&&getComputedStyle(e).display!=='none';}
 function activeOverlay(){return document.querySelector('.overlay.active')?.id||'';}
 function desired(){

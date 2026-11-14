@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.10",
-  "bundleId": "apus-32-0-10",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-10.zip",
-  "checksum": "94d1e60d3302119a5ae1024631d63ed06eef52ac88509075209132f0a313677f",
-  "signature": "c3y6QgR8HtVfwHxa7wYJBa9P+kMsrZdFrMb8cjOYR7vVpOpfRw159R/dZwReJCipwefs7vxB2X6UqJTDMB2pvCSzwHTT6p5/EZ4oLb9nv6Vumh+YHuShwKxqrmxwHKHmfufzjjOrZcnDSRHn5QUUw1qbG1ZOUSZP4fKKayEREPdtHSx9moHT4fvQPObfqsOs2tnhgK1pFR8PPeRKiZjS50ofEq1Tee8gYkHtON264YVQvhNewZZVPBZ4OYHY0fugyOJQYUCDx7Vm0F16i1i4T5/090EUFr+44mOLR2gTnu7OZ1XEfGejLO7COBf4IHD8x42oGP0y0TXuDz5yqr10/oGurcAlbdXKvzZwcB5oG7T9aiivTKw6DwOcyadRyzBAfoU0ggQsQy2JnU199uIO+qnpZpdWFFVQKoVT0wA3NSrrtz0G72R3iZIqpnnGsoKvCxP6X7sKBxoAsmZChAGl3BY2WkeUeI8cV9ByUnvO2ed6wzEHymJ9vcZE/jL/BFhB",
+  "version": "32.0.11",
+  "bundleId": "apus-32-0-11",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-11.zip",
+  "checksum": "3f8bc3c7a616e747232adc604ad4386c9ae5c67d4d84c5f8c5fed08e3e8f7fd1",
+  "signature": "hKrShOhNSAKkrhiOnvQjXW43gqEJC8QAdUQusBMviSO2AKj6/YRoMP+YXmQ7KYMeYsWju/jHGqj8eoKjJdUgtbB2abNNNePi7Efs9CXYznIMSgTafSZRF71UatK34HeXxcFA3DozA8QrGYWnriUAGQktTsCLi4txPoB4dEx2FhWfaHGChNDP/HSAk1BJPXiWJgver3uHDQmOVdzYSbglmTy20UOGv2bWRVPo+vhrOQi0xwu3GZLHrIPLmff/UW++52FKBJIOQTfwFvXE0DmsQTRYr04btSOofabKClTE9UdxPmNqUeIPWcozfgBggZwpvbn5Nurj3ud5EJ3UjDJjbP/7/GijHuUfIBvaxhpJLFw6n54qo31iHKH9MJRXEG/xSUp7I6yR86F7jo0pj5+Xqnxr6zNX+1kJl+pu0K6VIjaN+lcHjxu4sJenHf6tl0OdwR6ifktb6SX8HoKuXoscJJBuX7GyhNMbxwN8IkiUFVwt/UH65dxqf1xmItUdkqTl",
   "minNativeVersionCode": 3,
-  "notes": "Friki Apus: postales restauradas, recursos locales y arranque disponible sin internet."
+  "notes": "Música web corregida y recuperación de postales desbloqueadas entre Friki y Chugo vs Jordy."
 }

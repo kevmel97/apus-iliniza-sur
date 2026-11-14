@@ -1,23 +1,30 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.10';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.11';
 const PRECACHE_URLS = [
-  "./css/friki-local.css?v=32.0.10",
-  "./css/friki-fonts.css?v=32.0.10",
+  "./assets/musica/the-great-ascent.mp3",
+  "./assets/musica/cold-iron-ascent.mp3",
+  "./assets/musica/boss-rush.mp3",
+  "./assets/musica/waltz-of-the-andean-ridge.mp3",
+  "./assets/musica/lucky-number-bounce.mp3",
+  "./assets/musica/mountain-pass-derby.mp3",
+
+  "./css/friki-local.css?v=32.0.11",
+  "./css/friki-fonts.css?v=32.0.11",
   "./assets/fonts/friki-pixel.ttf",
   "./assets/fonts/friki-vt.ttf",
-  "./minijuegos/friki-apus.html?v=32.0.10",
-  "./js/refugio-amigos.js?v=32.0.10",
-  "./js/refugio-amigos-ui.js?v=32.0.10",
-  "./css/refugio-amigos.css?v=32.0.10",
-  "./js/refugio-mapa.js?v=32.0.10",
-  "./js/refugio-presencia.js?v=32.0.10",
-  "./js/refugio-online-config.js?v=32.0.10",
-  "./js/apus-ota-android.js?v=32.0.10",
+  "./minijuegos/friki-apus.html?v=32.0.11",
+  "./js/refugio-amigos.js?v=32.0.11",
+  "./js/refugio-amigos-ui.js?v=32.0.11",
+  "./css/refugio-amigos.css?v=32.0.11",
+  "./js/refugio-mapa.js?v=32.0.11",
+  "./js/refugio-presencia.js?v=32.0.11",
+  "./js/refugio-online-config.js?v=32.0.11",
+  "./js/apus-ota-android.js?v=32.0.11",
   "./assets/intro/logo-apus-guardians.png",
   "./assets/intro/fondo-video.webp",
   "./css/apus-intro-video.css",
   "./js/apus-intro-video.js",
-  "./js/apus-musica-v31_5.js",
+  "./js/apus-musica-v31_5.js?v=32.0.11",
   "./LEEME_VERSION_31.md",
   "./assets/escenarios/imagen_06cbc52a0cb825.webp",
   "./assets/escenarios/imagen_1a6279d63f8638.jpg",
@@ -58,16 +65,16 @@ const PRECACHE_URLS = [
   "./assets/escenarios/imagen_f4779e8be47463.jpg",
   "./assets/escenarios/imagen_fd1cff65bb1831.jpg",
   "./css/estilos.css",
-  "./css/refugio-apus.css?v=32.0.10",
-  "./js/refugio-apus.js?v=32.0.10",
+  "./css/refugio-apus.css?v=32.0.11",
+  "./js/refugio-apus.js?v=32.0.11",
   "./index.html",
   "./js/actualizaciones-v30.js",
-  "./js/chugo-vs-jordy.js?v=32.0.10",
+  "./js/chugo-vs-jordy.js?v=32.0.11",
   "./js/cinematicas-y-bucle.js",
   "./js/conexion-y-ascenso.js",
   "./js/inicio.js",
   "./js/juego-principal.js",
-  "./js/puentes-minijuegos.js?v=32.0.10",
+  "./js/puentes-minijuegos.js?v=32.0.11",
   "./js/torneos.js",
   "./minijuegos/animacion-cumbre.html",
   "./minijuegos/animacion-descenso.html",
@@ -109,34 +116,31 @@ self.addEventListener('fetch', event => {
   if(req.method !== 'GET') return;
   const url = new URL(req.url);
   if(url.origin !== self.location.origin) return; // Firebase y PeerJS no se cachean.
-  // Video MP4: responder a rangos (206) desde caché para reproducirlo offline.
-  if (/\/assets\/intro\/(?:reto-iliniza-sur(?:-vertical)?\.mp4|musica-intro\.m4a)$/.test(url.pathname)) {
+  // Audio y vídeo: cachear el archivo completo y servir rangos válidos.
+  // Cache.put rechaza respuestas 206; eso antes convertía los MP3 en errores.
+  if (/\/assets\/(?:musica\/[^/]+\.mp3|intro\/(?:reto-iliniza-sur(?:-vertical)?\.mp4|musica-intro\.m4a))$/.test(url.pathname)) {
     event.respondWith((async () => {
-      const cache = await caches.open(APUS_CACHE_VERSION);
-      let stored = await cache.match(url.href) || await caches.match(url.href);
-      if (!stored) {
-        const online = await fetch(new Request(url.href, {cache:'no-store'}));
-        if (!online.ok) return online;
-        await cache.put(url.href, online.clone());
-        stored = online;
+      const cache=await caches.open(APUS_CACHE_VERSION);
+      let stored=await cache.match(url.href)||await caches.match(url.href);
+      if(!stored){
+        const online=await fetch(new Request(url.href,{cache:'no-store'}));
+        if(!online.ok)return online;
+        // Un fallo de almacenamiento no debe silenciar una descarga válida.
+        if(online.status===200)try{await cache.put(url.href,online.clone());}catch(e){}
+        stored=online;
       }
-      const range = req.headers.get('range');
-      if (!range) return stored;
-      const match = /^bytes=(\d*)-(\d*)$/.exec(range);
-      if (!match) return new Response(null, {status:416});
-      const data = await stored.arrayBuffer();
-      const size = data.byteLength;
-      let begin = match[1] ? Number(match[1]) : Math.max(0,size-Number(match[2] || 0));
-      let end = match[2] && match[1] ? Math.min(size-1,Number(match[2])) : size-1;
-      if (!Number.isFinite(begin) || begin >= size || begin < 0 || end < begin)
-        return new Response(null, {status:416,headers:{'Content-Range':'bytes */'+size}});
-      const body = data.slice(begin,end+1);
-      return new Response(body,{status:206,headers:{
-        'Content-Type':url.pathname.endsWith('.m4a')?'audio/mp4':'video/mp4',
-        'Accept-Ranges':'bytes',
-        'Content-Range':'bytes '+begin+'-'+end+'/'+size,
-        'Content-Length':String(body.byteLength)
-      }});
+      const range=req.headers.get('range');
+      if(!range)return stored;
+      const data=await stored.arrayBuffer(),size=data.byteLength;
+      const match=/^bytes=(\d*)-(\d*)$/.exec(range);
+      const invalid=()=>new Response(null,{status:416,headers:{'Content-Range':'bytes */'+size}});
+      if(!match||(!match[1]&&!match[2]))return invalid();
+      let begin=match[1]?Number(match[1]):Math.max(0,size-Number(match[2]));
+      let end=match[1]&&match[2]?Math.min(size-1,Number(match[2])):size-1;
+      if(!Number.isSafeInteger(begin)||!Number.isSafeInteger(end)||begin<0||begin>=size||end<begin)return invalid();
+      const body=data.slice(begin,end+1);
+      const type=url.pathname.endsWith('.mp3')?'audio/mpeg':url.pathname.endsWith('.m4a')?'audio/mp4':'video/mp4';
+      return new Response(body,{status:206,headers:{'Content-Type':type,'Accept-Ranges':'bytes','Content-Range':'bytes '+begin+'-'+end+'/'+size,'Content-Length':String(body.byteLength)}});
     })());
     return;
   }
@@ -171,7 +175,7 @@ self.addEventListener('fetch', event => {
     }
     try {
       const response = await fetch(req);
-      if(response.ok && response.type === 'basic') await cache.put(req, response.clone());
+      if(response.ok && response.status===200 && response.type === 'basic')try{await cache.put(req,response.clone());}catch(e){}
       return response;
     } catch (err) { return Response.error(); }
   })());

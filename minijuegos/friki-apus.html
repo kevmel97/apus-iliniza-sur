@@ -1123,6 +1123,17 @@ let gameState = {
     demoMode: false
 };
 
+// Unión de logros guardados: nunca reduce desbloqueos ni inventa puntajes.
+function mergeUnlockedPostcards(stages){
+    if(!gameState.unlockedPostcards||typeof gameState.unlockedPostcards!=='object'||Array.isArray(gameState.unlockedPostcards))gameState.unlockedPostcards={};
+    let changed=false;
+    for(const value of Array.isArray(stages)?stages:[]){
+        const id=Number(value);
+        if(Number.isInteger(id)&&id>=1&&id<=24&&!gameState.unlockedPostcards[id]){gameState.unlockedPostcards[id]=true;changed=true;}
+    }
+    if(changed)try{localStorage.setItem('apus_ecuador_pixel_save_v1',JSON.stringify(gameState));}catch(e){}
+    return changed;
+}
 function loadProgress() {
     try {
         const saved = localStorage.getItem('apus_ecuador_pixel_save_v1');
@@ -1139,6 +1150,11 @@ function loadProgress() {
             gameState = { ...gameState, ...parsed };
         }
     } catch (e) {}
+    let stages=[];
+    try{stages=JSON.parse(localStorage.getItem('apus_fight_stages_v2804')||'[]');}catch(e){}
+    if(!Array.isArray(stages))stages=[];
+    for(const [id,score]of Object.entries(gameState.bestScores||{}))if(Number(score)>=15)stages.push(Number(id));
+    mergeUnlockedPostcards(stages);
     updateHeaderUI();
 }
 
@@ -2207,6 +2223,12 @@ window.onload = function () {
   };
   window.addEventListener('message', (e)=>{
     if(!e.data) return;
+    if(e.data.apusWikiApus === 'POSTCARDS_RESTORE' && e.source===window.parent){
+      if(mergeUnlockedPostcards(e.data.stages)){
+        updateHeaderUI();
+        if(!document.getElementById('screen-gallery').classList.contains('hidden'))renderGallery();
+      }
+    }
     if(e.data.apusWikiApus === 'THEME') applyTheme(e.data.theme);
     if(e.data.apusWikiApus === 'SOUND') {
       if(Number.isFinite(e.data.fxVolume))window.apusFxVolume=Math.max(0,Math.min(1,e.data.fxVolume));

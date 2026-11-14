@@ -56,6 +56,13 @@ function sendFrikiSound(){
   const frame=document.getElementById('apus-wiki-frame');
   if(apusWikiLoaded&&frame?.contentWindow)frame.contentWindow.postMessage({apusWikiApus:'SOUND',enabled:sound.enabled,fxVolume:(window.apusAudioSettings?.fxVolume??1)},'*');
 }
+function sendFrikiPostcards(){
+  const frame=document.getElementById('apus-wiki-frame');
+  if(!apusWikiLoaded||!frame?.contentWindow)return;
+  let stages=[];
+  try{if(typeof apusAvailableFightStages==='function')stages=apusAvailableFightStages();}catch(e){}
+  frame.contentWindow.postMessage({apusWikiApus:'POSTCARDS_RESTORE',stages:stages.filter(id=>Number.isInteger(id)&&id>=1&&id<=24)},'*');
+}
 function sendFrikiAccount(){
   const frame=document.getElementById('apus-wiki-frame');
   if(apusWikiLoaded&&frame?.contentWindow)frame.contentWindow.postMessage({apusWikiApus:'ACCOUNT',signedIn:!!currentUser?.uid,uid:currentUser?.uid||'',name:currentUser?.username||''},'*');
@@ -132,7 +139,7 @@ function openWikiApus() {
   if (!apusWikiLoaded) {
     apusWikiLoaded = true;apusWikiReady=false;
     frikiLoadingUI('CARGANDO FRIKI APUS…');clearTimeout(apusWikiBootTimer);
-    frame.src = 'minijuegos/friki-apus.html?v=32.0.10';
+    frame.src = 'minijuegos/friki-apus.html?v=32.0.11';
     apusWikiBootTimer=setTimeout(()=>{if(!apusWikiReady)frikiLoadingUI('NO SE PUDO COMPLETAR LA CARGA. PUEDES REINTENTAR O VOLVER.');},6000);
   } else {
     sendWikiApusTheme();
@@ -155,7 +162,7 @@ function closeWikiApus() {
 window.addEventListener('message', function apusWikiMessages(event) {
   const frame = document.getElementById('apus-wiki-frame');
   if (!frame || event.source !== frame.contentWindow || !event.data) return;
-  if (event.data.apusWikiApus === 'READY') {apusWikiReady=true;clearTimeout(apusWikiBootTimer);const loading=document.getElementById('apus-wiki-loading');if(loading)loading.hidden=true;sendWikiApusTheme();sendFrikiSound();sendFrikiAccount();}
+  if (event.data.apusWikiApus === 'READY') {apusWikiReady=true;clearTimeout(apusWikiBootTimer);const loading=document.getElementById('apus-wiki-loading');if(loading)loading.hidden=true;sendWikiApusTheme();sendFrikiSound();sendFrikiAccount();sendFrikiPostcards();}
   if (event.data.apusWikiApus === 'OPEN_AUDIO_PANEL' && typeof window.apusOpenAudioPanel === 'function') window.apusOpenAudioPanel();
   if (event.data.apusWikiApus === 'REQUEST_SOUND' && typeof event.data.enabled === 'boolean') setApusGlobalSound(event.data.enabled);
   if (event.data.apusWikiApus === 'QUEUE_PROGRESS') {
