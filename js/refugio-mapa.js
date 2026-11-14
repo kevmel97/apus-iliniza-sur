@@ -1,24 +1,24 @@
-/* Geometría compartida; proyección adaptable sin mover la cámara. */
+/* Geometría del campamento ampliado, independiente de la pantalla. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ApusRefugioMap=api;})(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
- const bounds={left:38,right:922,top:302,bottom:570};
- const ax=[0,177,480,780,960],px=[0,138,280,440,560];
- const ay=[0,270,302,322,378,440,493,515,570,600],py=[0,294,326,346,452,504,550,580,690,720];
- function map(v,a,b){let i=0;while(i<a.length-2&&v>a[i+1])i++;return b[i]+(v-a[i])*(b[i+1]-b[i])/(a[i+1]-a[i]);}
- function project(p,portrait){return portrait?{x:map(p.x,ax,px),y:map(p.y,ay,py)}:{x:p.x,y:p.y};}
- function unproject(p,portrait){return portrait?{x:map(p.x,px,ax),y:map(p.y,py,ay)}:{x:p.x,y:p.y};}
- // Huellas sólidas, ampliadas para que los pies no atraviesen los objetos.
+ const bounds={left:76,right:1844,top:604,bottom:1140};
+ const project=p=>({x:p.x,y:p.y}),unproject=project;
+ // Solo las bases bloquean los pies; el resto del dibujo permite pasar detrás.
  const obstacles=[
-  {kind:'rect',name:'refugio',x1:55,x2:329,y1:270,y2:335},
-  {kind:'rect',name:'cabana',x1:675,x2:905,y1:270,y2:335},
-  {kind:'rect',name:'carpas',x1:62,x2:294,y1:351,y2:511},
-  {kind:'rect',name:'vestuario',x1:666,x2:900,y1:365,y2:497},
-  {kind:'ellipse',name:'fogata',x:480,y:378,rx:88,ry:47}
+  {kind:'rect',name:'refugio',x1:254,x2:514,y1:634,y2:660},
+  {kind:'rect',name:'cabana',x1:1466,x2:1694,y1:630,y2:656},
+  {kind:'ellipse',name:'carpa',x:328,y:952,rx:98,ry:15},
+  {kind:'ellipse',name:'carpa-pequena',x:399.61,y:971,rx:57,ry:12},
+  {kind:'rect',name:'vestuario',x1:1456,x2:1676,y1:932,y2:960},
+  {kind:'ellipse',name:'fogata',x:960,y:756,rx:72,ry:32}
  ];
- const zones={cabana:{x:788,y:350},fogata:{x:480,y:445},carpas:{x:177,y:535},vestuario:{x:780,y:535}};
+ const zones={cabana:{x:1580,y:690},fogata:{x:960,y:820},carpas:{x:354,y:1010},vestuario:{x:1566,y:1000}};
+ // Conserva el protocolo de presencia ya publicado y sus límites de seguridad.
+ const toWire=p=>({x:p.x/2,y:p.y/2});
+ const fromWire=p=>({x:p.x*2,y:p.y*2});
  function walkable(p){if(p.x<bounds.left||p.x>bounds.right||p.y<bounds.top||p.y>bounds.bottom)return false;return !obstacles.some(o=>o.kind==='rect'?p.x>=o.x1&&p.x<=o.x2&&p.y>=o.y1&&p.y<=o.y2:((p.x-o.x)/o.rx)**2+((p.y-o.y)/o.ry)**2<=1);}
  function clear(a,b){const n=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3));for(let i=0;i<=n;i++)if(!walkable({x:a.x+(b.x-a.x)*i/n,y:a.y+(b.y-a.y)*i/n}))return false;return true;}
- const step=8,cols=Math.floor((bounds.right-bounds.left)/step)+1,rows=Math.floor((bounds.bottom-bounds.top)/step)+1;
+ const step=16,cols=Math.floor((bounds.right-bounds.left)/step)+1,rows=Math.floor((bounds.bottom-bounds.top)/step)+1;
  const nodes=[];for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const p={x:bounds.left+x*step,y:bounds.top+y*step};nodes.push({...p,ok:walkable(p)});}
  function nearest(p){let best=-1,d=Infinity;for(let i=0;i<nodes.length;i++){const n=nodes[i],v=(n.x-p.x)**2+(n.y-p.y)**2;if(n.ok&&v<d){d=v;best=i}}return best;}
  function safe(p){if(walkable(p))return {x:p.x,y:p.y};const n=nodes[nearest(p)];return {x:n.x,y:n.y};}
@@ -34,5 +34,5 @@
   }return [];
  }
  function slide(from,dx,dy){const to={x:from.x+dx,y:from.y+dy};if(clear(from,to))return to;const horizontal={x:from.x+dx,y:from.y};if(clear(from,horizontal))return horizontal;const vertical={x:from.x,y:from.y+dy};return clear(from,vertical)?vertical:from;}
- return {project,unproject,walkable,clear,safe,route,slide,zones,obstacles,bounds};
+ return {toWire,fromWire,project,unproject,walkable,clear,safe,route,slide,zones,obstacles,bounds};
 });

@@ -1,17 +1,22 @@
-/* REFUGIO APUS 32.0.4 · Mundo social en perspectiva 2.5D, CÁMARA FIJA.
-   La cámara nunca sigue al jugador: clic/toque y d-pad/teclado desplazan
-   únicamente su avatar. Esta fase NO finge usuarios ni reuniones en línea. */
+/* Refugio 32.0.8: mundo ampliado y cámara de seguimiento. */
 (function () {
   'use strict';
   const root = document.getElementById('apus-refugio-overlay');
   const canvas = document.getElementById('apus-refugio-canvas');
   if (!root || !canvas) return;
-  const ctx = canvas.getContext('2d');
+  let ctx = canvas.getContext('2d');
   const map=window.ApusRefugioMap;
   let spriteScale=1.04;
   let waypoints=[];
-  const project=p=>{const q=map.project(p,scene?.portrait===true);return {x:q.x*(scene?.w||960)/(scene?.portrait?560:960),y:q.y*(scene?.h||600)/(scene?.portrait?720:600)};};
-  const unproject=p=>map.unproject({x:p.x*(scene.portrait?560:960)/scene.w,y:p.y*(scene.portrait?720:600)/scene.h},scene.portrait);
+  const project=p=>({x:p.x,y:p.y});
+  const unproject=project;
+  let camera={x:0,y:0};
+  function followCamera(dt,snap=false){
+    const x=clamp(avatar.x-state.width/2,0,Math.max(0,scene.w-state.width));
+    const y=clamp(avatar.y-state.height*.58,0,Math.max(0,scene.h-state.height));
+    const a=snap?1:1-Math.exp(-dt/85);
+    camera.x+=(x-camera.x)*a;camera.y+=(y-camera.y)*a;
+  }
   if (!ctx) { console.error('[REFUGIO] Canvas 2D no está disponible'); return; }
   const $ = (id) => document.getElementById(id);
   const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
@@ -60,10 +65,10 @@
     if(presence)presence.stop();presence=null;remotePlayers.clear();
     presenceLabel('offline');
   }
-  function publicState(){return {x:avatar.x,y:avatar.y,facing:direction,moving:!!(target||moving()),avatar:slotConfig()};}
+  function publicState(){return {...map.toWire(avatar),facing:direction,moving:!!(target||moving()),avatar:slotConfig()};}
   function updateVisitors(list){
     const next=new Map();
-    for(const visitor of list){const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y,lastFrame:old?.lastFrame});}
+    for(const record of list){const visitor={...record,...map.fromWire(record)};const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y,lastFrame:old?.lastFrame});}
     remotePlayers=next;presenceLabel(presenceState);
   }
   async function startPresence(){
@@ -91,8 +96,6 @@
   }
   function drawVisitor(visitor,t){
     const dx=visitor.x-visitor.drawX,dy=visitor.y-visitor.drawY;
-    const alpha=1-Math.exp(-clamp(t-(visitor.lastFrame||t-16),0,100)/100);
-    visitor.lastFrame=t;visitor.drawX+=dx*alpha;visitor.drawY+=dy*alpha;
     const projected=project({x:visitor.drawX,y:visitor.drawY});
     const x=projected.x,y=projected.y,walking=visitor.moving||Math.hypot(dx,dy)>2;
     ellipse(x,y+9,27,8,'#52776f');
@@ -100,10 +103,6 @@
     catch(error){console.warn('[REFUGIO] Avatar remoto no disponible',error);}
     const label=String(visitor.username).slice(0,19).toUpperCase();
     r(x-65,y+16,130,19,'#153c4c');text(label,x,y+26,7,'#bfffe1',126);
-  }
-  function drawPlayers(t){
-    const players=[...remotePlayers.values(),{local:true,y:avatar.y}].sort((a,b)=>a.y-b.y);
-    for(const player of players){if(player.local)drawAvatar(t);else drawVisitor(player,t);}
   }
   const dPad = root.querySelectorAll('[data-ref-dir]');
   const palette = {ink:'#111d31',white:'#f6f1d9',gold:'#ffd480',shadow:'#23334d',snow:'#e6eef2',stone:'#879ca9'};
@@ -117,55 +116,21 @@
     ctx.fillStyle=color;ctx.fillText(value,x,y,maxWidth||undefined);ctx.restore();
   }
   function rng(seed){const n=Math.sin(seed*82.631+12.3)*49873.14;return n-Math.floor(n);}
-  function chooseLayout(portrait){
-    const w=portrait?560:960, h=portrait?720:600;
-    const p=portrait;
-    return {w,h,portrait:p,
-      groundTop:p?294:270,
-      spawn:{x:w/2,y:p?645:521},
-      zones:{
-        cabana:{x:p?435:788,y:p?317:322,focusX:p?437:790,focusY:p?203:207,hit:75},
-        fogata:{x:w/2,y:p?504:440,focusX:w/2,focusY:p?437:369,hit:74},
-        carpas:{x:p?138:177,y:p?550:493,focusX:p?138:183,focusY:p?452:428,hit:84},
-        vestuario:{x:p?440:780,y:p?565:515,focusX:p?440:778,focusY:p?453:435,hit:85}
-      },
-      lodge:{x:p?146:192,y:p?314:322,s:p?.78:1.0},
-      cabin:{x:p?432:790,y:p?319:320,s:p?.76:1.0},
-      tents:{x:p?128:164,y:p?523:476,s:p?.82:.93},
-      wardrobe:{x:p?442:783,y:p?527:471,s:p?.8:.96},
-      fire:{x:w/2,y:p?452:378,s:p?.90:1.0}
-    };
+  function chooseLayout(){
+    return {w:1920,h:1200,portrait:false,groundTop:540,spawn:{x:960,y:1042},
+      zones:Object.fromEntries(Object.entries(map.zones).map(([key,z])=>[key,{...z}])),
+      lodge:{x:384,y:644,s:1},cabin:{x:1580,y:640,s:1},
+      tents:{x:328,y:952,s:.93},wardrobe:{x:1566,y:942,s:.96},fire:{x:960,y:756,s:1}};
   }
   function safeLayout(){
-    // Se recalcula SOLO en cambios de orientación o tamaño, nunca durante el movimiento.
     const rect=canvas.getBoundingClientRect();
     const width=rect.width||320,height=rect.height||460;
-    const portrait=height/width>1.12;
-    const next=chooseLayout(portrait);
-    const baseHeight=next.h;
-    if(width/height<next.w/next.h)next.h=next.w*height/width;
-    else next.w=next.h*width/height;
-    next.groundTop*=next.h/baseHeight;
-    const world=chooseLayout(false);
-    // Las posiciones de red nunca cambian al girar: solo se proyectan al mapa local.
-    if(!scene)avatar={...world.spawn};
-    scene=next;
-    for(const key of ['lodge','cabin','tents','wardrobe','fire'])Object.assign(scene[key],project(world[key]));
-    for(const key of Object.keys(scene.zones)){
-      const foot=project(map.zones[key]);
-      const original=world.zones[key];
-      const focus=project({x:original.focusX,y:original.focusY});
-      Object.assign(scene.zones[key],foot,{focusX:focus.x,focusY:focus.y});
-    }
-    remotePlayers.forEach(player=>{player.lastFrame=0;});
-    const pxRatio=Math.min(1.5,window.devicePixelRatio||1);
-    canvas.width=Math.max(1,Math.round(width*pxRatio));
-    canvas.height=Math.max(1,Math.round(height*pxRatio));
-    const scale=Math.min(canvas.width/next.w,canvas.height/next.h);
-    state={scale,offsetX:(canvas.width-next.w*scale)/2,offsetY:(canvas.height-next.h*scale)/2,width:next.w,height:next.h,portrait};
-    spriteScale=Math.max(1.04,46/(76*(scale/pxRatio)));
-    ctx.imageSmoothingEnabled=false;
-    backgroundCanvas=null;
+    if(!scene){scene=chooseLayout();avatar={...scene.spawn};}
+    const pxRatio=Math.min(1.5,window.devicePixelRatio||1),zoom=.78;
+    canvas.width=Math.max(1,Math.round(width*pxRatio));canvas.height=Math.max(1,Math.round(height*pxRatio));
+    const scale=pxRatio*zoom;
+    state={scale,offsetX:0,offsetY:0,width:canvas.width/scale,height:canvas.height/scale,portrait:height>width};
+    spriteScale=1.04;ctx.imageSmoothingEnabled=false;followCamera(0,true);
   }
   function tree(x,y,s){
     ctx.save();ctx.translate(x,y);ctx.scale(s,s);
@@ -268,59 +233,38 @@
     ctx.restore();}
   function bench(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);
     r(-64,-15,128,16,'#704938');r(-59,-18,118,5,'#aa7f57');r(-52,1,9,21,'#4b3f35');r(40,1,9,21,'#4b3f35');ctx.restore();}
-  function drawBuildings(){
-    const g=scene;
-    house(g.lodge.x,g.lodge.y,g.lodge.s,'lodge');
-    house(g.cabin.x,g.cabin.y,g.cabin.s,'meeting');
-    tent(g.tents.x,g.tents.y,g.tents.s,'#e07b4a');
-    tent(g.tents.x+g.tents.s*77,g.tents.y+19,g.tents.s*.55,'#5f9d9f');
-    clothes(g.wardrobe.x,g.wardrobe.y,g.wardrobe.s);
-    bench(g.fire.x-(g.portrait?105:142),g.fire.y+52,.55);
-    bench(g.fire.x+(g.portrait?107:144),g.fire.y+51,.55);
-    // Pequeños rótulos en el suelo para facilitar acceso táctil.
-    for(const key of ['fogata','cabana','carpas','vestuario']){
-      const z=g.zones[key];ellipse(z.x,z.y+3,25,8,'#6d9191');
-      ellipse(z.x,z.y,21,6,'#f0dbac');
-      r(z.x-2,z.y-13,4,10,'#6b513b');
-    }
-  }
   function prepareStaticLayer(){
-    // Dibujar el mapa fijo UNA sola vez en el lienzo visible; copiarlo después
-    // a una textura en memoria. Las siguientes imágenes solo animan fuego/avatar.
-    ctx.setTransform(1,0,0,1,0,0);r(0,0,canvas.width,canvas.height,'#192b41');
-    ctx.setTransform(state.scale,0,0,state.scale,state.offsetX,state.offsetY);
-    ctx.save();ctx.beginPath();ctx.rect(0,0,scene.w,scene.h);ctx.clip();
-    background();drawBuildings();
-    ctx.restore();
-    const texture=document.createElement('canvas');texture.width=canvas.width;texture.height=canvas.height;
-    const tctx=texture.getContext('2d');
-    if(tctx){tctx.drawImage(canvas,0,0);backgroundCanvas=texture;}
+    const texture=document.createElement('canvas');texture.width=scene.w;texture.height=scene.h;
+    const visible=ctx,tctx=texture.getContext('2d');
+    if(!tctx)return;
+    try{ctx=tctx;background();
+      for(const z of Object.values(scene.zones)){ellipse(z.x,z.y+3,25,8,'#6d9191');ellipse(z.x,z.y,21,6,'#f0dbac');}
+    }finally{ctx=visible;}
+    backgroundCanvas=texture;
   }
   function drawScene(t){
-    const {w}=scene;
-    campfire(scene.fire.x,scene.fire.y,scene.fire.s,t);
-    // El avatar se pinta SOBRE el suelo. Ningún comando desplaza la cámara.
-    for(const key of ['cabana','fogata','carpas','vestuario']){
-      const z=scene.zones[key];
-      if(distance(avatar,map.zones[key])<72){
-        ellipse(z.x,z.y,37,9,'#d7bf71');
-        text('PULSA / ENTRAR',z.x,z.y-23,8,'#fff1aa',118);
-      }
+    const g=scene,items=[];
+    const add=(x,y,draw)=>{if(x>camera.x-190&&x<camera.x+state.width+190&&y>camera.y-50&&y<camera.y+state.height+230)items.push({y,draw});};
+    add(g.lodge.x,g.lodge.y,()=>house(g.lodge.x,g.lodge.y,1,'lodge'));
+    add(g.cabin.x,g.cabin.y,()=>house(g.cabin.x,g.cabin.y,1,'meeting'));
+    add(g.tents.x,g.tents.y,()=>tent(g.tents.x,g.tents.y,g.tents.s,'#e07b4a'));
+    add(g.tents.x+g.tents.s*77,g.tents.y+19,()=>tent(g.tents.x+g.tents.s*77,g.tents.y+19,g.tents.s*.55,'#5f9d9f'));
+    add(g.wardrobe.x,g.wardrobe.y,()=>clothes(g.wardrobe.x,g.wardrobe.y,g.wardrobe.s));
+    add(g.fire.x,g.fire.y,()=>campfire(g.fire.x,g.fire.y,1,t));
+    for(const offset of [-142,144])add(g.fire.x+offset,g.fire.y+52,()=>bench(g.fire.x+offset,g.fire.y+52,.55));
+    for(const p of [{x:734,y:896,n:'CHUGO',f:-1},{x:1208,y:896,n:'JORDY',f:1}])add(p.x,p.y,()=>{
+      if(typeof drawMountaineerSprite!=='function')return;
+      drawMountaineerSprite(ctx,p.n,p.x,p.y-21,{scale:spriteScale,facing:p.f,anim:0});
+      r(p.x-34,p.y+13,68,16,'#163449');text(p.n+' NPC',p.x,p.y+21,6,'#fff1d5',65);
+    });
+    for(const visitor of remotePlayers.values()){
+      const alpha=1-Math.exp(-clamp(t-(visitor.lastFrame||t-16),0,100)/100);
+      visitor.lastFrame=t;visitor.drawX+=(visitor.x-visitor.drawX)*alpha;visitor.drawY+=(visitor.y-visitor.drawY)*alpha;
+      add(visitor.drawX,visitor.drawY,()=>drawVisitor(visitor,t));
     }
-    drawCampNPCs(t);
-    drawPlayers(t);
-    text('REFUGIO APUS',w/2,24,scene.portrait?14:18,'#ffdb88',w-62);
-  }
-  function drawCampNPCs(t){
-    // Figuras decorativas, NO jugadores conectados. Cada uno usa los sprites
-    // originales del minijuego de Chugo vs Jordy.
-    if(typeof drawMountaineerSprite!=='function')return;
-    const spots=[{...project({x:367,y:448}),n:'CHUGO',f:-1},{...project({x:604,y:448}),n:'JORDY',f:1}];
-    for(const p of spots){
-      try{drawMountaineerSprite(ctx,p.n,p.x,p.y-20+Math.sin(t*.002+p.x)*.6,{scale:spriteScale,facing:p.f,anim:0});
-        r(p.x-34,p.y+13,68,16,'#163449');text(p.n+' NPC',p.x,p.y+21,6,'#fff1d5',65);
-      }catch(_){/* Si falta un sprite, el mapa sigue funcionando. */}
-    }
+    add(avatar.x,avatar.y,()=>drawAvatar(t));
+    items.sort((a,b)=>a.y-b.y);for(const item of items)item.draw();
+    for(const [key,z] of Object.entries(g.zones))if(distance(avatar,z)<72)text('PULSA / ENTRAR',z.x,z.y+45,8,'#fff1aa',118);
   }
   function drawAvatar(t){
     const cfg=slotConfig();
@@ -479,12 +423,12 @@
     const rect=canvas.getBoundingClientRect();
     const px=(event.clientX-rect.left)*canvas.width/rect.width;
     const py=(event.clientY-rect.top)*canvas.height/rect.height;
-    const x=(px-state.offsetX)/state.scale,y=(py-state.offsetY)/state.scale;
+    const x=px/state.scale+camera.x,y=py/state.scale+camera.y;
     if(x<0||x>scene.w||y<0||y>scene.h)return;
-    // Los edificios son interactivos; el personaje camina HASTA ellos, no teletransporta la cámara.
+    // Los puntos de acceso abren las zonas; el resto del suelo permite caminar detrás.
     for(const key of ['cabana','fogata','carpas','vestuario']){
       const z=scene.zones[key];
-      if(Math.hypot(x-z.focusX,(y-z.focusY)*.85)<(key==='fogata'?85:120)){
+      if(Math.hypot(x-z.x,y-z.y)<30){
         approach(key);return;
       }
     }
@@ -499,18 +443,23 @@
     if(pressed('down')||pressed('ArrowDown')||pressed('KeyS'))dy+=1;
     if(dx||dy){
       const m=Math.hypot(dx,dy);dx/=m;dy/=m;target=null;destinationZone=null;waypoints=[];
-      avatar=map.slide(avatar,dx*dt*.215,dy*dt*.215);
+      avatar=map.slide(avatar,dx*dt*.26,dy*dt*.26);
       if(dx)direction=Math.sign(dx);
       return;
     }
-    if(target){const length=distance(avatar,target);if(length<3){avatar={...target};target=waypoints.shift()||null;
-      if(!target&&destinationZone){const z=destinationZone;destinationZone=null;dialogOpen(z);}
-    }else{
-      const step=Math.min(length,dt*.19);const vx=(target.x-avatar.x)/length,vy=(target.y-avatar.y)/length;
-      avatar=map.slide(avatar,step*vx,step*vy);
-      if(Math.abs(vx)>.04)direction=vx>0?1:-1;
-    }}
+    let remaining=dt*.26;
+    while(target&&remaining>0){
+      const length=distance(avatar,target),step=Math.min(length,remaining);
+      if(length>.001){const vx=(target.x-avatar.x)/length,vy=(target.y-avatar.y)/length;
+        avatar=map.slide(avatar,step*vx,step*vy);if(Math.abs(vx)>.04)direction=vx>0?1:-1;
+      }
+      remaining-=step;
+      if(length<=step+.001){avatar={...target};target=waypoints.shift()||null;
+        if(!target&&destinationZone){const z=destinationZone;destinationZone=null;dialogOpen(z);}
+      }else break;
+    }
   }
+
   function frame(time){
     if(!active){raf=0;return;}
     if(!hasAccount()||currentUser.uid!==accountId){close();return;}
@@ -519,14 +468,12 @@
       const dt=lastFrame?clamp(time-lastFrame,0,50):16;lastFrame=time;
       maintainPresence();
       if(!$('apus-refugio-dialog').hidden){} else movementFromInput(dt);
+      followCamera(dt);
       if(!backgroundCanvas)prepareStaticLayer();
-      ctx.setTransform(1,0,0,1,0,0);
+      ctx.setTransform(1,0,0,1,0,0);r(0,0,canvas.width,canvas.height,'#192b41');
+      ctx.setTransform(state.scale,0,0,state.scale,-camera.x*state.scale,-camera.y*state.scale);
       if(backgroundCanvas)ctx.drawImage(backgroundCanvas,0,0);
-      else r(0,0,canvas.width,canvas.height,'#192b41');
-      ctx.setTransform(state.scale,0,0,state.scale,state.offsetX,state.offsetY);
-      ctx.save();ctx.beginPath();ctx.rect(0,0,scene.w,scene.h);ctx.clip();
       drawScene(time);
-      ctx.restore();
       raf=requestAnimationFrame(frame);
     }catch(e){recover(e);}
   }
@@ -566,7 +513,7 @@
     get active(){return active;},get selectedSlot(){return slot;},
     get avatarX(){return Math.round(avatar.x);},get avatarY(){return Math.round(avatar.y);},
     get worldWidth(){return scene?.w||0;},get worldHeight(){return scene?.h||0;},
-    get isCameraFixed(){return true;},
+    get isCameraFixed(){return false;},get cameraX(){return camera.x;},get cameraY(){return camera.y;},
     testMoveTo:moveTo,openZone:approach
   };
 })();

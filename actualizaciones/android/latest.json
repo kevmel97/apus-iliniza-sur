@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.7",
-  "bundleId": "apus-32-0-7",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-7.zip",
-  "checksum": "ff185484905a6c2ff0eadeae9c3dede2f2566f8e9ff99306f5f399dda61c1448",
-  "signature": "KmI2cfk3ooiRGG8hvT/a4uZJDDhLlP6UzCj5zPfB3nQ34rYRiqlGy871GebUI98nR12PWdBky755cAoBVrCEKFl5b7qb+9theEdFM7kok2l1V1bFlxTzkIh6AZqH+BblOpX+alyqzm6FfPY6W3AZsPff3i5wEzjAtNik4gT95KcxBoOkykag/+7A5PTBt6AbgQBvJ0um2jaGcgv+cfjUyfaQZVedTv/L6gmlOBfEAppwHMHOf+/qNzwf5Lomp+HHTxAqDag7N3GrrIRyFX4jqRKb6zGM/A36/DMNTFVRA3eoSEBYur2yblPpOon6xjAt7zUCL6FdD+5oQsSSNqBVx3Gx+jD2kf/1WuEIqfjIUs2WqQg9SrweSFBFsTpkCh+L5OPfVtlft8nnh/mblQKBUuIdCAD4+PpvAIViMAd0IpuielXBJPT4wTevD6BsddOCkLHLV8P/SuodaLLZ6X76rLsoONOZVB5SO4+pawC4wxvGnTSJuLW06XjjGGFEX2yQ",
+  "version": "32.0.8",
+  "bundleId": "apus-32-0-8",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-8.zip",
+  "checksum": "19bb43cfa540d19632adc8b6ee6b1689afcdff8415be617d60ac144e90a7853c",
+  "signature": "HgqFY3AR5sc7aOpDnUSBdZNrNLWjcilY/mwJdGv+gJntlm4hFA3sHIByroV5RruupW7n9F5ioR8Cw8zgKO6DffmincdTAxg0Xle9iujHwV/AYWxx9PJ+7i2U93VprtRWh6kKFjphoWIreDDemrkyNO9s+InroFFmQKxOALNJAgulMPvBFZIJismNR4LrZ7jmGuharVN0L3w4q6nqSmPyBJlgIEROqryqeArUC4054F0RcozqZ7mRgF4m4UxhWVgEct+3+F67+aHxcOamH7Ocm+yJ7JAmUqCBxuMUC9UTUVBMfijF8pqaEeBbV1hmv2WVXOaTFlskRNs0Gcl5A45jEPgWGnl/xrxlvAlgCwi0sc+gLEvqE5yFPJi8E/FPx+9etOlwzugM4sAA1Jc9oSbsWZAf2M/3+VwyBGsIvKNphYKnDbuJuMsC4Pm+OUCc1xR4Oz7iCWhh07hbUrpi7epvR6oHHg85RyJiHxYFFAJOKlQxenM3zpkMQHqJ/O35Hzk6",
   "minNativeVersionCode": 3,
-  "notes": "Refugio Apus: pantalla adaptable vertical y horizontal, personajes y NPC del mismo tamaño, rutas que rodean carpas/vestuario/fogata y movimientos compartidos más ligeros."
+  "notes": "Refugio cuatro veces más amplio, cámara de seguimiento y paso detrás de objetos."
 }

@@ -13,7 +13,7 @@
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/apus-intro-video.css">
-<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.7">
+<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.8">
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -81,7 +81,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.7</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.8</div>
     </div>
   </div>
 
@@ -95,7 +95,7 @@
       <button class="ref-btn ref-btn-orange" type="button" onclick="closeRefugioApus()">↩ MENÚ</button>
     </header>
     <div class="ref-stage">
-      <canvas id="apus-refugio-canvas" width="960" height="560" aria-label="Mapa fijo del Refugio Apus: tu montañista camina por la plaza al tocar el suelo"></canvas>
+      <canvas id="apus-refugio-canvas" width="960" height="560" aria-label="Mapa ampliado del Refugio Apus: tu montañista camina por la plaza al tocar el suelo"></canvas>
       <span class="ref-stage-tag" id="apus-refugio-status">CONECTANDO CON EL REFUGIO…</span>
       <p class="ref-stage-tip">TOCA EL SUELO PARA CAMINAR · ▲◀▶▼ MUEVEN TU PERSONAJE · ACÉRCATE A LOS LUGARES</p>
       <div id="apus-refugio-toast" class="ref-toast" hidden role="status"></div>
@@ -707,9 +707,9 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' &&
   });
 }
 </script>
-<script src="js/refugio-online-config.js?v=32.0.7"></script>
-<script src="js/refugio-presencia.js?v=32.0.7"></script>
-<script src="js/refugio-mapa.js?v=32.0.7"></script>
-<script src="js/refugio-apus.js?v=32.0.7"></script>
+<script src="js/refugio-online-config.js?v=32.0.8"></script>
+<script src="js/refugio-presencia.js?v=32.0.8"></script>
+<script src="js/refugio-mapa.js?v=32.0.8"></script>
+<script src="js/refugio-apus.js?v=32.0.8"></script>
 </body>
 </html>

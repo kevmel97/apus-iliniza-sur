@@ -1,9 +1,9 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.7';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.8';
 const PRECACHE_URLS = [
-  "./js/refugio-mapa.js?v=32.0.7",
-  "./js/refugio-presencia.js?v=32.0.7",
-  "./js/refugio-online-config.js?v=32.0.7",
+  "./js/refugio-mapa.js?v=32.0.8",
+  "./js/refugio-presencia.js?v=32.0.8",
+  "./js/refugio-online-config.js?v=32.0.8",
   "./js/apus-ota-android.js",
   "./assets/intro/logo-apus-guardians.png",
   "./assets/intro/fondo-video.webp",
@@ -50,8 +50,8 @@ const PRECACHE_URLS = [
   "./assets/escenarios/imagen_f4779e8be47463.jpg",
   "./assets/escenarios/imagen_fd1cff65bb1831.jpg",
   "./css/estilos.css",
-  "./css/refugio-apus.css?v=32.0.7",
-  "./js/refugio-apus.js?v=32.0.7",
+  "./css/refugio-apus.css?v=32.0.8",
+  "./js/refugio-apus.js?v=32.0.8",
   "./index.html",
   "./js/actualizaciones-v30.js",
   "./js/chugo-vs-jordy.js",
