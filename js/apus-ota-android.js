@@ -5,7 +5,7 @@
 */
 (function () {
   'use strict';
-  var CONTENT_VERSION = '32.0.9';
+  var CONTENT_VERSION = '32.0.10';
   var OTA_SIGNED_BUILD = true;
   var MANIFEST_URL = 'https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/latest.json';
   var ALLOWED_ROOT = 'https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/';
@@ -194,15 +194,15 @@
     install.focus();
   }
   async function fetchManifest() {
-    var controller = new AbortController();
-    var timeout = setTimeout(function () { controller.abort(); }, 9000);
+    var controller = new AbortController(), timer;
+    var expired=new Promise(function(_,reject){timer=setTimeout(function(){controller.abort();reject(new Error('Sin respuesta de internet'));},2500);});
     try {
-      var r = await fetch(MANIFEST_URL + '?t=' + Date.now(), {
-        cache:'no-store', signal:controller.signal, redirect:'error', credentials:'omit'
-      });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return await r.json();
-    } finally { clearTimeout(timeout); }
+      return await Promise.race([expired,(async function(){
+        var r=await fetch(MANIFEST_URL+'?t='+Date.now(),{cache:'no-store',signal:controller.signal,redirect:'error',credentials:'omit'});
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        return await r.json();
+      })()]);
+    }finally{clearTimeout(timer);}
   }
   async function discardOldServiceWorkers() {
     if (!('serviceWorker' in navigator)) return;
@@ -303,66 +303,57 @@
       ui.install.textContent = 'Reintentar';
       ui.install.disabled = false; ui.exit.disabled = false;
       ui.install.style.opacity = '1';
+      if(!state.offlineButton){var play=button('Jugar con la versión instalada',false);play.addEventListener('click',unlockScreen);state.card.appendChild(play);state.offlineButton=play;}
     } finally {
       if (progressHandle) try {await progressHandle.remove();} catch (_) {}
       running = false;
     }
   }
   async function begin() {
-    var plugins = nativePlugins();
-    if (!plugins || !plugins.LiveUpdate) return; // Solo para Android, no GitHub Pages.
-    if (running) return;
-    lockScreen(); showChecking();
-    running = true;
-    var pending = readPending();
-    try {
-      var api = plugins.LiveUpdate;
-      var ready = await api.ready();
-      if (ready && ready.rollback) setStatus('⚠️ Se recuperó una versión anterior del juego');
-      if (!OTA_SIGNED_BUILD) {showError('La firma de actualizaciones no está configurada.');return;}
-      discardOldServiceWorkers();
-      var info = await api.getVersionCode();
-      var nativeCode = Number(info.versionCode) || NATIVE_CODE;
-      var current = await api.getCurrentBundle();
-      var localVersion = CONTENT_VERSION;
-      if (current && current.bundleId && /^apus-\d+-\d+-\d+$/.test(current.bundleId)) {
-        // El paquete activo no puede reducir la versión de referencia de la APK.
-        var currentVersion = current.bundleId.replace(/^apus-/,'').replace(/-/g,'.');
-        if (compareVersions(currentVersion, localVersion) > 0) localVersion = currentVersion;
+    var plugins=nativePlugins();
+    if(!plugins||!plugins.LiveUpdate){unlockScreen();return;}
+    if(running)return;
+    running=true;
+    var api=plugins.LiveUpdate,timer;
+    // Avisar al plugin incluso sin conexión para no revertir un paquete válido.
+    var ready=Promise.resolve().then(function(){return api.ready();});
+    discardOldServiceWorkers();
+    ready.catch(function(e){console.warn('[APUS OTA] ready:',e);});
+    function offline(){unlockScreen();setStatus('📦 Sin conexión al actualizador · Juego disponible');}
+    try{
+      if(navigator.onLine===false){offline();return;}
+      // Un wifi sin salida, un puente nativo detenido o una respuesta incompleta
+      // nunca pueden retener el inicio. Tampoco una versión pendiente recordada.
+      var timeout=new Promise(function(_,reject){timer=setTimeout(function(){reject(new Error('Tiempo de comprobación agotado'));},3500);});
+      var check=(async function(){
+        await ready;
+        if(!OTA_SIGNED_BUILD)throw new Error('Firma OTA no configurada');
+        var info=await api.getVersionCode(),current=await api.getCurrentBundle();
+        var localVersion=CONTENT_VERSION;
+        if(current&&/^apus-\d+-\d+-\d+$/.test(current.bundleId||'')){
+          var v=current.bundleId.replace(/^apus-/,'').replace(/-/g,'.');
+          if(compareVersions(v,localVersion)>0)localVersion=v;
+        }
+        var manifest=await fetchManifest();
+        var blocked={bundleIds:[]};
+        if(validManifest(manifest,Number(info.versionCode)||NATIVE_CODE)&&compareVersions(manifest.version,localVersion)>0){
+          try{blocked=await api.getBlockedBundles()||blocked;}catch(e){}
+        }
+        return {manifest:manifest,nativeCode:Number(info.versionCode)||NATIVE_CODE,current:current,localVersion:localVersion,blocked:blocked};
+      })();
+      var result=await Promise.race([check,timeout]);
+      var m=result.manifest;
+      if(!validManifest(m,result.nativeCode)){offline();return;}
+      if(compareVersions(m.version,result.localVersion)<=0||(result.current&&result.current.bundleId===m.bundleId)){
+        clearPending();unlockScreen();setStatus('✅ Contenido '+result.localVersion+' · Actualizado');return;
       }
-      if (pending && compareVersions(localVersion,pending) >= 0) {clearPending(); pending = null;}
-      var m = await fetchManifest();
-      if (!validManifest(m,nativeCode)) {
-        if (pending && compareVersions(pending,localVersion)>0) showError('Hay una actualización pendiente, pero no se pudo verificar el paquete publicado.');
-        else {clearPending(); unlockScreen(); setStatus('✅ Contenido ' + localVersion + ' · Sin novedades');}
-        return;
+      currentManifest=m;recordPending(m.version);
+      if((result.blocked.bundleIds||[]).includes(m.bundleId)){
+        unlockScreen();setStatus('📦 Se conserva la versión instalada; actualización bloqueada');return;
       }
-      if (compareVersions(m.version,localVersion) <= 0 || (current && current.bundleId === m.bundleId)) {
-        clearPending(); unlockScreen(); setStatus('✅ Contenido ' + localVersion + ' · Actualizado');
-        return;
-      }
-      currentManifest = m;
-      recordPending(m.version);
-      var blocked = {bundleIds:[]};
-      try { blocked = await api.getBlockedBundles() || blocked; }
-      catch (err) { console.warn('[APUS OTA] Consulta de paquetes bloqueados:', err); }
-      if ((blocked.bundleIds || []).includes(m.bundleId)) {
-        showError('Esta actualización ha sido bloqueada por seguridad. Necesita publicarse una versión corregida.');
-        return;
-      }
-      setStatus('🆕 Contenido v' + m.version + ' obligatorio');
-      showUpdate(m);
-    } catch (err) {
-      console.warn('[APUS OTA] Comprobación:',err);
-      // Mantener el juego offline disponible solo cuando NO se haya confirmado
-      // previamente que hay una actualización obligatoria pendiente.
-      if (pending && compareVersions(pending,CONTENT_VERSION)>0) {
-        showError('No hay conexión para instalar la actualización pendiente v' + pending + '.');
-      } else {
-        unlockScreen();
-        setStatus('📦 Sin internet · Modo offline disponible');
-      }
-    } finally {running = false;}
+      setStatus('🆕 Contenido v'+m.version+' obligatorio');showUpdate(m);
+    }catch(err){console.warn('[APUS OTA] Comprobación:',err);offline();}
+    finally{clearTimeout(timer);running=false;}
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',begin,{once:true});
   else begin();

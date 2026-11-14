@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.9",
-  "bundleId": "apus-32-0-9",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-9.zip",
-  "checksum": "4a4ff98bacfa8c208392b43f7e0644945521e0278c81b20d8b488b134f426969",
-  "signature": "HUNPCMP8F5nqhgf5sjjHTyLSE72mclAA6SJb49hfJeKnUyNhzjZ9lwIRl7QMbrJX9wNHXNGeB9C+MRfiWsausl6qTEI1TX+6UMQNbWc3JRo7LW7hS1OCIe/CysYVXVGromRFbmxUULqP8lo/sFoAaCmMzh4CUiZQhLTQma8kRMrwljATpMGhMYnZVagbxyNxgsS7c3wXjbgoXV9s9JiX2fK1F+9SmB8+vyQBmxqxV5bfTtWan/s0T3DM5QhZZauibjXITB/o5h0ITOa4AwW1jFW/KQQadqEWQ5Z1YBFRlDEHybE2QsfeCeqwmTaO7R4lMrZ7rO3ueEFJ33JKdazf/1u8oOPg6Z2DW23BaPfOQ7TWBpjXSDoBpl2rqAWcPCZqCSD2X9zRp0Vejq/yLya7sSR1gh0eA4FnmYZlNnVcWjyHkBncObOC+T+dvpUVMSnIzO2fsWotttUeRl00fRP/Wxdtm5yOihgVn+RcJK4H1+rMk39+lSYywSRA7QS5joiX",
+  "version": "32.0.10",
+  "bundleId": "apus-32-0-10",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-10.zip",
+  "checksum": "94d1e60d3302119a5ae1024631d63ed06eef52ac88509075209132f0a313677f",
+  "signature": "c3y6QgR8HtVfwHxa7wYJBa9P+kMsrZdFrMb8cjOYR7vVpOpfRw159R/dZwReJCipwefs7vxB2X6UqJTDMB2pvCSzwHTT6p5/EZ4oLb9nv6Vumh+YHuShwKxqrmxwHKHmfufzjjOrZcnDSRHn5QUUw1qbG1ZOUSZP4fKKayEREPdtHSx9moHT4fvQPObfqsOs2tnhgK1pFR8PPeRKiZjS50ofEq1Tee8gYkHtON264YVQvhNewZZVPBZ4OYHY0fugyOJQYUCDx7Vm0F16i1i4T5/090EUFr+44mOLR2gTnu7OZ1XEfGejLO7COBf4IHD8x42oGP0y0TXuDz5yqr10/oGurcAlbdXKvzZwcB5oG7T9aiivTKw6DwOcyadRyzBAfoU0ggQsQy2JnU199uIO+qnpZpdWFFVQKoVT0wA3NSrrtz0G72R3iZIqpnnGsoKvCxP6X7sKBxoAsmZChAGl3BY2WkeUeI8cV9ByUnvO2ed6wzEHymJ9vcZE/jL/BFhB",
   "minNativeVersionCode": 3,
-  "notes": "Amigos del Refugio: búsqueda, solicitudes, aceptación, lista y bloqueo."
+  "notes": "Friki Apus: postales restauradas, recursos locales y arranque disponible sin internet."
 }

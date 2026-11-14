@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friki Apus - Postales de Cumbre</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/friki-local.css?v=32.0.10">
+    <link rel="stylesheet" href="../css/friki-fonts.css?v=32.0.10">
     <style>
         :root {
             --apu-bg: #120e1f;
@@ -3108,10 +3108,16 @@ renderWikiCampScene = wikiCampRender;
 /* Galería, mapa y postales: mismos sprites que combate, no los aproximados del quiz original. */
 
 /* V28.0.4: 12 fondos pixel art suministrados por el creador: resolución original. */
-const FRIKI_PHOTO_DATA = {};
+const FRIKI_PHOTO_DATA = {"1": "../assets/escenarios/imagen_8b71506e61db30.jpg", "2": "../assets/escenarios/imagen_ee4a3458fd9fde.jpg", "3": "../assets/escenarios/imagen_9b43dce767f49a.jpg", "4": "../assets/escenarios/imagen_f2cb0e234c94fe.jpg", "5": "../assets/escenarios/imagen_3b421faf695056.jpg", "6": "../assets/escenarios/imagen_e94972170d3aae.jpg", "7": "../assets/escenarios/imagen_55e2c4e6573f42.jpg", "8": "../assets/escenarios/imagen_5faaa6d2985806.jpg", "9": "../assets/escenarios/imagen_861a5541b61ca4.jpg", "10": "../assets/escenarios/imagen_fd1cff65bb1831.jpg", "11": "../assets/escenarios/imagen_ced116ff6cb629.jpg", "12": "../assets/escenarios/imagen_f23c05f8b6b5b7.webp", "13": "../assets/escenarios/imagen_1a6279d63f8638.jpg", "14": "../assets/escenarios/imagen_5ffc3bb9ac1e03.jpg", "15": "../assets/escenarios/imagen_bc2f12ff8b5275.jpg", "16": "../assets/escenarios/imagen_342787263b2de3.jpg", "17": "../assets/escenarios/imagen_bf882a7a523838.jpg", "18": "../assets/escenarios/imagen_93d5368095f252.jpg", "19": "../assets/escenarios/imagen_8574fdcee9bb98.jpg", "24": "../assets/escenarios/imagen_f4779e8be47463.jpg", "22": "../assets/escenarios/imagen_dd73c05a363059.jpg", "21": "../assets/escenarios/imagen_cd1f73a401a35c.jpg", "23": "../assets/escenarios/imagen_9b3df74e079b79.jpg", "20": "../assets/escenarios/imagen_3b15295023bdb3.jpg"};
 const frikiPhotoCache = new Map();
 function frikiPhotoFor(id) {
-  const source=FRIKI_PHOTO_DATA[id] || (window.parent!==window && typeof window.parent.apusGetStagePhoto==='function' ? window.parent.apusGetStagePhoto(id) : null);
+  let source=FRIKI_PHOTO_DATA[id];
+  if(!source){try{
+    if(window.parent!==window && typeof window.parent.apusGetStagePhoto==='function'){
+      const original=window.parent.apusGetStagePhoto(id);
+      if(original)source=new URL(original,window.parent.document.baseURI).href;
+    }
+  }catch(e){console.warn('Friki: no se pudo consultar la postal',e);}}
   if (!source) return null;
   if (!frikiPhotoCache.has(id)) {
     const img=new Image();img.decoding='async';img.src=source;
@@ -3398,6 +3404,7 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
   };
 
   window.animationLoop = function(){
+    try{
     animTick++;
     if (!document.getElementById('screen-menu').classList.contains('hidden')) renderWikiCampScene(document.getElementById('heroCanvas'), animTick, 'menu');
     if (!document.getElementById('screen-map').classList.contains('hidden')) {
@@ -3414,7 +3421,8 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
       }
     }
     if (!document.getElementById('landscapeModal').classList.contains('hidden')) renderLandscapeScene(document.getElementById('modalCanvas'), modalPreviewLevel, animTick, true);
-    requestAnimationFrame(animationLoop);
+    }catch(error){if(!window.__apusFrikiDrawError){console.error('Friki: dibujo temporalmente no disponible',error);window.__apusFrikiDrawError=true;}}
+    finally{requestAnimationFrame(animationLoop);}
   };
 
   function applyLabels(){
@@ -3430,7 +3438,9 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     document.title = 'Friki Apus - Trivia Pixel Art';
   }
 
-  window.onload = function(){
+  function startFriki(){
+    if(window.__apusFrikiStarted)return;
+    window.__apusFrikiStarted=true;
     loadProgress();
     try {
       if(window.parent!==window) window.parent.postMessage({
@@ -3444,7 +3454,10 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     if(audioBtn) audioBtn.textContent = soundEnabled ? '🔊 SONIDO: SÍ' : '🔇 SONIDO: NO';
     animationLoop();
     try { if(window.parent && window.parent !== window) window.parent.postMessage({apusWikiApus:'READY'}, '*'); } catch(e){}
-  };
+  }
+  window.onload=null;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startFriki,{once:true});
+  else startFriki();
 })();
 </script>
 

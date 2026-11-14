@@ -13,8 +13,9 @@
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/apus-intro-video.css">
-<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.9">
-<link rel="stylesheet" href="css/refugio-amigos.css?v=32.0.9">
+<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.10">
+<link rel="stylesheet" href="css/refugio-amigos.css?v=32.0.10">
+<style>#apus-wiki-loading[hidden]{display:none!important}#apus-wiki-loading button{padding:14px;background:#264f66;border:2px solid #91bfc1;color:#fff;font:inherit}</style>
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -82,7 +83,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.9</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.10</div>
     </div>
   </div>
 
@@ -681,6 +682,10 @@
 
 <!-- V27.9: FRIKI APUS, minijuego extra aislado para no alterar historia ni combate. -->
 <div id="apus-wiki-shell" style="position:fixed;inset:0;z-index:10000;background:#05070d;display:none;">
+ <div id="apus-wiki-loading" style="position:absolute;inset:0;z-index:2;display:grid;place-content:center;gap:16px;text-align:center;background:#120e1f;color:#ffd15c;padding:20px;font:14px monospace">
+  <p id="apus-wiki-loading-text" role="status">CARGANDO FRIKI APUS…</p>
+  <button type="button" onclick="retryWikiApus()">REINTENTAR</button><button type="button" onclick="closeWikiApus()">VOLVER AL MENÚ</button>
+ </div>
  <iframe id="apus-wiki-frame" title="Friki Apus" style="width:100%;height:100%;display:block;border:0;" allow="autoplay"></iframe>
 </div>
 
@@ -705,16 +710,16 @@
     <div class="apus-audio-buttons"><button type="button" id="apus-audio-mute-all">🔇 SILENCIAR TODO</button><button type="button" id="apus-audio-close">✓ VOLVER</button></div>
   </section>
 </div>
-<script src="js/puentes-minijuegos.js"></script>
+<script src="js/puentes-minijuegos.js?v=32.0.10"></script>
 <script src="js/juego-principal.js"></script>
 <script src="js/conexion-y-ascenso.js"></script>
-<script src="js/chugo-vs-jordy.js"></script>
+<script src="js/chugo-vs-jordy.js?v=32.0.10"></script>
 <script src="js/cinematicas-y-bucle.js"></script>
 <script src="js/torneos.js"></script>
 <script src="js/inicio.js"></script>
 <script src="js/apus-musica-v31_5.js"></script>
 <script src="js/apus-intro-video.js"></script>
-<script src="js/apus-ota-android.js"></script>
+<script src="js/apus-ota-android.js?v=32.0.10"></script>
 
 <script src="js/actualizaciones-v30.js"></script>
 
@@ -730,11 +735,11 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' &&
   });
 }
 </script>
-<script src="js/refugio-online-config.js?v=32.0.9"></script>
-<script src="js/refugio-presencia.js?v=32.0.9"></script>
-<script src="js/refugio-mapa.js?v=32.0.9"></script>
-<script src="js/refugio-amigos.js?v=32.0.9"></script>
-<script src="js/refugio-amigos-ui.js?v=32.0.9"></script>
-<script src="js/refugio-apus.js?v=32.0.9"></script>
+<script src="js/refugio-online-config.js?v=32.0.10"></script>
+<script src="js/refugio-presencia.js?v=32.0.10"></script>
+<script src="js/refugio-mapa.js?v=32.0.10"></script>
+<script src="js/refugio-amigos.js?v=32.0.10"></script>
+<script src="js/refugio-amigos-ui.js?v=32.0.10"></script>
+<script src="js/refugio-apus.js?v=32.0.10"></script>
 </body>
 </html>

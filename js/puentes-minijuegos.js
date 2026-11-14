@@ -114,7 +114,13 @@ window.addEventListener('message', function apusBingoMessages(event) {
 
 /* V27.9 - FRIKI APUS: módulo extra aislado en iframe. */
 /* V31: APUS_WIKI_APUS_HTML_B64 está en minijuegos/friki-apus.html */
-let apusWikiLoaded = false;
+let apusWikiLoaded = false, apusWikiReady=false, apusWikiBootTimer=0;
+function frikiLoadingUI(message){
+ const panel=document.getElementById('apus-wiki-loading');
+ if(panel){panel.hidden=false;document.getElementById('apus-wiki-loading-text').textContent=message;}
+}
+function retryWikiApus(){apusWikiLoaded=false;openWikiApus();}
+
 function openWikiApus() {
   const shell = document.getElementById('apus-wiki-shell');
   const frame = document.getElementById('apus-wiki-frame');
@@ -124,8 +130,10 @@ function openWikiApus() {
   showOverlay(null);
   shell.style.display = 'block';
   if (!apusWikiLoaded) {
-    apusWikiLoaded = true;
-    frame.src = "minijuegos/friki-apus.html";
+    apusWikiLoaded = true;apusWikiReady=false;
+    frikiLoadingUI('CARGANDO FRIKI APUS…');clearTimeout(apusWikiBootTimer);
+    frame.src = 'minijuegos/friki-apus.html?v=32.0.10';
+    apusWikiBootTimer=setTimeout(()=>{if(!apusWikiReady)frikiLoadingUI('NO SE PUDO COMPLETAR LA CARGA. PUEDES REINTENTAR O VOLVER.');},6000);
   } else {
     sendWikiApusTheme();
   }
@@ -135,6 +143,7 @@ function sendWikiApusTheme() {
   if (apusWikiLoaded && frame && frame.contentWindow) frame.contentWindow.postMessage({apusWikiApus:'THEME', theme:currentTheme}, '*');
 }
 function closeWikiApus() {
+  clearTimeout(apusWikiBootTimer);apusWikiReady=false;
   document.getElementById('apus-wiki-shell').style.display = 'none';
   const frame = document.getElementById('apus-wiki-frame');
   if (frame) { frame.removeAttribute('srcdoc'); frame.src = 'about:blank'; }
@@ -146,7 +155,7 @@ function closeWikiApus() {
 window.addEventListener('message', function apusWikiMessages(event) {
   const frame = document.getElementById('apus-wiki-frame');
   if (!frame || event.source !== frame.contentWindow || !event.data) return;
-  if (event.data.apusWikiApus === 'READY') {sendWikiApusTheme();sendFrikiSound();sendFrikiAccount();}
+  if (event.data.apusWikiApus === 'READY') {apusWikiReady=true;clearTimeout(apusWikiBootTimer);const loading=document.getElementById('apus-wiki-loading');if(loading)loading.hidden=true;sendWikiApusTheme();sendFrikiSound();sendFrikiAccount();}
   if (event.data.apusWikiApus === 'OPEN_AUDIO_PANEL' && typeof window.apusOpenAudioPanel === 'function') window.apusOpenAudioPanel();
   if (event.data.apusWikiApus === 'REQUEST_SOUND' && typeof event.data.enabled === 'boolean') setApusGlobalSound(event.data.enabled);
   if (event.data.apusWikiApus === 'QUEUE_PROGRESS') {

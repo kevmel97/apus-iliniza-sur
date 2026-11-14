@@ -528,7 +528,7 @@ const APUS_STAGE_THUMBNAILS = {
   18:APUS_FIGHT_PHOTOS[18],
   19:APUS_FIGHT_PHOTOS[19]
 };
-window.apusGetStagePhoto = function(id){return APUS_FIGHT_PHOTOS[Number(id)]||null;};
+window.apusGetStagePhoto = function(id){const src=APUS_FIGHT_PHOTOS[Number(id)];return src?new URL(src,document.baseURI).href:null;};
 const apusFightImages = new Map();
 let apusSelectedStageId=0; // -1: aleatorio, 0: Cotopaxi clásico, 1..19: Friki Apus.
 let apusActiveFightStageId=0;

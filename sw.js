@@ -1,13 +1,18 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.9';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.10';
 const PRECACHE_URLS = [
-  "./js/refugio-amigos.js?v=32.0.9",
-  "./js/refugio-amigos-ui.js?v=32.0.9",
-  "./css/refugio-amigos.css?v=32.0.9",
-  "./js/refugio-mapa.js?v=32.0.9",
-  "./js/refugio-presencia.js?v=32.0.9",
-  "./js/refugio-online-config.js?v=32.0.9",
-  "./js/apus-ota-android.js",
+  "./css/friki-local.css?v=32.0.10",
+  "./css/friki-fonts.css?v=32.0.10",
+  "./assets/fonts/friki-pixel.ttf",
+  "./assets/fonts/friki-vt.ttf",
+  "./minijuegos/friki-apus.html?v=32.0.10",
+  "./js/refugio-amigos.js?v=32.0.10",
+  "./js/refugio-amigos-ui.js?v=32.0.10",
+  "./css/refugio-amigos.css?v=32.0.10",
+  "./js/refugio-mapa.js?v=32.0.10",
+  "./js/refugio-presencia.js?v=32.0.10",
+  "./js/refugio-online-config.js?v=32.0.10",
+  "./js/apus-ota-android.js?v=32.0.10",
   "./assets/intro/logo-apus-guardians.png",
   "./assets/intro/fondo-video.webp",
   "./css/apus-intro-video.css",
@@ -53,16 +58,16 @@ const PRECACHE_URLS = [
   "./assets/escenarios/imagen_f4779e8be47463.jpg",
   "./assets/escenarios/imagen_fd1cff65bb1831.jpg",
   "./css/estilos.css",
-  "./css/refugio-apus.css?v=32.0.9",
-  "./js/refugio-apus.js?v=32.0.9",
+  "./css/refugio-apus.css?v=32.0.10",
+  "./js/refugio-apus.js?v=32.0.10",
   "./index.html",
   "./js/actualizaciones-v30.js",
-  "./js/chugo-vs-jordy.js",
+  "./js/chugo-vs-jordy.js?v=32.0.10",
   "./js/cinematicas-y-bucle.js",
   "./js/conexion-y-ascenso.js",
   "./js/inicio.js",
   "./js/juego-principal.js",
-  "./js/puentes-minijuegos.js",
+  "./js/puentes-minijuegos.js?v=32.0.10",
   "./js/torneos.js",
   "./minijuegos/animacion-cumbre.html",
   "./minijuegos/animacion-descenso.html",
@@ -139,13 +144,22 @@ self.addEventListener('fetch', event => {
   event.respondWith((async () => {
     const cache = await caches.open(APUS_CACHE_VERSION);
     if (req.mode === 'navigate') {
+      const minigame=/\/minijuegos\/[^/]+\.html$/.test(url.pathname);
+      const local=await cache.match(req) || (minigame?await cache.match(req,{ignoreSearch:true}):null);
+      // Los minijuegos empaquetados no esperan a la red al abrirse.
+      if(minigame&&local)return local;
+      let timer;
       try {
-        const response = await fetch(req);
-        if (response.ok) await cache.put(req, response.clone());
+        const controller=new AbortController();
+        const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(new Error('offline'));},3500);});
+        const response=await Promise.race([fetch(req,{signal:controller.signal}),timeout]);
+        if(response.ok)await cache.put(req,response.clone());
         return response;
       } catch (err) {
-        return (await cache.match(req)) || (await cache.match('./index.html')) || (await caches.match('./index.html')) || Response.error();
-      }
+        // Nunca cargar el juego principal dentro del iframe de Friki.
+        if(minigame)return local || Response.error();
+        return local || (await cache.match('./index.html')) || Response.error();
+      } finally {clearTimeout(timer);}
     }
     const cached = await cache.match(req);
     if(cached) return cached;
