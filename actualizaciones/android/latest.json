@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.8",
-  "bundleId": "apus-32-0-8",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-8.zip",
-  "checksum": "19bb43cfa540d19632adc8b6ee6b1689afcdff8415be617d60ac144e90a7853c",
-  "signature": "HgqFY3AR5sc7aOpDnUSBdZNrNLWjcilY/mwJdGv+gJntlm4hFA3sHIByroV5RruupW7n9F5ioR8Cw8zgKO6DffmincdTAxg0Xle9iujHwV/AYWxx9PJ+7i2U93VprtRWh6kKFjphoWIreDDemrkyNO9s+InroFFmQKxOALNJAgulMPvBFZIJismNR4LrZ7jmGuharVN0L3w4q6nqSmPyBJlgIEROqryqeArUC4054F0RcozqZ7mRgF4m4UxhWVgEct+3+F67+aHxcOamH7Ocm+yJ7JAmUqCBxuMUC9UTUVBMfijF8pqaEeBbV1hmv2WVXOaTFlskRNs0Gcl5A45jEPgWGnl/xrxlvAlgCwi0sc+gLEvqE5yFPJi8E/FPx+9etOlwzugM4sAA1Jc9oSbsWZAf2M/3+VwyBGsIvKNphYKnDbuJuMsC4Pm+OUCc1xR4Oz7iCWhh07hbUrpi7epvR6oHHg85RyJiHxYFFAJOKlQxenM3zpkMQHqJ/O35Hzk6",
+  "version": "32.0.9",
+  "bundleId": "apus-32-0-9",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-9.zip",
+  "checksum": "4a4ff98bacfa8c208392b43f7e0644945521e0278c81b20d8b488b134f426969",
+  "signature": "HUNPCMP8F5nqhgf5sjjHTyLSE72mclAA6SJb49hfJeKnUyNhzjZ9lwIRl7QMbrJX9wNHXNGeB9C+MRfiWsausl6qTEI1TX+6UMQNbWc3JRo7LW7hS1OCIe/CysYVXVGromRFbmxUULqP8lo/sFoAaCmMzh4CUiZQhLTQma8kRMrwljATpMGhMYnZVagbxyNxgsS7c3wXjbgoXV9s9JiX2fK1F+9SmB8+vyQBmxqxV5bfTtWan/s0T3DM5QhZZauibjXITB/o5h0ITOa4AwW1jFW/KQQadqEWQ5Z1YBFRlDEHybE2QsfeCeqwmTaO7R4lMrZ7rO3ueEFJ33JKdazf/1u8oOPg6Z2DW23BaPfOQ7TWBpjXSDoBpl2rqAWcPCZqCSD2X9zRp0Vejq/yLya7sSR1gh0eA4FnmYZlNnVcWjyHkBncObOC+T+dvpUVMSnIzO2fsWotttUeRl00fRP/Wxdtm5yOihgVn+RcJK4H1+rMk39+lSYywSRA7QS5joiX",
   "minNativeVersionCode": 3,
-  "notes": "Refugio cuatro veces más amplio, cámara de seguimiento y paso detrás de objetos."
+  "notes": "Amigos del Refugio: búsqueda, solicitudes, aceptación, lista y bloqueo."
 }

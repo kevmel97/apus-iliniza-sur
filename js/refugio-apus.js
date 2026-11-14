@@ -1,4 +1,4 @@
-/* Refugio 32.0.8: mundo ampliado y cámara de seguimiento. */
+/* Refugio 32.0.9: mundo ampliado y cámara de seguimiento. */
 (function () {
   'use strict';
   const root = document.getElementById('apus-refugio-overlay');
@@ -61,6 +61,7 @@
     const valueText=messages[value]||messages.offline;if(label.textContent!==valueText)label.textContent=valueText;
   }
   function stopPresence(){
+    window.ApusFriendsUI?.disconnect();
     presenceGeneration++;presenceLoading=false;
     if(presence)presence.stop();presence=null;remotePlayers.clear();
     presenceLabel('offline');
@@ -69,7 +70,7 @@
   function updateVisitors(list){
     const next=new Map();
     for(const record of list){const visitor={...record,...map.fromWire(record)};const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y,lastFrame:old?.lastFrame});}
-    remotePlayers=next;presenceLabel(presenceState);
+    remotePlayers=next;presenceLabel(presenceState);window.ApusFriendsUI?.setVisitors(list);
   }
   async function startPresence(){
     if(presence||presenceLoading||!active||document.hidden||Date.now()<presenceRetryAt)return;
@@ -84,6 +85,7 @@
       if(generation!==presenceGeneration||!active||document.hidden)return;
       if(apusFirebaseAuth.currentUser?.uid!==accountId)return;
       const db=firebase.app().database(config.databaseURL);
+      window.ApusFriendsUI?.connect({db,uid:accountId,username:currentUser.username,serverTimestamp:firebase.database.ServerValue.TIMESTAMP});
       presence=window.ApusRefugioPresence.create({db,uid:accountId,username:currentUser.username,getState:publicState,
         serverTimestamp:firebase.database.ServerValue.TIMESTAMP,onRoster:updateVisitors,onStatus:presenceLabel});
     }catch(error){if(generation===presenceGeneration){console.warn('[REFUGIO] Conexión:',error);presenceRetryAt=Date.now()+10000;presenceLabel('error');}}
@@ -409,7 +411,7 @@
     if(!target){destinationZone=null;notify('NO HAY PASO POR AQUÍ');}
   }
   function approach(zone){
-    if(!active||$('apus-refugio-dialog').hidden===false)return;
+    if(!active||window.ApusFriendsUI?.isOpen||$('apus-refugio-dialog').hidden===false)return;
     const z=map.zones[zone];if(!z)return;
     if(distance(avatar,z)<22){target=null;waypoints=[];destinationZone=null;dialogOpen(zone);return;}
     startWalk(z,zone);
@@ -419,7 +421,7 @@
     startWalk(map.safe({x,y}));
   }
   function waypointClick(event){
-    if(!active||!$('apus-refugio-dialog').hidden)return;
+    if(!active||window.ApusFriendsUI?.isOpen||!$('apus-refugio-dialog').hidden)return;
     const rect=canvas.getBoundingClientRect();
     const px=(event.clientX-rect.left)*canvas.width/rect.width;
     const py=(event.clientY-rect.top)*canvas.height/rect.height;
@@ -467,7 +469,7 @@
     try{
       const dt=lastFrame?clamp(time-lastFrame,0,50):16;lastFrame=time;
       maintainPresence();
-      if(!$('apus-refugio-dialog').hidden){} else movementFromInput(dt);
+      if(!$('apus-refugio-dialog').hidden||window.ApusFriendsUI?.isOpen){} else movementFromInput(dt);
       followCamera(dt);
       if(!backgroundCanvas)prepareStaticLayer();
       ctx.setTransform(1,0,0,1,0,0);r(0,0,canvas.width,canvas.height,'#192b41');
@@ -484,7 +486,7 @@
   $('apus-refugio-edit')?.addEventListener('click',editOutfit);
   $('apus-refugio-creator-back')?.addEventListener('click',fromCreator);
   window.addEventListener('keydown',e=>{
-    if(!active||!$('apus-refugio-dialog').hidden)return;
+    if(!active||window.ApusFriendsUI?.isOpen||!$('apus-refugio-dialog').hidden)return;
     if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){
       e.preventDefault();e.stopImmediatePropagation();keys[e.code]=true;
     }
@@ -494,10 +496,11 @@
     }
   },true);
   window.addEventListener('keyup',e=>{if(keys[e.code]){keys[e.code]=false;e.preventDefault();}},true);
+  window.addEventListener('apus:friends-open',()=>{keys=Object.create(null);movePressed=Object.create(null);target=null;destinationZone=null;waypoints=[];});
   window.addEventListener('blur',()=>{keys=Object.create(null);movePressed=Object.create(null);});
   dPad.forEach(btn=>{
     const dir=btn.dataset.refDir;
-    btn.addEventListener('pointerdown',e=>{if(!active)return;e.preventDefault();movePressed[dir]=true;btn.setPointerCapture?.(e.pointerId);});
+    btn.addEventListener('pointerdown',e=>{if(!active||window.ApusFriendsUI?.isOpen)return;e.preventDefault();movePressed[dir]=true;btn.setPointerCapture?.(e.pointerId);});
     const stop=e=>{movePressed[dir]=false;};
     btn.addEventListener('pointerup',stop);btn.addEventListener('pointercancel',stop);
     btn.addEventListener('lostpointercapture',stop);

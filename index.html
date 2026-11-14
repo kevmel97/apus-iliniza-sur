@@ -13,7 +13,8 @@
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/apus-intro-video.css">
-<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.8">
+<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.9">
+<link rel="stylesheet" href="css/refugio-amigos.css?v=32.0.9">
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -81,7 +82,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.8</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.9</div>
     </div>
   </div>
 
@@ -92,7 +93,8 @@
         <div class="ref-title">🏕️ REFUGIO APUS</div>
         <div class="ref-subtitle"><span id="apus-refugio-user">MONTAÑISTA</span> · EXPLORA TU REFUGIO</div>
       </div>
-      <button class="ref-btn ref-btn-orange" type="button" onclick="closeRefugioApus()">↩ MENÚ</button>
+      <div class="ref-head-actions"><button id="apus-friends-open" class="ref-btn" type="button">👥 AMIGOS</button>
+      <button class="ref-btn ref-btn-orange" type="button" onclick="closeRefugioApus()">↩ MENÚ</button></div>
     </header>
     <div class="ref-stage">
       <canvas id="apus-refugio-canvas" width="960" height="560" aria-label="Mapa ampliado del Refugio Apus: tu montañista camina por la plaza al tocar el suelo"></canvas>
@@ -129,6 +131,27 @@
         <button type="button" class="ref-btn ref-btn-orange" data-ref-zone="vestuario">🧥 VESTUARIO</button>
       </nav>
     </footer>
+    <div id="apus-friends-panel" class="ref-friends-panel" hidden role="dialog" aria-modal="true" aria-labelledby="apus-friends-title">
+      <div class="ref-friends-inner">
+        <div class="ref-friends-title"><h3 id="apus-friends-title">👥 AMIGOS APUS</h3><button id="apus-friends-close" class="ref-btn" type="button">✕ CERRAR</button></div>
+        <nav class="ref-friends-tabs" aria-label="Listas de amigos">
+          <button class="ref-btn" type="button" data-friend-tab="friends" aria-pressed="true">MIS AMIGOS</button>
+          <button class="ref-btn" type="button" data-friend-tab="received" id="apus-friends-received" aria-pressed="false">RECIBIDAS</button>
+          <button class="ref-btn" type="button" data-friend-tab="sent" aria-pressed="false">ENVIADAS</button>
+          <button class="ref-btn" type="button" data-friend-tab="nearby" aria-pressed="false">EN EL REFUGIO</button>
+          <button class="ref-btn" type="button" data-friend-tab="search" aria-pressed="false">BUSCAR</button>
+          <button class="ref-btn" type="button" data-friend-tab="blocked" aria-pressed="false">BLOQUEADOS</button>
+        </nav>
+        <form id="apus-friends-search" hidden>
+          <label for="apus-friends-name">NOMBRE COMPLETO DE LA CUENTA</label>
+          <input id="apus-friends-name" type="text" minlength="3" maxlength="24" required autocomplete="off" placeholder="Nombre del jugador">
+          <button class="ref-btn ref-btn-orange" type="submit">BUSCAR JUGADOR</button>
+        </form>
+        <p id="apus-friends-message" role="status" aria-live="polite"></p>
+        <ul id="apus-friends-list" aria-label="Jugadores"></ul>
+        <p class="ref-friends-note">«EN EL REFUGIO» indica presencia en este mapa. Bloquear impide solicitudes de amistad; no oculta los avatares del mapa compartido.</p>
+      </div>
+    </div>
   </section>
 
   <div id="community-overlay" class="overlay">
@@ -707,9 +730,11 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' &&
   });
 }
 </script>
-<script src="js/refugio-online-config.js?v=32.0.8"></script>
-<script src="js/refugio-presencia.js?v=32.0.8"></script>
-<script src="js/refugio-mapa.js?v=32.0.8"></script>
-<script src="js/refugio-apus.js?v=32.0.8"></script>
+<script src="js/refugio-online-config.js?v=32.0.9"></script>
+<script src="js/refugio-presencia.js?v=32.0.9"></script>
+<script src="js/refugio-mapa.js?v=32.0.9"></script>
+<script src="js/refugio-amigos.js?v=32.0.9"></script>
+<script src="js/refugio-amigos-ui.js?v=32.0.9"></script>
+<script src="js/refugio-apus.js?v=32.0.9"></script>
 </body>
 </html>
