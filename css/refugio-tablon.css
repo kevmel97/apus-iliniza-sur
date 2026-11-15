@@ -1,0 +1,27 @@
+#apus-refugio-overlay .ref-board-panel{position:absolute;inset:0;z-index:21;background:#0b1725ed;display:flex;align-items:center;justify-content:center;padding:10px;touch-action:pan-y}
+#apus-board-panel[hidden],#apus-board-form[hidden],#apus-board-list[hidden]{display:none!important}
+#apus-refugio-overlay .ref-board-inner{width:min(100%,720px);max-height:100%;overflow:auto;background:#1a384d;border:4px solid #ffcc76;padding:14px;color:#fcf4dc;box-sizing:border-box;touch-action:pan-y}
+#apus-refugio-overlay .ref-board-head,#apus-refugio-overlay .ref-board-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+#apus-refugio-overlay .ref-board-head h3{font-size:12px;color:#ffdb89;line-height:1.8;margin:0}
+#apus-refugio-overlay .ref-board-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+#apus-refugio-overlay .ref-board-tabs .ref-btn{flex:1;font-size:8px}
+#apus-refugio-overlay .ref-board-tabs [aria-pressed="true"]{border-color:#ffdc86;background:#946034}
+#apus-board-message,#apus-board-list p,#apus-board-form label,#apus-board-form p{font-size:9px;line-height:1.9;overflow-wrap:anywhere}
+#apus-board-message{color:#ffdc86;min-height:16px}
+#apus-refugio-overlay .ref-board-card{border:2px solid #719ba2;padding:12px;margin:12px 0;overflow-wrap:anywhere}
+#apus-refugio-overlay .ref-board-card h4{color:#ffdb89;font-size:12px;line-height:1.8;margin:0}
+#apus-refugio-overlay .ref-board-card strong{font-size:8px;line-height:1.8;color:#ffdc86}
+#apus-refugio-overlay .ref-board-details{white-space:pre-wrap}
+#apus-refugio-overlay .ref-board-card details{width:100%;font-size:8px;line-height:2;margin-top:10px}
+#apus-refugio-overlay .ref-board-card summary{cursor:pointer;padding:8px 0}
+#apus-refugio-overlay .ref-board-actions .ref-btn{font-size:8px;text-decoration:none;text-align:center}
+#apus-refugio-overlay .ref-board-inner input,#apus-refugio-overlay .ref-board-inner textarea,#apus-refugio-overlay .ref-board-inner select{display:block;box-sizing:border-box;width:100%;min-height:40px;padding:8px;margin:6px 0 12px;background:#fff7e7;color:#18344b;border:2px solid #9abcbd;font:16px monospace}
+#apus-board-form label{display:block;margin-top:9px}
+#apus-board-form h4{font-size:11px;color:#ffdb89}
+#apus-refugio-overlay .ref-board-datetime{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#apus-refugio-overlay .ref-board-note{font-size:7px;line-height:1.9;color:#badbd5}
+#apus-refugio-overlay .ref-board-inner button:disabled{opacity:.55}
+body.theme-light #apus-refugio-overlay .ref-board-inner{background:#eaf0ec;color:#213c4b;border-color:#638c95}
+body.theme-light #apus-refugio-overlay .ref-board-head h3,body.theme-light #apus-refugio-overlay .ref-board-card h4,body.theme-light #apus-board-form h4,body.theme-light #apus-board-message{color:#92561d}
+body.theme-light #apus-refugio-overlay .ref-board-note{color:#2c4c5b}
+@media(max-width:420px){#apus-refugio-overlay .ref-board-inner{padding:9px}#apus-refugio-overlay .ref-board-tabs .ref-btn{font-size:7px;padding:7px 4px}}

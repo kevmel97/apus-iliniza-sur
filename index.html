@@ -13,9 +13,10 @@
 <!-- Firebase se carga solo si se ha configurado; el juego offline no depende de esta biblioteca. -->
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/apus-intro-video.css">
-<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.11">
-<link rel="stylesheet" href="css/refugio-amigos.css?v=32.0.11">
+<link rel="stylesheet" href="css/refugio-apus.css?v=32.0.12">
+<link rel="stylesheet" href="css/refugio-amigos.css?v=32.0.12">
 <style>#apus-wiki-loading[hidden]{display:none!important}#apus-wiki-loading button{padding:14px;background:#264f66;border:2px solid #91bfc1;color:#fff;font:inherit}</style>
+<link rel="stylesheet" href="css/refugio-tablon.css?v=32.0.12">
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -83,7 +84,7 @@
       <div class="controls-hint">
         📱 Celular: Joystick Arriba = Saltar | 🛡️ DEFENDER | 🦵 CRAMPONAZO
       </div>
-      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.11</div>
+      <div class="version-label">APUS ILINIZA SUR · VER. 32.0.12</div>
     </div>
   </div>
 
@@ -151,6 +152,27 @@
         <p id="apus-friends-message" role="status" aria-live="polite"></p>
         <ul id="apus-friends-list" aria-label="Jugadores"></ul>
         <p class="ref-friends-note">«EN EL REFUGIO» indica presencia en este mapa. Bloquear impide solicitudes de amistad; no oculta los avatares del mapa compartido.</p>
+      </div>
+    </div>
+    <div id="apus-board-panel" class="ref-board-panel" hidden role="dialog" aria-modal="true" aria-labelledby="apus-board-title">
+      <div class="ref-board-inner">
+        <div class="ref-board-head"><h3 id="apus-board-title">🔥 TABLÓN DE SALIDAS</h3><button id="apus-board-close" type="button" class="ref-btn">✕ CERRAR</button></div>
+        <nav class="ref-board-tabs" aria-label="Listas de salidas"><button type="button" class="ref-btn" data-board-tab="all" aria-pressed="true">SALIDAS</button><button type="button" class="ref-btn" data-board-tab="mine" aria-pressed="false">MIS PUBLICACIONES</button><button type="button" id="apus-board-new" class="ref-btn ref-btn-orange">＋ PUBLICAR</button></nav>
+        <p id="apus-board-message" role="status" aria-live="polite"></p>
+        <form id="apus-board-form" hidden>
+          <h4 id="apus-board-editor-title">PUBLICAR SALIDA</h4>
+          <label>MONTAÑA O DESTINO<input id="apus-board-mountain" required minlength="3" maxlength="80" placeholder="Ej.: Cotopaxi"></label>
+          <div class="ref-board-datetime"><label>FECHA<input id="apus-board-date" type="date" required></label><label>HORA<input id="apus-board-time" type="time" required></label></div>
+          <p>Hora de Ecuador continental (UTC−5). Hasta 180 días de anticipación.</p>
+          <label>PUNTO DE ENCUENTRO<input id="apus-board-meeting" required minlength="3" maxlength="160" placeholder="Lugar de reunión"></label>
+          <label>DIFICULTAD<select id="apus-board-difficulty" required><option value="">Selecciona</option><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option><option value="tecnica">Técnica</option></select></label>
+          <label>DESCRIPCIÓN<textarea id="apus-board-details" rows="4" required minlength="10" maxlength="1000" placeholder="Plan de la salida y detalles para el grupo"></textarea></label>
+          <label>GRUPO DE WHATSAPP (OPCIONAL)<input id="apus-board-whatsapp" type="url" maxlength="300" placeholder="https://chat.whatsapp.com/..."></label>
+          <p>Tu nombre de jugador y estos datos serán visibles para las cuentas del Refugio.</p>
+          <div class="ref-board-actions"><button type="submit" id="apus-board-submit" class="ref-btn ref-btn-orange">GUARDAR SALIDA</button><button type="button" id="apus-board-cancel" class="ref-btn">CANCELAR</button></div>
+        </form>
+        <div id="apus-board-list"></div>
+        <p class="ref-board-note">Hasta 3 publicaciones por cuenta. Cada anuncio deja de mostrarse 24 horas después de la salida. Reportar lo oculta para ti y guarda el reporte para revisión.</p>
       </div>
     </div>
   </section>
@@ -710,16 +732,16 @@
     <div class="apus-audio-buttons"><button type="button" id="apus-audio-mute-all">🔇 SILENCIAR TODO</button><button type="button" id="apus-audio-close">✓ VOLVER</button></div>
   </section>
 </div>
-<script src="js/puentes-minijuegos.js?v=32.0.11"></script>
+<script src="js/puentes-minijuegos.js?v=32.0.12"></script>
 <script src="js/juego-principal.js"></script>
 <script src="js/conexion-y-ascenso.js"></script>
-<script src="js/chugo-vs-jordy.js?v=32.0.11"></script>
+<script src="js/chugo-vs-jordy.js?v=32.0.12"></script>
 <script src="js/cinematicas-y-bucle.js"></script>
 <script src="js/torneos.js"></script>
 <script src="js/inicio.js"></script>
-<script src="js/apus-musica-v31_5.js?v=32.0.11"></script>
+<script src="js/apus-musica-v31_5.js?v=32.0.12"></script>
 <script src="js/apus-intro-video.js"></script>
-<script src="js/apus-ota-android.js?v=32.0.11"></script>
+<script src="js/apus-ota-android.js?v=32.0.12"></script>
 
 <script src="js/actualizaciones-v30.js"></script>
 
@@ -735,11 +757,13 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' &&
   });
 }
 </script>
-<script src="js/refugio-online-config.js?v=32.0.11"></script>
-<script src="js/refugio-presencia.js?v=32.0.11"></script>
-<script src="js/refugio-mapa.js?v=32.0.11"></script>
-<script src="js/refugio-amigos.js?v=32.0.11"></script>
-<script src="js/refugio-amigos-ui.js?v=32.0.11"></script>
-<script src="js/refugio-apus.js?v=32.0.11"></script>
+<script src="js/refugio-online-config.js?v=32.0.12"></script>
+<script src="js/refugio-presencia.js?v=32.0.12"></script>
+<script src="js/refugio-mapa.js?v=32.0.12"></script>
+<script src="js/refugio-amigos.js?v=32.0.12"></script>
+<script src="js/refugio-amigos-ui.js?v=32.0.12"></script>
+<script src="js/refugio-tablon.js?v=32.0.12"></script>
+<script src="js/refugio-tablon-ui.js?v=32.0.12"></script>
+<script src="js/refugio-apus.js?v=32.0.12"></script>
 </body>
 </html>

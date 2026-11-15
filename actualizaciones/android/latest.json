@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.11",
-  "bundleId": "apus-32-0-11",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-11.zip",
-  "checksum": "3f8bc3c7a616e747232adc604ad4386c9ae5c67d4d84c5f8c5fed08e3e8f7fd1",
-  "signature": "hKrShOhNSAKkrhiOnvQjXW43gqEJC8QAdUQusBMviSO2AKj6/YRoMP+YXmQ7KYMeYsWju/jHGqj8eoKjJdUgtbB2abNNNePi7Efs9CXYznIMSgTafSZRF71UatK34HeXxcFA3DozA8QrGYWnriUAGQktTsCLi4txPoB4dEx2FhWfaHGChNDP/HSAk1BJPXiWJgver3uHDQmOVdzYSbglmTy20UOGv2bWRVPo+vhrOQi0xwu3GZLHrIPLmff/UW++52FKBJIOQTfwFvXE0DmsQTRYr04btSOofabKClTE9UdxPmNqUeIPWcozfgBggZwpvbn5Nurj3ud5EJ3UjDJjbP/7/GijHuUfIBvaxhpJLFw6n54qo31iHKH9MJRXEG/xSUp7I6yR86F7jo0pj5+Xqnxr6zNX+1kJl+pu0K6VIjaN+lcHjxu4sJenHf6tl0OdwR6ifktb6SX8HoKuXoscJJBuX7GyhNMbxwN8IkiUFVwt/UH65dxqf1xmItUdkqTl",
+  "version": "32.0.12",
+  "bundleId": "apus-32-0-12",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-12.zip",
+  "checksum": "978fcd1e7cd443735c2ee87911b1b1c3d665f7fbcceeb2fb0572591c96542523",
+  "signature": "En4bz8Vhe4jY9TYKY05qC8NTA35kY4dulVgvIGlLesYQL9p0rRDG+knX7bXM0gAIJEJAvqUEPYNlU4fbr+P+LBV3BencWSiIjU9L9K0pJt1aDYN9ZsIiG5EKk6WeSimWEp+K0exLojQ5/bmKzdT+L5WeACKGjZoP0OtvOs6z6oPsob1hUnIEatPQa5ZIUIodUR3FGF+YxfVBR/zqSV8slFuDSRqNqcEervrzJj53F86kC+a1h6T6ABUeWNWze2R9ggK4EzdcFqR08N6/bl+pxdBX36v7waXHK089uAzdBT8/WDPKdd/z0sN+orNrLNxD0sNfzanUAwtigty9vUNHGPjWm1bqK8zHvySkIuBCyh4wbw8WyriOlNGsRjz9PJ321vyq1GIb64gL9bIKTNd2jRhtZhHjDzLgejGBs38X4kXL4FzWYDS+mI1rqIBacu0SEgW8jwVNUqeEAIdR52iqqYAZD1H00zV2NQsDiorA+kuk6/QCs9V5pk5XltHGFCSU",
   "minNativeVersionCode": 3,
-  "notes": "Música web corregida y recuperación de postales desbloqueadas entre Friki y Chugo vs Jordy."
+  "notes": "Tablón de salidas en la fogata: publica excursiones, edita tus anuncios y reporta contenido."
 }
