@@ -27,7 +27,7 @@
   $('apus-board-new').disabled=busy||!state.connected||status==='denied';$('apus-board-submit').disabled=busy||!state.connected||status==='denied';
   $('apus-board-cancel').disabled=busy;
   list.replaceChildren();
-  if(status==='denied'){list.append(el('p','El tablón está pendiente de activación. Falta publicar sus reglas en Firebase.'));return;}
+  if(status==='denied'){list.append(el('p','No se pudo autorizar el acceso al tablón. Sal del Refugio y vuelve a entrar para reintentar.'));return;}
   if(!state.connected){list.append(el('p','Sin conexión. Conéctate para consultar o publicar salidas.'));return;}
   if(status==='error'){list.append(el('p','No se pudo cargar el tablón. Sal del Refugio y vuelve a entrar para reintentar.'));return;}
   const posts=tab==='mine'?state.mine:state.posts;

@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.12",
-  "bundleId": "apus-32-0-12",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-12.zip",
-  "checksum": "978fcd1e7cd443735c2ee87911b1b1c3d665f7fbcceeb2fb0572591c96542523",
-  "signature": "En4bz8Vhe4jY9TYKY05qC8NTA35kY4dulVgvIGlLesYQL9p0rRDG+knX7bXM0gAIJEJAvqUEPYNlU4fbr+P+LBV3BencWSiIjU9L9K0pJt1aDYN9ZsIiG5EKk6WeSimWEp+K0exLojQ5/bmKzdT+L5WeACKGjZoP0OtvOs6z6oPsob1hUnIEatPQa5ZIUIodUR3FGF+YxfVBR/zqSV8slFuDSRqNqcEervrzJj53F86kC+a1h6T6ABUeWNWze2R9ggK4EzdcFqR08N6/bl+pxdBX36v7waXHK089uAzdBT8/WDPKdd/z0sN+orNrLNxD0sNfzanUAwtigty9vUNHGPjWm1bqK8zHvySkIuBCyh4wbw8WyriOlNGsRjz9PJ321vyq1GIb64gL9bIKTNd2jRhtZhHjDzLgejGBs38X4kXL4FzWYDS+mI1rqIBacu0SEgW8jwVNUqeEAIdR52iqqYAZD1H00zV2NQsDiorA+kuk6/QCs9V5pk5XltHGFCSU",
+  "version": "32.0.13",
+  "bundleId": "apus-32-0-13",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-13.zip",
+  "checksum": "d780a08b3e101cd8d0f18e84f578b5c1d311dd8a06acd5abdadbebc1955445be",
+  "signature": "l6wCUm0p17GN8tbImqwt0ykQxO9V8nef4rJk+4EC21Q1os0+LOR0D7b7yVIqNfug5DPpsTklBdD0wIO6Kx/PPfM6xmvJjCt1DbP/2hipUsa2mC54Dd7lbh50sajTj6Gm/ylrgoncjP8ZLaDwV6buM/ilo3K6xn7yCpfURsWm0+OA8eGJrOf7N39a12ps6f5O/kfbLu2u3AIOf138YsFhO2cIAPJD9rLJz1b1VzeQKNHL5M4VBKSJDLDh9s6UTmwaN6ODUV0BzD6K4l9csfQwWz+ll6hNnPeYH8kECaEP8oVU3FtKq/wEAFK7k2yEJIMCgvJfubJ2fXQRuOXhiwiufycZ1wauANzmOhToSo7qu7Hzqi+XhIRfAklGW8TTx2SJq6ojYyuyNNkBEF1j0SVpm96M7u029ty9wNSdCX15k0z5AFNa3tKe5Dgz4KL6+HBmZmg4e5ZbKxh/3/YxyaHJKrytAqurovUF4HA8jDyeua2XZBYV5RQEKp2UsiUA+mmT",
   "minNativeVersionCode": 3,
-  "notes": "Tablón de salidas en la fogata: publica excursiones, edita tus anuncios y reporta contenido."
+  "notes": "Corregir el acceso al tablón: autenticar la conexión antes de consultar las salidas."
 }

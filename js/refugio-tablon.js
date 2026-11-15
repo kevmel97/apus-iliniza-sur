@@ -24,7 +24,9 @@
   function fail(e){if(!stopped)onStatus(/permission/i.test(e.code||e.message)?'denied':'error');}
   function watch(ref,fn){const handler=s=>{if(!stopped)fn(s.val());};ref.on('value',handler,fail);watchers.push([ref,handler]);return handler;}
   function refresh(){if(stopped)return;if(feed){feed.ref.off('value',feed.fn);feed=null;}const ref=base.child('posts').orderByChild('expiresAt').startAt(clock()).limitToFirst(100);const fn=s=>{if(stopped)return;posts=s.val()||{};emit();};ref.on('value',fn,fail);feed={ref,fn};}
-  watch(db.ref('.info/serverTimeOffset'),v=>{offset=Number(v)||0;refresh();});
+  // Firebase entrega el desfase antes de enviar la autenticación al reconectar.
+  // Aquí solo ajustamos el reloj; recrear consultas enviaría lecturas sin autenticar.
+  watch(db.ref('.info/serverTimeOffset'),v=>{offset=Number(v)||0;emit();});
   watch(db.ref('.info/connected'),v=>{connected=!!v;if(!stopped)onStatus(connected?'ready':'offline');emit();});
   for(let slot=0;slot<3;slot++){const id=uid+'_'+slot;watch(base.child('posts/'+id),v=>{if(v)mine[id]=v;else delete mine[id];emit();});}
   watch(base.child('hidden/'+uid),v=>{hidden=v||{};emit();});
