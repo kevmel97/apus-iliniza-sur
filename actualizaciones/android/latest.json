@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.13",
-  "bundleId": "apus-32-0-13",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-13.zip",
-  "checksum": "d780a08b3e101cd8d0f18e84f578b5c1d311dd8a06acd5abdadbebc1955445be",
-  "signature": "l6wCUm0p17GN8tbImqwt0ykQxO9V8nef4rJk+4EC21Q1os0+LOR0D7b7yVIqNfug5DPpsTklBdD0wIO6Kx/PPfM6xmvJjCt1DbP/2hipUsa2mC54Dd7lbh50sajTj6Gm/ylrgoncjP8ZLaDwV6buM/ilo3K6xn7yCpfURsWm0+OA8eGJrOf7N39a12ps6f5O/kfbLu2u3AIOf138YsFhO2cIAPJD9rLJz1b1VzeQKNHL5M4VBKSJDLDh9s6UTmwaN6ODUV0BzD6K4l9csfQwWz+ll6hNnPeYH8kECaEP8oVU3FtKq/wEAFK7k2yEJIMCgvJfubJ2fXQRuOXhiwiufycZ1wauANzmOhToSo7qu7Hzqi+XhIRfAklGW8TTx2SJq6ojYyuyNNkBEF1j0SVpm96M7u029ty9wNSdCX15k0z5AFNa3tKe5Dgz4KL6+HBmZmg4e5ZbKxh/3/YxyaHJKrytAqurovUF4HA8jDyeua2XZBYV5RQEKp2UsiUA+mmT",
+  "version": "32.0.14",
+  "bundleId": "apus-32-0-14",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-14.zip",
+  "checksum": "5068a80ac7831942ca8bb26f583d1bb5a4ed86268c2a555963ac50b139ed31d7",
+  "signature": "DFiGu2QbF9wk1+G4cQMJTOk1Wj4AdxSbBchyO4lzOzbvTx914ByF1miUoN3uEi0sSJnPogTkOzUmGd7QvMTEmmSFJIIE8b09w35Nft0vaBJ+P08IaFbOutgV0AYZJpgOVo1vm1yHAO0xVWN8i1Mb1Q36IzAvoRfPurUfy2CtccP9I9r8iPzXNTCQlmb3FAxdMQHLqBU6D4OgW5Z2cB80yn//KySSyEgvT79AosYyV4KcYZETJIVSglq2HmVD3bFYDyDgHRqtP4vEg9/ptVXkqKy/KtRAKVO1JVPtXlDygdby8ZQxBwwV0WwU4hTGGuGIDaVanf+S8I0Me1QgEy+16+QweqTsXi4DwakkGNLhFl62QXKdt9Srs2xtT4p8oLxD0TWw1n5K7SbM51wAzYvNianNYHFS/gNfgG3a0OPu82n3YSXF1fLDDIdRfhQWmFIYc8ZTS4fQzSSdP7ZYRmwWoV7ByynPxFUk5XhGkBUUb5kIkhIISb0Nv3k67qUEf7Vv",
   "minNativeVersionCode": 3,
-  "notes": "Corregir el acceso al tablón: autenticar la conexión antes de consultar las salidas."
+  "notes": "Tablón con imagen comprimida, varios puntos de encuentro y limpieza de anuncios vencidos a las 23:59 de Ecuador."
 }
