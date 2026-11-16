@@ -329,6 +329,7 @@
     }catch(e){recover(e);}
   }
   function recover(error){
+    window.ApusCabanaUI?.disconnect();
     stopPresence();
     console.error('[REFUGIO APUS] Error protegido:',error);
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
@@ -338,6 +339,7 @@
     else{if(typeof showOverlay==='function')showOverlay('menu-overlay');alert('No se pudo abrir Refugio Apus. El resto del juego continúa disponible.');}
   }
   function close(){
+    window.ApusCabanaUI?.disconnect();
     stopPresence();
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
     target=null;destinationZone=null;keys=Object.create(null);movePressed=Object.create(null);
@@ -354,6 +356,12 @@
   function dialogOpen(name){
     if(!active)return;
     if(name==='fogata'&&window.ApusBoardUI){target=null;destinationZone=null;waypoints=[];window.ApusBoardUI.open();return;}
+    if(name==='cabana'&&window.ApusCabanaUI){
+      target=null;destinationZone=null;waypoints=[];
+      window.ApusCabanaUI.open({uid:accountId,
+        getToken:async()=>{const user=typeof apusFirebaseAuth!=='undefined'?apusFirebaseAuth?.currentUser:null;if(!user||user.uid!==accountId||user.isAnonymous)throw Error('Inicia sesión en línea con tu cuenta.');return user.getIdToken();},
+        profile:()=>({name:currentUser.username,avatar:slotConfig()})});return;
+    }
     if(name==='vestuario'){wardrobeOpen();return;}
     const data=zoneInfo[name];if(!data)return;
     $('apus-refugio-dialog-title').textContent=data.title;
@@ -413,7 +421,7 @@
     if(!target){destinationZone=null;notify('NO HAY PASO POR AQUÍ');}
   }
   function approach(zone){
-    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen)||$('apus-refugio-dialog').hidden===false)return;
+    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)||$('apus-refugio-dialog').hidden===false)return;
     const z=map.zones[zone];if(!z)return;
     if(distance(avatar,z)<22){target=null;waypoints=[];destinationZone=null;dialogOpen(zone);return;}
     startWalk(z,zone);
@@ -423,7 +431,7 @@
     startWalk(map.safe({x,y}));
   }
   function waypointClick(event){
-    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen)||!$('apus-refugio-dialog').hidden)return;
+    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)||!$('apus-refugio-dialog').hidden)return;
     const rect=canvas.getBoundingClientRect();
     const px=(event.clientX-rect.left)*canvas.width/rect.width;
     const py=(event.clientY-rect.top)*canvas.height/rect.height;
@@ -467,11 +475,11 @@
   function frame(time){
     if(!active){raf=0;return;}
     if(!hasAccount()||currentUser.uid!==accountId){close();return;}
-    if(!root.classList.contains('active')){stopPresence();active=false;raf=0;keys=Object.create(null);movePressed=Object.create(null);return;}
+    if(!root.classList.contains('active')){window.ApusCabanaUI?.disconnect();stopPresence();active=false;raf=0;keys=Object.create(null);movePressed=Object.create(null);return;}
     try{
       const dt=lastFrame?clamp(time-lastFrame,0,50):16;lastFrame=time;
       maintainPresence();
-      if(!$('apus-refugio-dialog').hidden||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen)){} else movementFromInput(dt);
+      if(!$('apus-refugio-dialog').hidden||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)){} else movementFromInput(dt);
       followCamera(dt);
       if(!backgroundCanvas)prepareStaticLayer();
       ctx.setTransform(1,0,0,1,0,0);r(0,0,canvas.width,canvas.height,'#192b41');
@@ -488,7 +496,7 @@
   $('apus-refugio-edit')?.addEventListener('click',editOutfit);
   $('apus-refugio-creator-back')?.addEventListener('click',fromCreator);
   window.addEventListener('keydown',e=>{
-    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen)||!$('apus-refugio-dialog').hidden)return;
+    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)||!$('apus-refugio-dialog').hidden)return;
     if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){
       e.preventDefault();e.stopImmediatePropagation();keys[e.code]=true;
     }
@@ -499,11 +507,12 @@
   },true);
   window.addEventListener('keyup',e=>{if(keys[e.code]){keys[e.code]=false;e.preventDefault();}},true);
   window.addEventListener('apus:board-open',()=>{keys=Object.create(null);movePressed=Object.create(null);target=null;destinationZone=null;waypoints=[];});
+  window.addEventListener('apus:meeting-open',()=>{keys=Object.create(null);movePressed=Object.create(null);target=null;destinationZone=null;waypoints=[];});
   window.addEventListener('apus:friends-open',()=>{keys=Object.create(null);movePressed=Object.create(null);target=null;destinationZone=null;waypoints=[];});
   window.addEventListener('blur',()=>{keys=Object.create(null);movePressed=Object.create(null);});
   dPad.forEach(btn=>{
     const dir=btn.dataset.refDir;
-    btn.addEventListener('pointerdown',e=>{if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen))return;e.preventDefault();movePressed[dir]=true;btn.setPointerCapture?.(e.pointerId);});
+    btn.addEventListener('pointerdown',e=>{if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen))return;e.preventDefault();movePressed[dir]=true;btn.setPointerCapture?.(e.pointerId);});
     const stop=e=>{movePressed[dir]=false;};
     btn.addEventListener('pointerup',stop);btn.addEventListener('pointercancel',stop);
     btn.addEventListener('lostpointercapture',stop);

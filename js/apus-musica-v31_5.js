@@ -31,6 +31,7 @@ window.addEventListener('message',e=>{
   routeMusic();
 });
 function apusOwnSceneAudio(){
+  if(window.ApusCabanaUI?.inCall)return true;
   if(typeof descentExtraActive!=='undefined'&&descentExtraActive)return true;
   if(shown('apus-descent-shell'))return true;
   // APUS_AUDIO_CUMBRE_V3154: conservar el audio propio de la animación final.
