@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.15",
-  "bundleId": "apus-32-0-15",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-15.zip",
-  "checksum": "e6446e318534135a0f1dc85b07bd4066a6c12e52ee11d386893ee6269cddcc98",
-  "signature": "fq7d0HUBx7IDRy1cTMGwYlANnO9PuDdKdhZ8599Li+eZgNREJaBgMAteG+NdCGP32DnrgDQBgv5nqBNlJH5zUslPRfciApjTiFJnP4zeL115ieI8vQBh1+2ySWA2jIkyPROcqkjhuMrcSroL93mkFKyp9n/5i3ayqlQ/fsfOfwNPFav5zePb7VKXL3mX0eRSfwC5SZOLNAssgj6FQjiykgPL2o6UnbNj5xO3kibQh0KkQCOxonq5ZFThZZE/GToMhFmQsXxPcQSPSev+Kb3PI9Dz2BNXPggN7FTMTiBR9s/OznzpVp941AoPwJ811bhW/ceMo072nBhEFOC347JoDs6eIzOPGLzDRFUDebOPJZVN3+CnD79hr3qnwh9juVbdp0febr+yV88OAz0t5qI1VlhOQKfPOrn7/Gtg/p6k3SkMPT4MXXHLe8xzSPVKGarHdnLOqsvsAzGclpW4iB8/i8YO6vnwqecoU2eMMmPFeFaU3utivpxDRdwX0Gx6G7bh",
+  "version": "32.0.16",
+  "bundleId": "apus-32-0-16",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-16.zip",
+  "checksum": "c07d86f75269d3903e633cfa93dfb7fc112eb542a772b4083cd23ec092a42182",
+  "signature": "Xke5TWfesgsXwg2nwXImb5PR6HYVoOGCrY0oOomrGpjdOWEfDdZs7Z2eOoo/bBW8haQBGPlEK8nu92f/NwoyiuEID1LmJ8py+v9D5eBET+uV20pZOcA6DmxRbUj88nFeifvFydzv7KQP0Dc/2oJqxlv8uhWvw+7kcmmSSbuXvjne5LdgIRsvMJn+3T8VZS2ZRhyKeWmPBfyA9F5GZf+UAvBCFY/6cUe5sPySsKcBmmAJKiiM1/Y+1EJcO59csPVHnoGYKrQuSaY1p4CAo2lDYI6e0/sEFlJjvtYfnl+91vnZJ8OD5IW5R3y+qXQCFdI5nlJJ6nvDI1xcjfdstdKjJBsG9sqpJxjhzpE6WZ9EuOEjS0DQTkYltNtTusNob8S+tVvV404bmtexRfUZk5Q39o/TQIP6vQqZEbfs8bcxInLqSNnt7qOVZibIzMH1GttnVUFPE2jtGpYcCD0/lCsYz7C5RqT8NzB3CRl7axS/ZSxhTb9g9uY7+S7VQc2NW/Zr",
   "minNativeVersionCode": 11,
-  "notes": "Cabaña de reuniones con audio y video, salas privadas y límites semanales. Requiere APK 32.0.15 o posterior para cámara y micrófono."
+  "notes": "Modo de pruebas: límite semanal de reuniones temporalmente desactivado."
 }

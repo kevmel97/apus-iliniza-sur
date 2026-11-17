@@ -33020,7 +33020,7 @@
   <div id="meeting-grid" class="meeting-grid"></div>
   <section id="meeting-requests"></section><details id="meeting-host-tools" hidden><summary>ADMINISTRAR PARTICIPANTES</summary><div id="meeting-members"></div></details>
  </div>
- <details class="meeting-rules"><summary>TIEMPOS Y USO DEL PLAN GRATUITO</summary><p>M\xE1ximo 3 reuniones por semana para toda la comunidad; como m\xE1ximo 2 pueden reservar hasta 16 plazas. La semana comienza el lunes a las 00:00 de Ecuador.</p><p>Tiempo con video: 1\u20134 personas: 60 min \xB7 5\u20136: 55 \xB7 7\u20138: 50 \xB7 9\u201310: 45 \xB7 11\u201312: 40 \xB7 13\u201314: 35 \xB7 15\u201316: 30. Se conserva el mayor n\xFAmero de participantes admitidos; salir y volver no reinicia el reloj.</p><p>Cuando todas las c\xE1maras est\xE1n apagadas, el reloj de video se pausa. El audio sigue consumiendo el cupo mensual gratuito. Si se agota el cupo de LiveKit, las llamadas dejar\xE1n de estar disponibles hasta su renovaci\xF3n. Video a 480p con ajuste autom\xE1tico a la conexi\xF3n.</p><p>Entras con c\xE1mara y micr\xF3fono apagados. Al salir se detienen ambos. Si el anfitri\xF3n se desconecta, la sala espera 90 segundos y asigna otro anfitri\xF3n. Una sala vac\xEDa se libera autom\xE1ticamente.</p></details>
+ <details class="meeting-rules"><summary>TIEMPOS Y USO DEL PLAN GRATUITO</summary><p>En modo normal: m\xE1ximo 3 reuniones por semana para toda la comunidad; como m\xE1ximo 2 pueden reservar hasta 16 plazas. La semana comienza el lunes a las 00:00 de Ecuador.</p><p>Tiempo con video: 1\u20134 personas: 60 min \xB7 5\u20136: 55 \xB7 7\u20138: 50 \xB7 9\u201310: 45 \xB7 11\u201312: 40 \xB7 13\u201314: 35 \xB7 15\u201316: 30. Se conserva el mayor n\xFAmero de participantes admitidos; salir y volver no reinicia el reloj.</p><p>Cuando todas las c\xE1maras est\xE1n apagadas, el reloj de video se pausa. El audio sigue consumiendo el cupo mensual gratuito. Si se agota el cupo de LiveKit, las llamadas dejar\xE1n de estar disponibles hasta su renovaci\xF3n. Video a 480p con ajuste autom\xE1tico a la conexi\xF3n.</p><p>Entras con c\xE1mara y micr\xF3fono apagados. Al salir se detienen ambos. Si el anfitri\xF3n se desconecta, la sala espera 90 segundos y asigna otro anfitri\xF3n. Una sala vac\xEDa se libera autom\xE1ticamente.</p></details>
  <div id="meeting-audio"></div>
 </div>`;
   $("apus-refugio-overlay").append(panel);
@@ -33299,13 +33299,13 @@
       $("meeting-status").textContent = r.closing ? "REUNI\xD3N FINALIZADA" : r.pending ? "ESPERANDO AL ANFITRI\xD3N" : "CABA\xD1A OCUPADA \xB7 " + (r.mode === "private" ? "PRIVADA" : "P\xDABLICA");
       $("meeting-description").textContent = r.closing ? r.reason + " La sala se liberar\xE1 en unos segundos." : r.pending ? "Tu solicitud espera aprobaci\xF3n. Se cancela si pasan dos minutos." : r.hostName + " \xB7 " + r.count + "/" + r.capacity + " plazas \xB7 " + (r.cameraOn ? "video activo" : "solo audio");
     }
-    $("meeting-quota").textContent = state ? "ESTA SEMANA: " + state.quota.total + "/3 reuniones \xB7 " + state.quota.large + "/2 grandes" : "";
+    $("meeting-quota").textContent = state?.quota.disabled ? "PRUEBAS \xB7 SIN L\xCDMITE SEMANAL DE REUNIONES" : state ? "ESTA SEMANA: " + state.quota.total + "/3 reuniones \xB7 " + state.quota.large + "/2 grandes" : "";
     for (const control of panel.querySelectorAll("button,input,select")) control.disabled = busy;
     $("meeting-close").disabled = false;
     $("meeting-refresh").disabled = busy || !endpoint();
     if (state && !r) {
-      $("meeting-create").querySelector("button").disabled = busy || state.quota.total >= 3;
-      $("meeting-capacity").querySelector('[value="16"]').disabled = state.quota.large >= 2;
+      $("meeting-create").querySelector("button").disabled = busy || !state.quota.disabled && state.quota.total >= 3;
+      $("meeting-capacity").querySelector('[value="16"]').disabled = !state.quota.disabled && state.quota.large >= 2;
     }
     $("meeting-private-code").textContent = privateCode && r?.isHost ? "C\xD3DIGO PRIVADO: " + privateCode + " \xB7 Comparte solo con tus invitados." : "";
     $("meeting-new-code").hidden = !r?.isHost || r.mode !== "private";
