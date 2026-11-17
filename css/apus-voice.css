@@ -1,0 +1,10 @@
+#apus-voice{position:fixed;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));z-index:2147483000;font:14px system-ui,sans-serif;color:#fff;pointer-events:auto}
+#apus-voice [hidden],#apus-voice[hidden]{display:none!important}
+#apus-voice button{font:inherit;cursor:pointer;color:#fff;background:#16455c;border:1px solid #65cbe4;border-radius:10px;padding:10px;touch-action:manipulation}
+#apus-voice button:focus-visible{outline:3px solid #ffd36e;outline-offset:2px}
+#apus-voice button:disabled{opacity:.5;cursor:default}
+#apus-voice #voice-toggle{position:relative;width:48px;height:48px;border-radius:50%;padding:0;box-shadow:0 2px 9px #0009;overflow:visible}
+#voice-face{width:44px;height:44px;border-radius:50%}#voice-badge{position:absolute;right:-5px;bottom:-4px;background:#17394e;border-radius:50%;font-size:16px;padding:2px}
+#apus-voice.voice-active #voice-toggle{border:3px solid #74edaa}
+#voice-panel{position:absolute;top:57px;left:0;width:min(300px,calc(100vw - 24px));box-sizing:border-box;max-height:calc(100dvh - 84px);overflow:auto;background:#0c2437f5;border:1px solid #65cbe4;border-radius:14px;padding:12px;box-shadow:0 5px 20px #0009}
+#voice-panel header{display:flex;align-items:center;justify-content:space-between;gap:8px}#voice-panel strong{font-size:13px}#voice-note{line-height:1.4}#voice-panel small{display:block;opacity:.8;font-size:11px;line-height:1.4;margin-top:12px}#voice-friends{display:grid;gap:7px}#voice-call button{margin:3px}#apus-voice #voice-end{background:#8a3443;border-color:#ffa6ac}

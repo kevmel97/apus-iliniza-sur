@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.17",
-  "bundleId": "apus-32-0-17",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-17.zip",
-  "checksum": "1d901ff21b5bd8d863d19bf84ba8a7897c791836b81b97fe84a0e9bca5a9e034",
-  "signature": "V5epKFt9uAQms7JovKYKvsA0X1Z8xwLdE01WWzBEjsUANaabQ7s7Hm7hDOhD4nUZPAvW4G7YViwHP0r8VOdehh+MENl5WsBUS8iOrr1GR6W1+CdLrg6noVA4TGIECmwFa1grgKsElwezojI35iJgpyZMr3ULT6/kPXI7i/aDJWV2rHjhRxVVYhr0JPR6jvK/jqVX1kJAO+9unq2FXvhQQ79rSy/2BBkuxYltk1UOzMOJ8vgQiKHPjpUDv4cDNxCZVewQxW0fA2DDmC3LHM1uppaSDzVyUpK7R4BO3AtKorEXPri6PIPSsvKGbdPj+Vk9ThzS9nQ3FFZjXFve2W61NPVIKyENNTRIHHQwMT2WxwxB9bxOFNbCvGKtudKKSOYuleFjGZYg+zAcVDUMFhYtSX84btrIcMlR0Jp0yL9NPjw6ohEqI2l2v6b07/wS4Ixhk+orw4HtcXEVrJujdJoBKRsE0z4BY6g/Tk3FM2XReSmXnvIz+pqnvZzY2QduBB9X",
+  "version": "32.0.18",
+  "bundleId": "apus-32-0-18",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-18.zip",
+  "checksum": "28efd354df3e3f20f4848a51eda3e168ea1cc728f454d347709aed376a9df10b",
+  "signature": "FTUGW9hfStqn9orXOotTOOZFXiurV0NiuMi36sIRiADBJPL4Au+riuKHFSHX0bEfX0fBxqH6zTjFGt2Eh743wECI8WGhYBB0dQp5bw4Mew4wmhwcCkijD/EJxBb2gvmzgg77gvLW0iepKPmosFmH5nrM0RI2WeGYcAE0tZLWXWuBKoi1qra659NfEMyS84gwJ6oV/GjunW9wOXmea7Rg2/WsLdoBzE+EL0kiKBtRo+P2vq7RfqOF0EntYw+rqjCEX2nCTdWCF2ko9TCuJJqe2tRRXlg5f+Nuj0D6vdfHJ6ucrGdnPReyNWQMxHZT644SM32rZiSxAKjiUqFKz8TbsIbCU4SB0PxeUV4YS1JbfLk8bl6x1aB6ClqBrQwHPPXsfjdY5iATTqnDkCmCkzGISmsEGuLEyXP79MWrHNBnCpcnMvp2oI+5Mv5OvBaWTKbFQhAg04pupwf5EGCeX51yUeXVTd7ABUGebmYeemjefn9D/JvNgWgd9IEnp5XHdgXx",
   "minNativeVersionCode": 11,
-  "notes": "Refugio: baile, saludo, abrazo, salto y pose de pelea. Mensajes de 120 caracteres en burbujas visibles para los jugadores conectados."
+  "notes": "Voz privada entre amigos con icono de personaje, aceptar, silenciar y colgar; disponible en juegos y separada de la cabana."
 }
