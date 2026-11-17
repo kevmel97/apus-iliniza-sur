@@ -710,7 +710,9 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
     crying = false,
     hurt = false,
     customConfig = null,
-    helmetShield = false
+    helmetShield = false,
+    socialPose = null,
+    socialPhase = 0
   } = opts;
 
   targetCtx.save();
@@ -746,7 +748,7 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
   const yOffset = crying ? 15 : (isDownCrouch ? 10 : 0);
 
   // Cuando celebra, camina en su misma zona sin desplazarse
-  const walkCycle = celebrating ? (Date.now() * 0.018) : (anim * 0.35);
+  const walkCycle = socialPose==='dance' ? socialPhase*10 : celebrating ? (Date.now() * 0.018) : (anim * 0.35);
   const stepBounce = crying ? 0 : Math.sin(walkCycle) * 3.5;
 
   // Sombra en el suelo
@@ -1036,6 +1038,15 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
     }
   }
 
+  // Gestos del Refugio; el resto del juego conserva sus poses y herramientas.
+  if (socialPose) {
+    const arm=(side,angle)=>{targetCtx.save();targetCtx.translate(side*9,-10);targetCtx.rotate(angle);targetCtx.fillStyle=jacketColor;targetCtx.fillRect(0,-3,15,7);targetCtx.fillStyle=skinColor;targetCtx.fillRect(13,-3,6,7);targetCtx.restore();};
+    if(socialPose==='wave'){arm(1,-1.4+Math.sin(socialPhase*12)*.45);arm(-1,2.2);}
+    else if(socialPose==='hug'){arm(-1,Math.PI+.2);arm(1,-.2);}
+    else if(socialPose==='fight'){arm(-1,-1.8);arm(1,-.6+Math.sin(socialPhase*13)*.5);}
+    else if(socialPose==='dance'){arm(-1,Math.PI+.7*Math.sin(socialPhase*9));arm(1,-.8+.7*Math.sin(socialPhase*9));}
+    else {arm(-1,-2.3);arm(1,-.8);}
+  } else {
   // Brazo y Piolet (Al ganar levanta el piolet hacia arriba varias veces en bucle)
   targetCtx.save();
   if (celebrating) {
@@ -1097,6 +1108,8 @@ function drawMountaineerSprite(targetCtx, charName, x, y, opts = {}) {
     targetCtx.fillRect(21, -20, 4, 5);
   }
   targetCtx.restore();
+
+  }
 
   if (frozen) {
     targetCtx.fillStyle = "rgba(125, 211, 252, 0.38)";

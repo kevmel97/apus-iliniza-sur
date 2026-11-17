@@ -2,7 +2,7 @@
 (function(){
  let promise=null,options=null,cancelled=false;
  const load=()=>promise||(promise=new Promise((resolve,reject)=>{
-  const script=document.createElement('script');script.src='js/refugio-reuniones.js?v=32.0.16';
+  const script=document.createElement('script');script.src='js/refugio-reuniones.js?v=32.0.17';
   script.onload=resolve;script.onerror=()=>{promise=null;script.remove();reject(Error('No se pudo abrir la cabaña. Conéctate y vuelve a intentarlo.'));};document.head.append(script);
  }));
  window.ApusCabanaUI={

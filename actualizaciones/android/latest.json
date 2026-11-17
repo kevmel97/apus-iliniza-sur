@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.16",
-  "bundleId": "apus-32-0-16",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-16.zip",
-  "checksum": "c07d86f75269d3903e633cfa93dfb7fc112eb542a772b4083cd23ec092a42182",
-  "signature": "Xke5TWfesgsXwg2nwXImb5PR6HYVoOGCrY0oOomrGpjdOWEfDdZs7Z2eOoo/bBW8haQBGPlEK8nu92f/NwoyiuEID1LmJ8py+v9D5eBET+uV20pZOcA6DmxRbUj88nFeifvFydzv7KQP0Dc/2oJqxlv8uhWvw+7kcmmSSbuXvjne5LdgIRsvMJn+3T8VZS2ZRhyKeWmPBfyA9F5GZf+UAvBCFY/6cUe5sPySsKcBmmAJKiiM1/Y+1EJcO59csPVHnoGYKrQuSaY1p4CAo2lDYI6e0/sEFlJjvtYfnl+91vnZJ8OD5IW5R3y+qXQCFdI5nlJJ6nvDI1xcjfdstdKjJBsG9sqpJxjhzpE6WZ9EuOEjS0DQTkYltNtTusNob8S+tVvV404bmtexRfUZk5Q39o/TQIP6vQqZEbfs8bcxInLqSNnt7qOVZibIzMH1GttnVUFPE2jtGpYcCD0/lCsYz7C5RqT8NzB3CRl7axS/ZSxhTb9g9uY7+S7VQc2NW/Zr",
+  "version": "32.0.17",
+  "bundleId": "apus-32-0-17",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-17.zip",
+  "checksum": "1d901ff21b5bd8d863d19bf84ba8a7897c791836b81b97fe84a0e9bca5a9e034",
+  "signature": "V5epKFt9uAQms7JovKYKvsA0X1Z8xwLdE01WWzBEjsUANaabQ7s7Hm7hDOhD4nUZPAvW4G7YViwHP0r8VOdehh+MENl5WsBUS8iOrr1GR6W1+CdLrg6noVA4TGIECmwFa1grgKsElwezojI35iJgpyZMr3ULT6/kPXI7i/aDJWV2rHjhRxVVYhr0JPR6jvK/jqVX1kJAO+9unq2FXvhQQ79rSy/2BBkuxYltk1UOzMOJ8vgQiKHPjpUDv4cDNxCZVewQxW0fA2DDmC3LHM1uppaSDzVyUpK7R4BO3AtKorEXPri6PIPSsvKGbdPj+Vk9ThzS9nQ3FFZjXFve2W61NPVIKyENNTRIHHQwMT2WxwxB9bxOFNbCvGKtudKKSOYuleFjGZYg+zAcVDUMFhYtSX84btrIcMlR0Jp0yL9NPjw6ohEqI2l2v6b07/wS4Ixhk+orw4HtcXEVrJujdJoBKRsE0z4BY6g/Tk3FM2XReSmXnvIz+pqnvZzY2QduBB9X",
   "minNativeVersionCode": 11,
-  "notes": "Modo de pruebas: límite semanal de reuniones temporalmente desactivado."
+  "notes": "Refugio: baile, saludo, abrazo, salto y pose de pelea. Mensajes de 120 caracteres en burbujas visibles para los jugadores conectados."
 }

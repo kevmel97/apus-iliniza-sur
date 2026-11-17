@@ -1,0 +1,11 @@
+#apus-refugio-overlay .ref-social{position:relative;width:min(100%,1200px);flex:0 0 auto;min-width:0;z-index:4;color:#fff0ce}
+#apus-refugio-overlay .ref-social[hidden],#ref-social-gestures[hidden]{display:none!important}
+.ref-social-main{display:flex;gap:6px;min-width:0;align-items:stretch}
+#ref-social-form{display:flex;gap:5px;flex:1;min-width:0;margin:0}
+#ref-social-message{min-width:0;width:0;flex:1;font:14px monospace;padding:8px;border:2px solid #92b8b4;border-radius:2px;background:#fff5df;color:#163149;touch-action:manipulation;user-select:text}
+#apus-refugio-overlay .ref-social .ref-btn{font-size:8px;padding:7px 6px;white-space:nowrap}
+#ref-social-gestures{position:absolute;bottom:100%;left:0;max-width:100%;display:flex;flex-wrap:wrap;gap:5px;padding:8px;margin-bottom:5px;background:#19384ef5;border:3px solid #ffce86;box-shadow:3px 3px #0b1929}
+#ref-social-feedback{font:10px/1.4 monospace;margin:3px 0 0;text-align:left;min-height:0;color:#ffdb89}
+#ref-social-feedback:empty{display:none}
+body.theme-light #ref-social-feedback{color:#673d13}
+@media(max-width:390px){#apus-refugio-overlay .ref-social .ref-btn{font-size:7px;padding:7px 4px}#ref-social-message{font-size:13px}}

@@ -54,6 +54,9 @@
   let noticeTimer = 0;
   let presence=null,presenceLoading=false,presenceGeneration=0,presenceRetryAt=0;
   let remotePlayers=new Map(),presenceState='offline';
+  const social=window.ApusRefugioSocial?.create({root,send:(kind,value)=>presence?presence.send(kind,value):Promise.reject(Error('Conéctate al Refugio para compartir.')),now:()=>presence?.now()||Date.now(),freeze:()=>{keys=Object.create(null);movePressed=Object.create(null);target=null;destinationZone=null;waypoints=[];}});
+  function socialReady(){return active&&root.classList.contains('active')&&$('apus-refugio-dialog').hidden&&!window.ApusFriendsUI?.isOpen&&!window.ApusBoardUI?.isOpen&&!window.ApusCabanaUI?.isOpen;}
+
   function presenceLabel(value){
     presenceState=value;
     const label=$('apus-refugio-status');if(!label)return;
@@ -61,6 +64,7 @@
     const valueText=messages[value]||messages.offline;if(label.textContent!==valueText)label.textContent=valueText;
   }
   function stopPresence(){
+    social?.clear();
     window.ApusFriendsUI?.disconnect();window.ApusBoardUI?.disconnect();
     presenceGeneration++;presenceLoading=false;
     if(presence)presence.stop();presence=null;remotePlayers.clear();
@@ -101,8 +105,9 @@
     const dx=visitor.x-visitor.drawX,dy=visitor.y-visitor.drawY;
     const projected=project({x:visitor.drawX,y:visitor.drawY});
     const x=projected.x,y=projected.y,walking=visitor.moving||Math.hypot(dx,dy)>2;
+    const pose=social?.pose(visitor)||{dy:0,opts:{}};
     ellipse(x,y+9,27,8,'#52776f');
-    try{if(typeof drawMountaineerSprite==='function')drawMountaineerSprite(ctx,'CUSTOM',x,y-21,{scale:spriteScale,facing:visitor.facing,anim:walking?t*.027:0,customConfig:visitor.avatar});}
+    try{if(typeof drawMountaineerSprite==='function')drawMountaineerSprite(ctx,'CUSTOM',x,y-21+pose.dy,{...pose.opts,scale:spriteScale,facing:visitor.facing,anim:walking?t*.027:0,customConfig:visitor.avatar});}
     catch(error){console.warn('[REFUGIO] Avatar remoto no disponible',error);}
     const label=String(visitor.username).slice(0,19).toUpperCase();
     r(x-65,y+16,130,19,'#153c4c');text(label,x,y+26,7,'#bfffe1',126);
@@ -267,16 +272,18 @@
     }
     add(avatar.x,avatar.y,()=>drawAvatar(t));
     items.sort((a,b)=>a.y-b.y);for(const item of items)item.draw();
+    if(social){for(const v of remotePlayers.values())social.bubble(ctx,v,{x:v.drawX,y:v.drawY},camera,state);social.bubble(ctx,social.own,avatar,camera,state);}
     for(const [key,z] of Object.entries(g.zones))if(distance(avatar,z)<72)text('PULSA / ENTRAR',z.x,z.y+45,8,'#fff1aa',118);
   }
   function drawAvatar(t){
     const cfg=slotConfig();
+    const pose=social?.pose(social.own)||{dy:0,opts:{}};
     const point=project(avatar);
     const bob=(target||moving())?Math.sin(t*.019)*1.6:0;
     ellipse(point.x,point.y+9,27,8,'#52776f');
     let painted=false;
     if(typeof drawMountaineerSprite==='function'){
-      try{drawMountaineerSprite(ctx,cfg?'CUSTOM':'JORDY',point.x,point.y-21+bob,{scale:spriteScale,facing:direction,anim:(target||moving())?t*.027:0,customConfig:cfg});painted=true;}
+      try{drawMountaineerSprite(ctx,cfg?'CUSTOM':'JORDY',point.x,point.y-21+bob+pose.dy,{...pose.opts,scale:spriteScale,facing:direction,anim:(target||moving())?t*.027:0,customConfig:cfg});painted=true;}
       catch(e){if(!lastDrawError){console.warn('[REFUGIO] Sprite: dibujo alternativo',e);lastDrawError=String(e);}}
     }
     if(!painted){
@@ -329,6 +336,7 @@
     }catch(e){recover(e);}
   }
   function recover(error){
+    social?.clear();
     window.ApusCabanaUI?.disconnect();
     stopPresence();
     console.error('[REFUGIO APUS] Error protegido:',error);
@@ -339,6 +347,7 @@
     else{if(typeof showOverlay==='function')showOverlay('menu-overlay');alert('No se pudo abrir Refugio Apus. El resto del juego continúa disponible.');}
   }
   function close(){
+    social?.clear();
     window.ApusCabanaUI?.disconnect();
     stopPresence();
     active=false;if(raf)cancelAnimationFrame(raf);raf=0;
@@ -421,7 +430,7 @@
     if(!target){destinationZone=null;notify('NO HAY PASO POR AQUÍ');}
   }
   function approach(zone){
-    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)||$('apus-refugio-dialog').hidden===false)return;
+    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen||social?.typing)||$('apus-refugio-dialog').hidden===false)return;
     const z=map.zones[zone];if(!z)return;
     if(distance(avatar,z)<22){target=null;waypoints=[];destinationZone=null;dialogOpen(zone);return;}
     startWalk(z,zone);
@@ -431,7 +440,7 @@
     startWalk(map.safe({x,y}));
   }
   function waypointClick(event){
-    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)||!$('apus-refugio-dialog').hidden)return;
+    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen||social?.typing)||!$('apus-refugio-dialog').hidden)return;
     const rect=canvas.getBoundingClientRect();
     const px=(event.clientX-rect.left)*canvas.width/rect.width;
     const py=(event.clientY-rect.top)*canvas.height/rect.height;
@@ -479,7 +488,8 @@
     try{
       const dt=lastFrame?clamp(time-lastFrame,0,50):16;lastFrame=time;
       maintainPresence();
-      if(!$('apus-refugio-dialog').hidden||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)){} else movementFromInput(dt);
+      social?.sync(socialReady(),presenceState==='online');
+      if(!$('apus-refugio-dialog').hidden||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen||social?.typing)){} else movementFromInput(dt);
       followCamera(dt);
       if(!backgroundCanvas)prepareStaticLayer();
       ctx.setTransform(1,0,0,1,0,0);r(0,0,canvas.width,canvas.height,'#192b41');
@@ -496,7 +506,8 @@
   $('apus-refugio-edit')?.addEventListener('click',editOutfit);
   $('apus-refugio-creator-back')?.addEventListener('click',fromCreator);
   window.addEventListener('keydown',e=>{
-    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen)||!$('apus-refugio-dialog').hidden)return;
+    if(social?.typing||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))return;
+    if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen||social?.typing)||!$('apus-refugio-dialog').hidden)return;
     if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){
       e.preventDefault();e.stopImmediatePropagation();keys[e.code]=true;
     }
@@ -512,7 +523,7 @@
   window.addEventListener('blur',()=>{keys=Object.create(null);movePressed=Object.create(null);});
   dPad.forEach(btn=>{
     const dir=btn.dataset.refDir;
-    btn.addEventListener('pointerdown',e=>{if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen))return;e.preventDefault();movePressed[dir]=true;btn.setPointerCapture?.(e.pointerId);});
+    btn.addEventListener('pointerdown',e=>{if(!active||(window.ApusFriendsUI?.isOpen||window.ApusBoardUI?.isOpen||window.ApusCabanaUI?.isOpen||social?.typing))return;e.preventDefault();movePressed[dir]=true;btn.setPointerCapture?.(e.pointerId);});
     const stop=e=>{movePressed[dir]=false;};
     btn.addEventListener('pointerup',stop);btn.addEventListener('pointercancel',stop);
     btn.addEventListener('lostpointercapture',stop);

@@ -19,6 +19,17 @@
   }
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:a));
   function state(input){const s=input||{};return {x:Math.round(clamp(s.x,38,922)),y:Math.round(clamp(s.y,302,570)),facing:s.facing===-1?-1:1,moving:s.moving===true,avatar:avatar(s.avatar)};}
+  const GESTURES=['dance','wave','hug','jump','fight'];
+  function transient(data,now){
+    const out={};
+    for(const kind of ['gesture','chat']){
+      const v=data?.[kind],ttl=kind==='chat'?8000:3600;
+      if(!v||!Number.isFinite(v.at)||now-v.at>=ttl||v.at>now+1000)continue;
+      if(kind==='gesture'&&GESTURES.includes(v.value))out.gesture={value:v.value,at:v.at};
+      if(kind==='chat'&&typeof v.value==='string'&&v.value.length<=120){const value=cleanText(v.value,120,'');if(value)out.chat={value,at:v.at};}
+    }
+    return out;
+  }
   function roster(raw,ownUid,now){
     const list=[];
     for(const [uid,sessions] of Object.entries(raw||{})){
@@ -26,7 +37,7 @@
       let latest=null;
       for(const [sessionId,data] of Object.entries(sessions)){
         if(!data||data.schema!==1||!Number.isFinite(data.updatedAt)||now-data.updatedAt>45000||data.updatedAt>now+10000)continue;
-        if(!latest||data.updatedAt>latest.updatedAt)latest={uid,sessionId,...state(data),username:cleanText(data.username,24,'MONTAÑISTA'),updatedAt:data.updatedAt};
+        if(!latest||data.updatedAt>latest.updatedAt)latest={uid,sessionId,...state(data),...transient(data,now),username:cleanText(data.username,24,'MONTAÑISTA'),updatedAt:data.updatedAt};
       }
       if(latest)list.push(latest);
     }
@@ -48,7 +59,7 @@
       pending=true;const ref=session,token=epoch;lastWrite=time;
       const outfit=JSON.stringify(body.avatar);
       try{
-        if(force||outfit!==lastAvatar)await ref.set({schema:1,username:cleanText(username,24,'MONTAÑISTA'),...body,updatedAt:serverTimestamp});
+        if(force||outfit!==lastAvatar)await ref.update({schema:1,username:cleanText(username,24,'MONTAÑISTA'),...body,updatedAt:serverTimestamp});
         else await ref.update({x:body.x,y:body.y,facing:body.facing,moving:body.moving,updatedAt:serverTimestamp});
         if(stopped||token!==epoch){ref.remove().catch(()=>{});return;}
         lastAvatar=outfit;lastBody=signature;published=true;status('online');report();
@@ -71,7 +82,17 @@
     function clockChanged(snapshot){offset=Number(snapshot.val())||0;}
     members.on('value',receive,failure);clock.on('value',clockChanged);connection.on('value',connect,failure);
     const timer=schedule(()=>{if(now()-lastExpiry>=1000){lastExpiry=now();report();}write(false);},100);
-    return {update:()=>write(false),stop(){
+    return {update:()=>write(false),now:()=>now()+offset,
+      async send(kind,value){
+        if(stopped||!connected||!published||!session)throw Error('Conéctate al Refugio para compartir.');
+        if(kind!=='gesture'&&kind!=='chat')throw Error('Acción inválida.');
+        value=kind==='chat'?cleanText(value,120,''):value;
+        if(kind==='gesture'?!GESTURES.includes(value):!value)throw Error('Escribe una frase antes de enviar.');
+        const ref=session,token=epoch,at=now()+offset;
+        await ref.child(kind).set({value,at:serverTimestamp});
+        if(stopped||token!==epoch)throw Error('La sesión del Refugio cambió.');
+        return {value,at};
+      },stop(){
       if(stopped)return;stopped=true;epoch++;cancel(timer);
       connection.off('value',connect);clock.off('value',clockChanged);members.off('value',receive);
       const ref=session;session=null;connected=false;published=false;
@@ -90,5 +111,5 @@
       script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error('No se pudo cargar la conexión'));};document.head.appendChild(script);
     }).catch(e=>{sdkPromise=null;throw e;});return sdkPromise;
   }
-  return {create,avatar,state,roster,loadSDK,PATH};
+  return {create,avatar,state,roster,transient,GESTURES,loadSDK,PATH};
 });
