@@ -117,3 +117,8 @@ body.theme-light #apus-refugio-overlay .ref-subtitle,body.theme-light #apus-refu
 }
 
 @media(max-height:550px){#apus-refugio-overlay .ref-stage-tag{display:block;top:4px;font-size:6px;padding:4px}}
+
+/* APUS 32.0.19: también proteger el encabezado del Refugio en Android. */
+html.apus-native-android #apus-refugio-overlay {
+  padding-top: calc(9px + max(var(--safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 32px));
+}

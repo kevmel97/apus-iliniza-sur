@@ -167,7 +167,7 @@
   }
   #top-bar {
     position: absolute;
-    top: 10px;
+    top: calc(10px + env(safe-area-inset-top, 0px));
     right: 10px;
     display: flex;
     gap: 6px;
@@ -920,4 +920,10 @@ body.theme-light .apus-audio-buttons button{box-shadow:0 3px 0 #4a6077}
  .apus-audio-setting{font-size:8px;padding:11px 0}
  .apus-audio-buttons{gap:6px}
  .apus-audio-buttons button{font-size:8px}
+}
+
+/* APUS 32.0.19: Android 15/16 puede superponer la barra del sistema sobre WebView.
+   No modificamos el canvas ni el área táctil del juego: solo la barra interactiva. */
+html.apus-native-android #top-bar {
+  top: calc(10px + max(var(--safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 32px));
 }

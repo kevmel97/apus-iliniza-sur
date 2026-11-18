@@ -22,6 +22,15 @@ try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
 }catch(_){ }
 const player=new Audio();player.loop=true;player.preload='none';player.playsInline=true;
 let wanted='',current='',lastRequested=0;
+// APUS 32.0.19: atenuar SOLAMENTE música de fondo durante voz entre amigos.
+// La configuración guardada y los efectos de sonido no se modifican.
+let apusVoiceDucking = false;
+window.addEventListener('apus:voice-call-state', function(event){
+  const active = !!(event.detail && event.detail.active);
+  if (active === apusVoiceDucking) return;
+  apusVoiceDucking = active;
+  changeVolume();
+});
 // APUS_AUDIO_ESCENAS_V3153: la cinemática de derrota del 4x4 se comunica por postMessage.
 let apus4x4LossAudioActive=false;
 window.addEventListener('message',e=>{
@@ -46,7 +55,7 @@ const originalTone=sound.playTone.bind(sound);
 const originalStopBGM=sound.stopBGM.bind(sound);
 const menu=document.getElementById('apus-audio-panel');
 function store(){try{localStorage.setItem(KEY,JSON.stringify(prefs));}catch(_){}}
-function changeVolume(){player.volume=prefs.musicEnabled?prefs.musicVolume:0;}
+function changeVolume(){player.volume=prefs.musicEnabled?prefs.musicVolume*(apusVoiceDucking?.10:1):0;}
 function requestPlay(force=false){if(!current||!prefs.musicEnabled||!prefs.musicVolume||apusOwnSceneAudio())return;
   if(!force&&Date.now()-lastRequested<1800)return;
   if(typeof introActive!=='undefined'&&introActive)return;

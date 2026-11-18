@@ -5,13 +5,20 @@
  const box=document.createElement('aside');box.id='apus-voice';box.hidden=true;box.setAttribute('aria-label','Voz entre amigos');
  box.innerHTML='<button id="voice-toggle" type="button" aria-label="Abrir llamadas de voz" aria-expanded="false"><canvas id="voice-face" width="80" height="80"></canvas><span id="voice-badge">☎</span></button><section id="voice-panel" hidden><header><strong>☎ VOZ ENTRE AMIGOS</strong><button id="voice-close" type="button" aria-label="Cerrar panel de voz">✕</button></header><p id="voice-note" role="status" aria-live="polite"></p><div id="voice-friends"></div><div id="voice-call" hidden><p id="voice-peer"></p><button id="voice-accept" type="button">ACEPTAR</button><button id="voice-mute" type="button" aria-pressed="false">SILENCIAR</button><button id="voice-play" type="button" hidden>ACTIVAR SONIDO</button><button id="voice-end" type="button">COLGAR</button></div><small>Solo voz · dos amigos · sin límite de tiempo del juego. Algunas redes no permiten conexión directa.</small></section><audio id="voice-audio" autoplay></audio>';
  document.body.append(box);const $=id=>document.getElementById(id),panel=$('voice-panel'),audio=$('voice-audio');
- let friendListKey="",serverOffset=0;
+ let friendListKey="",serverOffset=0,voiceAudioDucked=false;
  let service=null,db=null,uid='',links={},blocks={},names={},online=false,booting=false,bootEpoch=0,epoch=0,call=null,note='Elige un amigo para llamarlo.',incoming={},seen=new Set(),lastFace='',retry=0;
  const timers=new Set();const later=(fn,ms)=>{const t=setTimeout(()=>{timers.delete(t);fn();},ms);timers.add(t);return t;};
  const inCabin=()=>!!window.ApusCabanaUI?.isOpen;
  function profile(){let avatar=null;try{avatar=window.apusRefugioFase1?.voiceAvatar||null;}catch{};return {name:String(typeof currentUser!=='undefined'?currentUser?.username||'MONTAÑISTA':'MONTAÑISTA').slice(0,24),avatar:window.ApusRefugioPresence.avatar(avatar)};}
  function face(a){a=window.ApusRefugioPresence.avatar(a);const key=JSON.stringify(a);if(key===lastFace)return;lastFace=key;const c=$('voice-face'),ctx=c.getContext('2d');ctx.clearRect(0,0,80,80);ctx.fillStyle='#16384b';ctx.fillRect(0,0,80,80);try{drawMountaineerSprite(ctx,'CUSTOM',40,116,{scale:2.25,customConfig:a||profile().avatar});}catch{ctx.fillStyle='#ffc77d';ctx.fillRect(22,17,36,36);}}
  function render(){
+  // Mantiene atenuada la música incluso al preparar/recibir una llamada.
+  // Solo emite cuando cambia el estado; al colgar recupera el volumen normal.
+  const shouldDuck = !!call;
+  if (shouldDuck !== voiceAudioDucked) {
+    voiceAudioDucked = shouldDuck;
+    window.dispatchEvent(new CustomEvent('apus:voice-call-state', {detail:{active:shouldDuck}}));
+  }
   box.hidden=!uid||inCabin()||(!call&&!Object.keys(links).some(id=>P.friends(links,blocks,id)));if(box.hidden)panel.hidden=true;
   $('voice-toggle').setAttribute('aria-expanded',String(!panel.hidden));$('voice-note').textContent=note;
   $('voice-badge').textContent=call?(call.state==='connected'?'🎙':'☎'):'☎';box.classList.toggle('voice-active',call?.state==='connected');
