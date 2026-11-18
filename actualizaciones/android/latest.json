@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.18",
-  "bundleId": "apus-32-0-18",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-18.zip",
-  "checksum": "28efd354df3e3f20f4848a51eda3e168ea1cc728f454d347709aed376a9df10b",
-  "signature": "FTUGW9hfStqn9orXOotTOOZFXiurV0NiuMi36sIRiADBJPL4Au+riuKHFSHX0bEfX0fBxqH6zTjFGt2Eh743wECI8WGhYBB0dQp5bw4Mew4wmhwcCkijD/EJxBb2gvmzgg77gvLW0iepKPmosFmH5nrM0RI2WeGYcAE0tZLWXWuBKoi1qra659NfEMyS84gwJ6oV/GjunW9wOXmea7Rg2/WsLdoBzE+EL0kiKBtRo+P2vq7RfqOF0EntYw+rqjCEX2nCTdWCF2ko9TCuJJqe2tRRXlg5f+Nuj0D6vdfHJ6ucrGdnPReyNWQMxHZT644SM32rZiSxAKjiUqFKz8TbsIbCU4SB0PxeUV4YS1JbfLk8bl6x1aB6ClqBrQwHPPXsfjdY5iATTqnDkCmCkzGISmsEGuLEyXP79MWrHNBnCpcnMvp2oI+5Mv5OvBaWTKbFQhAg04pupwf5EGCeX51yUeXVTd7ABUGebmYeemjefn9D/JvNgWgd9IEnp5XHdgXx",
+  "version": "32.0.19",
+  "bundleId": "apus-32-0-19",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-19.zip",
+  "checksum": "0f15d722e4442f6c551f2bc4af245e5dd0054a0f1ffbf19e65d64c4233c12a2a",
+  "signature": "WBrde6hXnqP8Q8SEJjtzt1U6BVb6/LzkJGRCjeyyh8dBwZ9MOJ7DWd/+V2p2lx35FprXYjSOwcRHgKbZjMpU0Yw29xT2Tqv+WxWrmuQx8EUf+89HYlRKv/hz3nRoxTOV3wON86AOHpqsRUvCqJcKhQDV3GPSL1ZJ5OA/DJEPzCbYiC2gafBu7capM8HPdP2UTgZ0G6kREs+DM4YyB50pKXymf2G0WwckNyvR+F9kpVv82eYKqDTNMCkw0tbySWkW3aKmaAvetluwsKA/Hf4my2cRMOvnbM3b29n6DZoRfGGJGM/lnz28ivk4PtAHFs7PQbiC/f7zyHALRvX87XOvnVanXcXcozfzz6KIcxkAuiM05xnsf7aBxPn6GC14VnOza0Dojz6VeD2HFQNPn/z+Xk2edqqPClSkqAI8dp4CyqVLN/poVDA+wl84ReaCvAaq+PAxIWyYrK88WEsQkdv0WuLdTnlzIIbQavEyI5bG/lrSW6x0I34/TvFmUEGpB/X8",
   "minNativeVersionCode": 11,
-  "notes": "Voz privada entre amigos con icono de personaje, aceptar, silenciar y colgar; disponible en juegos y separada de la cabana."
+  "notes": "Música atenuada durante llamadas privadas, pestaña lateral y área segura Android."
 }
