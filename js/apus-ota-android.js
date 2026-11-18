@@ -5,7 +5,7 @@
 */
 (function () {
   'use strict';
-  // APUS 32.0.19: identificar el contenedor nativo sin alterar la web normal.
+  // APUS 32.0.20: identificar el contenedor nativo sin alterar la web normal.
   try {
     var nativeCap = window.Capacitor;
     if (nativeCap && typeof nativeCap.isNativePlatform === 'function' && nativeCap.isNativePlatform() &&
@@ -13,7 +13,7 @@
       document.documentElement.classList.add('apus-native-android');
     }
   } catch (_) { /* el juego web nunca debe depender del puente nativo */ }
-  var CONTENT_VERSION = '32.0.19';
+  var CONTENT_VERSION = '32.0.20';
   var OTA_SIGNED_BUILD = true;
   var MANIFEST_URL = 'https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/latest.json';
   var ALLOWED_ROOT = 'https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/';

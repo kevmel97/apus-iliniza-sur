@@ -63,8 +63,32 @@
   }catch{retry=Date.now()+10000;}finally{if(generation===bootEpoch)booting=false;}
  }
  function logout(){bootEpoch++;booting=false;hangup('Inicia sesión para usar voz.');service?.stop();service=null;uid='';links={};blocks={};names={};incoming={};seen.clear();render();}
- $('voice-toggle').onclick=()=>{panel.hidden=!panel.hidden;render();};$('voice-close').onclick=()=>{panel.hidden=true;render();};$('voice-accept').onclick=accept;$('voice-end').onclick=()=>hangup();$('voice-play').onclick=()=>audio.play().then(()=>{$('voice-play').hidden=true;}).catch(()=>show('Toca activar sonido para escuchar.'));
+ $('voice-toggle').onclick=()=>{if(voiceSuppressClick){voiceSuppressClick=false;return;}panel.hidden=!panel.hidden;render();};$('voice-close').onclick=()=>{panel.hidden=true;render();};$('voice-accept').onclick=accept;$('voice-end').onclick=()=>hangup();$('voice-play').onclick=()=>audio.play().then(()=>{$('voice-play').hidden=true;}).catch(()=>show('Toca activar sonido para escuchar.'));
  $('voice-mute').onclick=()=>{if(!call?.stream)return;call.muted=!call.muted;for(const t of call.stream.getAudioTracks())t.enabled=!call.muted;render();};
+ // APUS 32.0.20: pestaña móvil; se puede arrastrar verticalmente si tapa texto.
+ let voiceDrag=null,voiceSuppressClick=false;
+ const voiceToggle=$('voice-toggle'),voiceDockKey='apus_voice_dock_top_percent_v32020';
+ try{const saved=Number(localStorage.getItem(voiceDockKey));if(Number.isFinite(saved)&&saved>=12&&saved<=85)box.style.setProperty('--apus-voice-top',saved.toFixed(1)+'%');}catch(_){}
+ voiceToggle.addEventListener('pointerdown',e=>{
+   if(e.button!==0)return;
+   voiceDrag={start:e.clientY,top:box.getBoundingClientRect().top+box.getBoundingClientRect().height/2,moved:false};
+   try{voiceToggle.setPointerCapture(e.pointerId);}catch(_){}
+ });
+ voiceToggle.addEventListener('pointermove',e=>{
+   if(!voiceDrag)return;
+   const delta=e.clientY-voiceDrag.start;
+   if(Math.abs(delta)>7)voiceDrag.moved=true;
+   if(!voiceDrag.moved)return;
+   const percent=Math.max(12,Math.min(85,(voiceDrag.top+delta)/Math.max(1,innerHeight)*100));
+   box.style.setProperty('--apus-voice-top',percent.toFixed(1)+'%');
+ });
+ voiceToggle.addEventListener('pointerup',()=>{
+   if(voiceDrag?.moved){voiceSuppressClick=true;
+     try{localStorage.setItem(voiceDockKey,String(parseFloat(box.style.getPropertyValue('--apus-voice-top'))));}catch(_){}
+   }
+   voiceDrag=null;
+ });
+ voiceToggle.addEventListener('pointercancel',()=>{voiceDrag=null;});
  for(const e of ['pointerdown','click','keydown'])box.addEventListener(e,event=>event.stopPropagation());
  window.addEventListener('apus:meeting-open',()=>{hangup('La voz entre amigos terminó al entrar a la cabaña.');panel.hidden=true;render();});
  document.addEventListener('apus:auth-logout',logout);window.addEventListener('pagehide',()=>hangup());
