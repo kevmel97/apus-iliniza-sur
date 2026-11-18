@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.19",
-  "bundleId": "apus-32-0-19",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-19.zip",
-  "checksum": "0f15d722e4442f6c551f2bc4af245e5dd0054a0f1ffbf19e65d64c4233c12a2a",
-  "signature": "WBrde6hXnqP8Q8SEJjtzt1U6BVb6/LzkJGRCjeyyh8dBwZ9MOJ7DWd/+V2p2lx35FprXYjSOwcRHgKbZjMpU0Yw29xT2Tqv+WxWrmuQx8EUf+89HYlRKv/hz3nRoxTOV3wON86AOHpqsRUvCqJcKhQDV3GPSL1ZJ5OA/DJEPzCbYiC2gafBu7capM8HPdP2UTgZ0G6kREs+DM4YyB50pKXymf2G0WwckNyvR+F9kpVv82eYKqDTNMCkw0tbySWkW3aKmaAvetluwsKA/Hf4my2cRMOvnbM3b29n6DZoRfGGJGM/lnz28ivk4PtAHFs7PQbiC/f7zyHALRvX87XOvnVanXcXcozfzz6KIcxkAuiM05xnsf7aBxPn6GC14VnOza0Dojz6VeD2HFQNPn/z+Xk2edqqPClSkqAI8dp4CyqVLN/poVDA+wl84ReaCvAaq+PAxIWyYrK88WEsQkdv0WuLdTnlzIIbQavEyI5bG/lrSW6x0I34/TvFmUEGpB/X8",
+  "version": "32.0.20",
+  "bundleId": "apus-32-0-20",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-20.zip",
+  "checksum": "921488b38f0c492d693659edf43829a9a94364c8d2ec3c0c427170ca13004fb1",
+  "signature": "aV0pkdUeYLvRreeEbqHO4bArnXP1ho8g+iGeS73Be91XU1iQjXLsU2pvDNzF+z2E7Nw8gdYbNX2CR2QqF8Zk2A6uLsxqFBoIzlobL/fMs8kl+Zi9pnDmA8yEaQWU59EUprYuKsBNR/+Ctioq1Y1IGYbhwrBSzvqjoykpH8OolsGSSNG2ofz56+REDq1IE3TrVnhO2vMMAUaWKdALOYEiw8sCnsq0M7KpGXES6w7nBaQd9oKIx6bERDSR0ZgVovntRFUN8Pymayn2CiX7Pjv2jssGZHtqvlSQalw1NjeBw7x+L5qG3tRH7+Gb8X6zFRILhZguBbRQZpKutFGUM1Hp+eg1eA8hEh9nnEG3Qjo3glzOMdHyxUV2kIbLgOsPifgA4RMl7pdIYjDTAvVQlyoA6wduPg6JP/NFqQeRe3ZFX2Y20Frocs2FYzdD2EGl44wgTdL9JgZ1BA48h3qOP9uJFA8W3yXtPNPne5Uxt1t2+s+H4IGpBl3F4+9Rw1Im/TW6",
   "minNativeVersionCode": 11,
-  "notes": "Música atenuada durante llamadas privadas, pestaña lateral y área segura Android."
+  "notes": "Controles propios en menu/refugio, llamada desplazable y restauracion historica confirmada Friki."
 }
