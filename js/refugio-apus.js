@@ -70,7 +70,7 @@
     if(presence)presence.stop();presence=null;remotePlayers.clear();
     presenceLabel('offline');
   }
-  function publicState(){return {...map.toWire(avatar),facing:direction,moving:!!(target||moving()),avatar:slotConfig()};}
+  function publicState(){return {...map.toWire(avatar),facing:direction,moving:!!(target||moving()),avatar:slotConfig(),...window.ApusAchievements?.publicBadge()};}
   function updateVisitors(list){
     const next=new Map();
     for(const record of list){const visitor={...record,...map.fromWire(record)};const old=remotePlayers.get(visitor.uid);next.set(visitor.uid,{...visitor,drawX:old?.drawX??visitor.x,drawY:old?.drawY??visitor.y,lastFrame:old?.lastFrame});}
@@ -107,10 +107,12 @@
     const x=projected.x,y=projected.y,walking=visitor.moving||Math.hypot(dx,dy)>2;
     const pose=social?.pose(visitor)||{dy:0,opts:{}};
     ellipse(x,y+9,27,8,'#52776f');
+    if(visitor.legendary && visitor.aura)window.ApusAchievements?.drawAura(ctx,x,y-48,spriteScale,t);
     try{if(typeof drawMountaineerSprite==='function')drawMountaineerSprite(ctx,'CUSTOM',x,y-21+pose.dy,{...pose.opts,scale:spriteScale,facing:visitor.facing,anim:walking?t*.027:0,customConfig:visitor.avatar});}
     catch(error){console.warn('[REFUGIO] Avatar remoto no disponible',error);}
     const label=String(visitor.username).slice(0,19).toUpperCase();
-    r(x-65,y+16,130,19,'#153c4c');text(label,x,y+26,7,'#bfffe1',126);
+    r(x-65,y+16,130,19,visitor.legendary?'#674b18':'#153c4c');text(label,x,y+26,7,visitor.legendary?'#ffe9aa':'#bfffe1',126);
+    if(visitor.legendary)text("🏆 GUARDIÁN LEGENDARIO",x,y+40,6,"#ffe2a2",148);
   }
   const dPad = root.querySelectorAll('[data-ref-dir]');
   const palette = {ink:'#111d31',white:'#f6f1d9',gold:'#ffd480',shadow:'#23334d',snow:'#e6eef2',stone:'#879ca9'};
@@ -281,6 +283,7 @@
     const point=project(avatar);
     const bob=(target||moving())?Math.sin(t*.019)*1.6:0;
     ellipse(point.x,point.y+9,27,8,'#52776f');
+    if(window.ApusAchievements?.showAura())window.ApusAchievements.drawAura(ctx,point.x,point.y-48,spriteScale,t);
     let painted=false;
     if(typeof drawMountaineerSprite==='function'){
       try{drawMountaineerSprite(ctx,cfg?'CUSTOM':'JORDY',point.x,point.y-21+bob+pose.dy,{...pose.opts,scale:spriteScale,facing:direction,anim:(target||moving())?t*.027:0,customConfig:cfg});painted=true;}
@@ -294,6 +297,7 @@
     const name=String(cfg?.name||(typeof currentUser!=='undefined'?currentUser?.username:'')||'MONTAÑISTA').slice(0,19).toUpperCase();
     r(point.x-Math.min(128,name.length*5+15)/2,point.y+16,Math.min(128,name.length*5+15),19,'#122c43');
     text(name,point.x,point.y+26,7,'#fff8df',132);
+    if(window.ApusAchievements?.isLegendary())text("🏆 GUARDIÁN LEGENDARIO",point.x,point.y+40,6,"#ffe2a2",148);
     ellipse(point.x,point.y+3,14,3,'#edb45f');
   }
   function moving(){return Object.keys(movePressed).some(k=>movePressed[k])||Object.keys(keys).some(k=>keys[k]);}
@@ -321,6 +325,7 @@
   }
   function open(){
     if(!gate())return;
+    window.ApusAchievements?.record("refugio");
     try{
       restoreAccount();target=null;destinationZone=null;keys=Object.create(null);movePressed=Object.create(null);
       if(!active)scene=null;
