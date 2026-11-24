@@ -31,3 +31,13 @@ body.theme-light #apus-logros-overlay .apus-logros-legend.obtained{color:#8b4b11
 body.theme-light #apus-logros-overlay #apus-logros-status{color:#334155}
 body.theme-light #apus-aura-label{color:#8b4b11}
 @media(max-width:540px){.apus-logros-medals{grid-template-columns:1fr;}.apus-logros-medal{flex-direction:row;text-align:left;gap:10px}.apus-logros-medal .apus-logros-icon{font-size:22px}.apus-logros-medal strong{flex:1}.apus-logros-medal small{flex:2}#apus-logros-overlay .apus-logros-head h2{font-size:10px}}
+
+#apus-logros-profile{display:flex;align-items:center;gap:18px;padding:12px;background:#152238;border:3px solid #6c86a6}
+#apus-logros-avatar{width:120px;height:125px;max-width:35%;object-fit:contain;image-rendering:pixelated;background:#233451}
+#apus-logros-avatar.apus-legend-frame{border:4px solid #e9c577;box-shadow:0 0 0 3px #fff5b9,0 0 12px #f9d986}
+#apus-logros-profile>div{display:flex;flex-direction:column;gap:10px;min-width:0;overflow-wrap:anywhere}
+#apus-logros-username{color:#f8fafc;font:normal 10px/1.7 'Press Start 2P',monospace}
+#apus-logros-title{color:#ffda80;font:normal 9px/1.8 'Press Start 2P',monospace}
+body.theme-light #apus-logros-profile{background:#eff6ff;border-color:#3b82f6}
+body.theme-light #apus-logros-username{color:#172b47}
+body.theme-light #apus-logros-title{color:#8b4b11}
