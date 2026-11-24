@@ -1,6 +1,8 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.21-friki';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.22-logros';
 const PRECACHE_URLS = [
+ "./js/apus-logros.js?v=32.0.22",
+ "./css/apus-logros.css?v=32.0.22",
  // Hojas visuales nuevas; el motor, controles y reglas offline no cambian.
  "./css/apus-unificado.css?v=32.0.21",
  "./css/apus-voz-pixel.css?v=32.0.21.1",
