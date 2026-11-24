@@ -43,7 +43,8 @@ function tourOwnInfo() {
   return {
     char: info.char,
     displayName: String(info.displayName || 'MONTAÑISTA').slice(0, 32),
-    customConfig: info.customConfig || null
+    customConfig: info.customConfig || null,
+    legendary:info.legendary===true,aura:info.aura===true
   };
 }
 function tourPlayer(id, fighterInfo, cpu = false) {
@@ -400,9 +401,13 @@ function tourEnterBout(match,players){
     fighters[0].char=own.fighterInfo.char;
     fighters[0].customConfig=own.fighterInfo.customConfig;
     fighters[0].displayName=own.name;
+    fighters[0].legendary=own.fighterInfo.legendary===true;
+    fighters[0].aura=own.fighterInfo.aura===true;
     fighters[1].char=other.fighterInfo.char;
     fighters[1].customConfig=other.fighterInfo.customConfig;
     fighters[1].displayName=other.name;
+    fighters[1].legendary=other.fighterInfo.legendary===true;
+    fighters[1].aura=other.fighterInfo.aura===true;
     if(t.cpuAutoplay){
       // Combates CPU vs CPU más breves, igual que los torneos offline previos.
       for(const f of fighters){f.hp=140;f.maxHp=140;f.hpGhost=140;}
@@ -431,6 +436,7 @@ function tourEnterBout(match,players){
 function tourMakeSpectatorFighter(p,idx){
   const x=idx===0?260:700;
   return {char:p.fighterInfo.char,displayName:p.name,customConfig:p.fighterInfo.customConfig,
+    legendary:p.fighterInfo.legendary===true,aura:p.fighterInfo.aura===true,
     x,y:getFightGroundY(),netTargetX:x,netTargetY:getFightGroundY(),vx:0,vy:0,hp:350,maxHp:350,hpGhost:350,facing:idx===0?1:-1,
     onGround:true,blocking:false,guardPose:false,action:null,actionTimer:0,cooldown:0,hurtTimer:0,
     anim:0,shieldBlocks:0,shieldCooldown:0,shieldReadyAt:0,shieldAnim:0,
