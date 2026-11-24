@@ -238,6 +238,7 @@ function declareVersusWinner(idx) {
   if (!w) return;
   vsWinnerIdx = idx;
   vsWinner = w.displayName || w.char;
+  if(!tournament && idx===0) window.ApusAchievements?.record("duel");
   vsEndAnimTimer = 180;
   projectiles = [];
   // La música Boss Rush debe pausarse ANTES de reproducir el resultado.
@@ -1894,6 +1895,8 @@ function renderVersusMiniGame() {
   drawApusFightGround();
 
   fighters.forEach((f, i) => {
+    if(i===0 && f.char==="CUSTOM" && !f.isAI && window.ApusAchievements?.showAura())
+      window.ApusAchievements.drawAura(ctx,stageXToCanvasX(f.x),f.y-52,1.5,performance.now());
     const isWinner = !!vsWinner && i === vsWinnerIdx;
     const isLoser = !!vsWinner && i !== vsWinnerIdx;
     drawMountaineerSprite(ctx, f.char, stageXToCanvasX(f.x), f.y, {
