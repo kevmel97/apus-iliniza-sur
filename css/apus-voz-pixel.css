@@ -223,3 +223,109 @@ body.theme-light #apus-voice #voice-toggle{
     font-size:7px;
   }
 }
+
+
+/* APUS 32.0.21 · Ajuste puntual verificado con captura de modo claro.
+   Igualar la ventana de voz al menú principal: blanco, azul y letras pixel.
+   Estas propiedades son 100% cosméticas, no cambian ninguna función. */
+#apus-voice #voice-panel p,
+#apus-voice #voice-panel small,
+#apus-voice #voice-panel button,
+#apus-voice #voice-panel #voice-friends{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace !important;
+  font-weight:400;
+}
+#apus-voice #voice-panel #voice-note{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace !important;
+  font-size:8px;
+  line-height:1.95;
+}
+#apus-voice #voice-panel #voice-peer{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace !important;
+  font-size:9px;
+  line-height:1.85;
+}
+#apus-voice #voice-panel small{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace !important;
+  font-size:7px;
+  line-height:1.95;
+}
+
+/* Copiar la paleta REAL del menú principal en modo claro. */
+body.theme-light #apus-voice #voice-panel{
+  background:rgba(255,255,255,.97);
+  color:#0f172a;
+  border:4px solid #3b82f6;
+  border-radius:8px;
+  box-shadow:0 0 0 4px #93c5fd,0 10px 24px rgba(0,0,0,.3);
+}
+body.theme-light #apus-voice #voice-panel header{
+  border-bottom:3px solid #3b82f6;
+  color:#d97706;
+}
+body.theme-light #apus-voice #voice-panel header strong{
+  color:#d97706;
+  text-shadow:1px 1px 0 #fed7aa;
+}
+body.theme-light #apus-voice #voice-note{
+  background:#f1f5f9;
+  color:#0f172a;
+  border:2px solid #3b82f6;
+  border-radius:4px;
+}
+body.theme-light #apus-voice #voice-call{
+  background:#ffffff;
+  border:2px solid #3b82f6;
+  color:#0f172a;
+}
+body.theme-light #apus-voice #voice-peer{
+  background:#eff6ff;
+  color:#1d4ed8;
+  border:2px solid #3b82f6;
+  text-shadow:none;
+}
+body.theme-light #apus-voice #voice-panel #voice-friends{
+  color:#0f172a;
+}
+body.theme-light #apus-voice #voice-panel #voice-friends button,
+body.theme-light #apus-voice #voice-panel button:not(#voice-accept):not(#voice-end):not(#voice-close){
+  background:#3b82f6;
+  border:3px solid #1d4ed8;
+  color:#ffffff;
+  border-radius:4px;
+  box-shadow:0 3px 0 #1e40af;
+  text-shadow:1px 1px 0 #000;
+}
+body.theme-light #apus-voice #voice-panel #voice-close{
+  background:#e2e8f0;
+  border:3px solid #94a3b8;
+  color:#0f172a;
+  text-shadow:none;
+}
+body.theme-light #apus-voice #voice-panel #voice-accept{
+  background:#187a75;
+  border:3px solid #0f766e;
+  color:#ffffff;
+}
+body.theme-light #apus-voice #voice-panel #voice-end{
+  background:#a63745;
+  border:3px solid #991b1b;
+  color:#ffffff;
+}
+body.theme-light #apus-voice #voice-panel #voice-mute[aria-pressed="true"]{
+  background:#d97706;
+  border-color:#b45309;
+  color:#ffffff;
+}
+body.theme-light #apus-voice #voice-panel small{
+  color:#334155;
+  border-top:2px solid #93c5fd;
+}
+body.theme-light #apus-voice #voice-toggle{
+  background:#3b82f6;
+  border-color:#1d4ed8;
+}
+body.theme-light #apus-voice #voice-badge{
+  background:#1d4ed8;
+  border-color:#93c5fd;
+}
