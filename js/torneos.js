@@ -705,6 +705,10 @@ function tourEndScreen(summary){
   if(summary){t.members=summary.members;t.matches=summary.matches;t.winner=summary.winner;t.runnerUp=summary.runnerUp;t.third=summary.third;}
   gameState='MENU';updateTouchControlsVisibility();
   showOverlay('tournament-end-overlay');
+  if(t.winner===t.me && (t.size===4||t.size===8) && !t._apusAchievementSent){
+    t._apusAchievementSent=true;
+    window.ApusAchievements?.record("tournament",{size:t.size});
+  }
   const winnerName=id=>t.members.find(x=>x.id===id)?.name||'—';
   document.getElementById('tournament-podium').innerHTML=
     `<div class="tour-medal">🥇 CAMPEÓN: ${tourEscape(winnerName(t.winner))}</div>`+
