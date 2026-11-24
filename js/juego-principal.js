@@ -1261,9 +1261,11 @@ function renderCustomCardPreview() {
   const cCtx = cardCanvas.getContext("2d");
   cCtx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
   const cfg = customCharSlots[activeCustomSlot];
+  window.ApusAchievements?.paintPortrait(cCtx,60,58,1.65);
   drawMountaineerSprite(cCtx, "CUSTOM", 60, 92, {
     scale: 1.65, facing: 1, customConfig: cfg
   });
+  window.ApusAchievements?.decoratePortrait();
   const titleEl = document.getElementById("custom-card-title");
   if (titleEl) {
     titleEl.textContent = (cfg.name || `MONTANISTA ${activeCustomSlot + 1}`).toUpperCase();
@@ -1653,6 +1655,7 @@ function recordStoryLevelCompletion(completedLevelIdx) {
   } else {
     progress.finished = true;
   }
+  window.ApusAchievements?.record("story",{level:completedLevelIdx+1});
   if (currentUser?.uid) {
     cloudProfile.progress=deepCopy(progress);
     cloudCommitProfile().catch(flagCloudWriteFailure);
