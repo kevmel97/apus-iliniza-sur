@@ -257,7 +257,6 @@ body.theme-light #quizReactionBanner{background:#e0f2fe!important;color:#075985!
         <div id="wikiSettingsPanel" hidden aria-label="Configuración de Friki Apus">
             <div class="wiki-settings-title">⚙️ CONFIGURACIÓN</div>
             <button id="wikiThemeBtn" onclick="toggleWikiTheme()" class="wiki-settings-control">🌙 TEMA: OSCURO</button>
-            <button id="btnDemoUnlock" onclick="toggleDemoMode()" class="wiki-settings-control" title="Habilitar todos los niveles para explorar sin cambiar tus récords"><span>🔓</span> <span id="demoModeLabel">MODO EXPLORAR: OFF</span></button>
             <p class="wiki-settings-note">Usa 🎵 AUDIO para ajustar la música y los efectos en todo el juego.</p>
         </div>
     </header>
@@ -540,7 +539,7 @@ body.theme-light #quizReactionBanner{background:#e0f2fe!important;color:#075985!
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-700 pb-3">
                     <div>
                         <h2 class="font-pixel text-sm sm:text-base text-amber-400">🏕️ ÁLBUM DE 25 PAISAJES APUS</h2>
-                        <p class="text-lg text-slate-300">Cada postal se desbloquea logrando 15 o más aciertos en su nivel (o activando el Modo Explorar arriba).</p>
+                        <p class="text-lg text-slate-300">Cada postal se desbloquea logrando 15 o más aciertos en su nivel.</p>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="openMapScreen()" class="pixel-btn bg-amber-500 text-slate-950 px-3 py-2 text-xs">
@@ -1120,8 +1119,7 @@ let gameState = {
     totalScore: 0,
     unlockedLevel: 1,       // Highest unlocked level (1 to 25)
     bestScores: {},         // levelId -> max correct answers out of 20
-    unlockedPostcards: {},  // levelId -> boolean (true if >= 15 achieved)
-    demoMode: false
+    unlockedPostcards: {}   // levelId -> boolean (true if >= 15 achieved)
 };
 
 // Unión de logros guardados: nunca reduce desbloqueos ni inventa puntajes.
@@ -1149,6 +1147,8 @@ function loadProgress() {
             if(Number.isSafeInteger(oldPts)&&oldPts>backed)
               localStorage.setItem(key,JSON.stringify({totalScore:oldPts,savedAt:Date.now(),source:'legacy-local-unassigned'}));
             gameState = { ...gameState, ...parsed };
+            // Los guardados anteriores pueden contener demoMode:true; no se aplica.
+            delete gameState.demoMode;
         }
     } catch (e) {}
     let stages=[];
@@ -1182,31 +1182,14 @@ function updateHeaderUI() {
     document.getElementById('menuCurrentLvl').textContent = gameState.unlockedLevel;
     document.getElementById('totalQuestionsBadge').textContent = QUESTION_DATABASE.length;
 
-    const demoBtn = document.getElementById('demoModeLabel');
-    if (demoBtn) {
-        demoBtn.textContent = gameState.demoMode ? "MODO EXPLORAR: ON" : "MODO EXPLORAR: OFF";
-    }
 }
 
 function isLevelUnlocked(lvl) {
-    return gameState.demoMode || lvl <= gameState.unlockedLevel;
+    return lvl <= gameState.unlockedLevel;
 }
 
 function isPostcardUnlocked(lvl) {
-    return gameState.demoMode || !!gameState.unlockedPostcards[lvl];
-}
-
-function toggleDemoMode() {
-    sfxClick();
-    gameState.demoMode = !gameState.demoMode;
-    updateHeaderUI();
-    if (!document.getElementById('screen-map').classList.contains('hidden')) {
-        renderLevelGrid();
-        selectMapLevel(selectedMapLevel);
-    }
-    if (!document.getElementById('screen-gallery').classList.contains('hidden')) {
-        renderGallery();
-    }
+    return !!gameState.unlockedPostcards[lvl];
 }
 
 /* ============================================================================
