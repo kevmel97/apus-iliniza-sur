@@ -1,6 +1,10 @@
 /* Apus Iliniza Sur v31 — caché de archivos del juego para modo offline. */
-const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.20';
+const APUS_CACHE_VERSION = 'apus-iliniza-sur-v32.0.21-ui';
 const PRECACHE_URLS = [
+ // Hojas visuales nuevas; el motor, controles y reglas offline no cambian.
+ "./css/apus-unificado.css?v=32.0.21",
+ "./css/apus-voz-pixel.css?v=32.0.21.1",
+ "./css/apus-minijuegos-unificado.css?v=32.0.21.2",
  "./js/apus-ui-32_0_20.js?v=32.0.20",
  "./js/voice-policy.js?v=32.0.20",
  "./js/apus-voice.js?v=32.0.20",
@@ -25,7 +29,7 @@ const PRECACHE_URLS = [
   "./css/friki-fonts.css?v=32.0.20",
   "./assets/fonts/friki-pixel.ttf",
   "./assets/fonts/friki-vt.ttf",
-  "./minijuegos/friki-apus.html?v=32.0.20",
+  "./minijuegos/friki-apus.html?v=32.0.21.2",
   "./js/refugio-amigos.js?v=32.0.20",
   "./js/refugio-amigos-ui.js?v=32.0.20",
   "./css/refugio-amigos.css?v=32.0.20",
