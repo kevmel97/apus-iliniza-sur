@@ -1,0 +1,185 @@
+/*
+ * APUS 32.0.21 · Unificación visual de los tres minijuegos.
+ * Estilos de presentación exclusivamente; conserva todo JS, controles,
+ * escenas, resultados, estados de botones, HUD y sus dimensiones táctiles.
+ */
+@font-face{
+  font-family:"APUS Pixel UI";
+  src:url("../assets/fonts/friki-pixel.ttf") format("truetype");
+  font-display:swap;
+}
+:root{
+  --apus-mini-frame:#8ba3c7;
+  --apus-mini-bg:#192236;
+  --apus-mini-deep:#111827;
+  --apus-mini-control:#2b3954;
+  --apus-mini-ink:#f8fafc;
+  --apus-mini-orange:#f7931e;
+  --apus-mini-blue:#63b3ed;
+  --apus-mini-green:#187a75;
+  --apus-mini-red:#a63745;
+}
+body[data-apus-ui] button:focus-visible,
+body[data-apus-ui] input:focus-visible,
+body[data-apus-ui] select:focus-visible{
+  outline:3px solid var(--apus-mini-orange);
+  outline-offset:3px;
+}
+
+/* FRIKI APUS: menú, encabezado, opciones y configuración pixelados.
+   Se respetan los colores funcionales de respuesta correcta/incorrecta. */
+body[data-apus-ui="friki"]{
+  --apu-bg:#111827;
+  --apu-panel:#192236;
+  --apu-border:#8ba3c7;
+  --apu-gold:#f7931e;
+  --apu-teal:#63b3ed;
+  --apu-crimson:#a63745;
+}
+body[data-apus-ui="friki"] .pixel-box{
+  background:var(--apus-mini-bg);
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+  box-shadow:inset 0 0 0 3px var(--apus-mini-deep),0 6px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="friki"] .pixel-btn{
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+  box-shadow:0 5px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="friki"] .option-btn{
+  background:#2b3954;
+  border-color:#6b82a8;
+  border-radius:4px;
+  box-shadow:0 4px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="friki"] .option-btn:hover:not(:disabled){
+  background:#354765;border-color:#f7931e;
+}
+/* Estas reglas preservan la señalización de aciertos y errores. */
+body[data-apus-ui="friki"] .option-btn.correct{
+  background:#065f46!important;border-color:#34d399!important;color:#ecfdf5!important;
+}
+body[data-apus-ui="friki"] .option-btn.wrong{
+  background:#7f1d1d!important;border-color:#f87171!important;color:#fef2f2!important;
+}
+body[data-apus-ui="friki"] header #wikiSettingsBtn,
+body[data-apus-ui="friki"] header #btnAudio,
+body[data-apus-ui="friki"] header #wikiCloseBtn,
+body[data-apus-ui="friki"] #wikiSettingsPanel .wiki-settings-control{
+  font-family:"APUS Pixel UI",monospace;
+  border:3px solid var(--apus-mini-frame);
+  border-radius:4px;
+  box-shadow:0 3px 0 var(--apus-mini-deep);
+  color:var(--apus-mini-ink);
+  background:var(--apus-mini-control);
+}
+body[data-apus-ui="friki"] header #wikiCloseBtn{background:var(--apus-mini-red);border-color:#efacb5}
+body[data-apus-ui="friki"] header h1{color:var(--apus-mini-orange)}
+body[data-apus-ui="friki"] #wikiSettingsPanel{
+  background:var(--apus-mini-bg);
+  border-color:var(--apus-mini-frame);
+}
+body[data-apus-ui="friki"] .chakana-border{border-color:var(--apus-mini-frame)}
+
+/* BINGO CAMPING: igualar paneles, marcos y botones sin tocar el cartón,
+   la tómbola ni la disposición de las salas. */
+body[data-apus-ui="bingo"]{
+  --night:#111827;
+  --navy:#192236;
+  --panel:#1e2942;
+  --line:#8ba3c7;
+  --ice:#dbeaff;
+  --gold:#f7931e;
+  --orange:#f7931e;
+  --white:#f8fafc;
+}
+body[data-apus-ui="bingo"] .top,
+body[data-apus-ui="bingo"] .glass,
+body[data-apus-ui="bingo"] .box,
+body[data-apus-ui="bingo"] .modal{
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+  background-color:rgba(25,34,54,.96);
+  box-shadow:0 5px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="bingo"] .top .brand b{
+  font-family:"APUS Pixel UI",monospace;
+  font-size:clamp(10px,2vw,15px);
+  line-height:1.6;
+  color:var(--apus-mini-orange);
+}
+body[data-apus-ui="bingo"] h1,
+body[data-apus-ui="bingo"] h2,
+body[data-apus-ui="bingo"] h3{
+  color:var(--apus-mini-orange);
+}
+body[data-apus-ui="bingo"] .bigbtn,
+body[data-apus-ui="bingo"] .smallbtn{
+  background:var(--apus-mini-control);
+  border:3px solid var(--apus-mini-frame);
+  border-radius:4px;
+  font-family:"APUS Pixel UI",monospace;
+  font-size:clamp(8px,1.1vw,10px);
+  line-height:1.6;
+  box-shadow:0 4px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="bingo"] .bigbtn.orange,
+body[data-apus-ui="bingo"] .smallbtn.orange{background:#ad5d27;border-color:#ffd08e}
+body[data-apus-ui="bingo"] .bigbtn.green,
+body[data-apus-ui="bingo"] .smallbtn.green{background:var(--apus-mini-green);border-color:#a6efdc}
+body[data-apus-ui="bingo"] .bigbtn.red,
+body[data-apus-ui="bingo"] .smallbtn.red{background:var(--apus-mini-red);border-color:#efa9b1}
+body[data-apus-ui="bingo"] .box,
+body[data-apus-ui="bingo"] .player,
+body[data-apus-ui="bingo"] .opponent,
+body[data-apus-ui="bingo"] .chip{
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+}
+body[data-apus-ui="bingo"] .input{border-color:var(--apus-mini-frame);border-radius:4px}
+
+/* APUS 4x4: marcos y menús; NO alterar acelerador, freno, volante,
+   tamaño de HUD ni capa de dibujo del tractor. */
+body[data-apus-ui="4x4"] .pixel-box,
+body[data-apus-ui="4x4"] #startModal .pixel-box,
+body[data-apus-ui="4x4"] #endModal .pixel-box{
+  background:var(--apus-mini-bg);
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+  box-shadow:0 6px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="4x4"] .pixel-btn{
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+  box-shadow:0 4px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="4x4"] #apus4x4Hud .apus-hud-panel{
+  border-color:var(--apus-mini-frame);
+  box-shadow:0 3px 0 var(--apus-mini-deep);
+}
+body[data-apus-ui="4x4"] .apus-hud-brand{
+  color:var(--apus-mini-orange);
+}
+body[data-apus-ui="4x4"] .apus-hud-actions button{
+  border-color:var(--apus-mini-frame);
+  border-radius:4px;
+  box-shadow:0 2px 0 var(--apus-mini-deep);
+}
+
+/* Claridad de los temas existentes: solo apariencia, no selección de tema. */
+body[data-apus-ui="friki"].theme-light .pixel-box,
+body[data-apus-ui="bingo"].theme-light .top,
+body[data-apus-ui="bingo"].theme-light .glass,
+body[data-apus-ui="bingo"].theme-light .box,
+body[data-apus-ui="4x4"].theme-light .pixel-box{
+  background:#edf3f8;color:#182c44;border-color:#6b82a8;
+  box-shadow:0 5px 0 #8ba1b6;
+}
+body[data-apus-ui="bingo"].theme-light .bigbtn:not(.orange):not(.green):not(.red),
+body[data-apus-ui="bingo"].theme-light .smallbtn:not(.orange):not(.green):not(.red){
+  background:#306a9b;color:#ffffff;
+}
+body[data-apus-ui="friki"].theme-light .pixel-btn{
+  border-color:#6b82a8;
+}
