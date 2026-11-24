@@ -1,0 +1,33 @@
+/* APUS 32.0.22 · Logros: galería pixel art, aura y marcos. */
+#apus-logros-overlay .apus-logros-box{width:min(96vw,920px);max-height:88dvh;overflow:auto;text-align:left;padding:18px;}
+#apus-logros-overlay .apus-logros-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:3px solid #89a6c8;padding-bottom:8px}
+#apus-logros-overlay .apus-logros-head h2{font:normal 12px/1.7 'Press Start 2P',monospace;color:#f7931e;margin:0}
+#apus-logros-overlay #apus-logros-close{width:auto;font-size:9px;margin:0}
+#apus-logros-status{font:normal 9px/1.8 'Press Start 2P',monospace;padding:8px;color:#cbd5e1}
+.apus-logros-category{margin:14px 0;border:3px solid #8197b3;background:#182239;padding:11px}
+.apus-logros-category h3{margin:0 0 12px;color:#f2bc64;font:normal 10px/1.8 'Press Start 2P',monospace}
+.apus-logros-medals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.apus-logros-medal{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;min-width:0;padding:11px 5px;background:#26354d;border:2px solid #8ba3c7;box-shadow:3px 3px #0b1220;overflow-wrap:anywhere}
+.apus-logros-medal.locked{opacity:.56;filter:grayscale(.65)}
+.apus-logros-medal .apus-logros-icon{font-size:27px}
+.apus-logros-medal strong{font:normal 8px/1.7 'Press Start 2P',monospace;color:#f8fafc}
+.apus-logros-medal small{font:normal 8px/1.8 'Press Start 2P',monospace;color:#d3e2f5}
+.apus-logros-legend{border:3px solid #8ba3c7;background:#16233b;color:#a8b9c9;text-align:center;padding:14px;margin-top:16px;font:normal 10px/1.8 'Press Start 2P',monospace}
+.apus-logros-legend.obtained{color:#ffdf8c;border-color:#f7d17e;box-shadow:0 0 0 3px #a67a33}
+#apus-aura-label{display:flex;align-items:center;gap:10px;color:#f9dda0;margin:15px 0 5px;font:normal 9px/1.8 'Press Start 2P',monospace}
+#apus-aura-label[hidden]{display:none}
+#apus-aura-checkbox{width:22px;height:22px;accent-color:#f0bc52}
+#apus-logros-toast{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:2147483001;background:#192236;color:#ffe19d;border:3px solid #f7cd79;padding:12px;font:normal 9px/1.7 'Press Start 2P',monospace;max-width:90vw;text-align:center;box-shadow:4px 4px #0b101a}
+#apus-logros-toast[hidden]{display:none!important}
+#preview-custom-card.apus-legend-frame{outline:5px solid #f2cb68;outline-offset:2px;box-shadow:0 0 13px 4px #fff8d55c}
+#custom-card-title[data-apus-legendary="true"]::after{content:' · 🏆 GUARDIÁN LEGENDARIO';color:#ffda89}
+body.theme-light #apus-logros-overlay .apus-logros-category{background:#f1f6ff;border-color:#3b82f6}
+body.theme-light #apus-logros-overlay .apus-logros-medal{background:#fff;border-color:#60a5fa;box-shadow:3px 3px #b5cbe2}
+body.theme-light #apus-logros-overlay .apus-logros-medal strong{color:#152d47}
+body.theme-light #apus-logros-overlay .apus-logros-medal small{color:#34465c}
+body.theme-light #apus-logros-overlay .apus-logros-category h3{color:#97500b}
+body.theme-light #apus-logros-overlay .apus-logros-legend{background:#eaf3ff;color:#24415d}
+body.theme-light #apus-logros-overlay .apus-logros-legend.obtained{color:#8b4b11;border-color:#b78020}
+body.theme-light #apus-logros-overlay #apus-logros-status{color:#334155}
+body.theme-light #apus-aura-label{color:#8b4b11}
+@media(max-width:540px){.apus-logros-medals{grid-template-columns:1fr;}.apus-logros-medal{flex-direction:row;text-align:left;gap:10px}.apus-logros-medal .apus-logros-icon{font-size:22px}.apus-logros-medal strong{flex:1}.apus-logros-medal small{flex:2}#apus-logros-overlay .apus-logros-head h2{font-size:10px}}
