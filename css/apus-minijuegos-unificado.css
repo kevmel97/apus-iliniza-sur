@@ -183,3 +183,219 @@ body[data-apus-ui="bingo"].theme-light .smallbtn:not(.orange):not(.green):not(.r
 body[data-apus-ui="friki"].theme-light .pixel-btn{
   border-color:#6b82a8;
 }
+
+
+/* ================================================================
+   APUS 32.0.21 · REVISIÓN DE TEMAS / CONTRASTE DE LOS MINIJUEGOS
+   Base: exactamente los temas claro y oscuro del menú principal.
+   Reparación CSS: evitar mezclar fondos oscuros con letras del tema claro.
+   No se alteran controles táctiles, animaciones, preguntas ni mecánicas.
+   ================================================================ */
+
+/* 4x4 — reparar el fondo del inicio y del resumen al elegir tema claro.
+   La regla antigua de unificación tenía la misma especificidad que el
+   modo claro del juego, pero se cargaba después y lo dejaba oscuro. */
+body[data-apus-ui="4x4"].theme-light #startModal > .pixel-box,
+body[data-apus-ui="4x4"].theme-light #endModal > .pixel-box{
+  background:rgba(255,255,255,.97);
+  color:#0f172a;
+  border:4px solid #3b82f6;
+  border-radius:8px;
+  box-shadow:0 0 0 4px #93c5fd,0 8px 22px rgba(0,0,0,.22);
+}
+body[data-apus-ui="4x4"]:not(.theme-light) #startModal > .pixel-box,
+body[data-apus-ui="4x4"]:not(.theme-light) #endModal > .pixel-box{
+  background:#192236;
+  color:#f8fafc;
+  border-color:#8ba3c7;
+  box-shadow:inset 0 0 0 3px #111827,0 6px 0 #0b0e17;
+}
+/* Título y descripción: contraste real, no cambiar su contenido. */
+body[data-apus-ui="4x4"].theme-light #startModal h1,
+body[data-apus-ui="4x4"].theme-light #endModal h2{
+  color:#a64b09;
+  text-shadow:1px 1px 0 #ffedd5;
+}
+body[data-apus-ui="4x4"].theme-light #startModal > .pixel-box > .bg-blue-700{
+  background:#1d4ed8;
+  color:#ffffff !important;
+  border-color:#93c5fd;
+}
+body[data-apus-ui="4x4"].theme-light #startModal p,
+body[data-apus-ui="4x4"].theme-light #endModal #endReason{
+  color:#172b47 !important;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .text-slate-200,
+body[data-apus-ui="4x4"].theme-light #startModal .text-slate-300,
+body[data-apus-ui="4x4"].theme-light #startModal .text-slate-400,
+body[data-apus-ui="4x4"].theme-light #endModal .text-slate-200,
+body[data-apus-ui="4x4"].theme-light #endModal .text-slate-300,
+body[data-apus-ui="4x4"].theme-light #endModal .text-slate-400{
+  color:#253449 !important;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .text-sky-300,
+body[data-apus-ui="4x4"].theme-light #startModal .text-sky-400,
+body[data-apus-ui="4x4"].theme-light #endModal .text-sky-300{
+  color:#075985 !important;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .text-teal-300{
+  color:#0f766e !important;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .text-emerald-400,
+body[data-apus-ui="4x4"].theme-light #endModal .text-emerald-400{
+  color:#047857 !important;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .text-amber-300,
+body[data-apus-ui="4x4"].theme-light #startModal .text-amber-400,
+body[data-apus-ui="4x4"].theme-light #endModal .text-amber-400{
+  color:#92400e !important;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .text-rose-400{
+  color:#be123c !important;
+}
+/* Tarjetas, selector y resumen respetan el mismo blanco/azul del menú. */
+body[data-apus-ui="4x4"].theme-light #startModal [class*="bg-slate-900"],
+body[data-apus-ui="4x4"].theme-light #startModal [class*="bg-slate-950"],
+body[data-apus-ui="4x4"].theme-light #endModal [class*="bg-slate-950"]{
+  background:#f0f6ff !important;
+  color:#0f172a;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .border-sky-500{
+  border-color:#2563eb;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .border-amber-500{
+  border-color:#d97706;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .border-rose-500{
+  border-color:#e11d48;
+}
+body[data-apus-ui="4x4"].theme-light #startModal .border-slate-700,
+body[data-apus-ui="4x4"].theme-light #endModal .border-slate-700{
+  border-color:#93c5fd;
+}
+body[data-apus-ui="4x4"].theme-light #endModal #endDistStat{color:#075985}
+body[data-apus-ui="4x4"].theme-light #endModal #endClimbersStat{color:#047857}
+body[data-apus-ui="4x4"].theme-light #endModal #endScoreStat{color:#92400e}
+/* El selector activo de ruta conserva su estado y amarillo original. */
+
+/* FRIKI APUS — modo claro real, con botones y opciones contrastadas. */
+body[data-apus-ui="friki"].theme-light{
+  --apu-bg:#eff6ff;
+  --apu-panel:#ffffff;
+  --apu-border:#3b82f6;
+  --apu-gold:#92400e;
+  --apu-teal:#075985;
+  background:#eff6ff;
+  color:#0f172a;
+}
+body[data-apus-ui="friki"].theme-light .pixel-box{
+  background:#ffffff;
+  color:#0f172a;
+  border-color:#3b82f6;
+  box-shadow:inset 0 0 0 3px #dbeafe,0 6px 0 #94a3b8;
+}
+body[data-apus-ui="friki"].theme-light .option-btn:not(.correct):not(.wrong){
+  background:#eff6ff;
+  color:#0f172a;
+  border-color:#93c5fd;
+  box-shadow:0 4px 0 #94a3b8;
+}
+body[data-apus-ui="friki"].theme-light .option-btn:hover:not(:disabled):not(.correct):not(.wrong){
+  background:#dbeafe;
+  border-color:#2563eb;
+}
+body[data-apus-ui="friki"].theme-light #wikiSettingsPanel{
+  background:#ffffff;
+  color:#0f172a;
+  border-color:#3b82f6;
+  box-shadow:0 7px 0 #94a3b8;
+}
+body[data-apus-ui="friki"].theme-light header h1,
+body[data-apus-ui="friki"].theme-light .wiki-settings-title{
+  color:#92400e;
+  text-shadow:none;
+}
+body[data-apus-ui="friki"].theme-light #wikiSettingsPanel .wiki-settings-note{
+  color:#334155;
+}
+body[data-apus-ui="friki"].theme-light header #wikiSettingsBtn,
+body[data-apus-ui="friki"].theme-light header #btnAudio{
+  background:#3b82f6;
+  color:#ffffff;
+  border-color:#1d4ed8;
+}
+body[data-apus-ui="friki"].theme-light #wikiSettingsPanel .wiki-settings-control{
+  background:#3b82f6;
+  color:#ffffff;
+  border-color:#1d4ed8;
+}
+/* Mantener los verdes/rojos de respuesta correcta/incorrecta sin cambios. */
+
+/* BINGO CAMPING — las ventanas no pueden quedar oscuras en modo claro.
+   Respetar la tómbola, cartón y colores de números llamados. */
+body[data-apus-ui="bingo"].theme-light{
+  --night:#f0f5fd;
+  --navy:#e2efff;
+  --panel:#ffffff;
+  --line:#3b82f6;
+  --ice:#1d4ed8;
+  --gold:#92400e;
+  --orange:#a64b09;
+  --white:#172b47;
+  background:#eff6ff;
+  color:#0f172a;
+}
+body[data-apus-ui="bingo"].theme-light .top,
+body[data-apus-ui="bingo"].theme-light .glass,
+body[data-apus-ui="bingo"].theme-light .box,
+body[data-apus-ui="bingo"].theme-light .modal,
+body[data-apus-ui="bingo"].theme-light .board,
+body[data-apus-ui="bingo"].theme-light .lobby,
+body[data-apus-ui="bingo"].theme-light .opponents,
+body[data-apus-ui="bingo"].theme-light .tombola,
+body[data-apus-ui="bingo"].theme-light .camp-banner{
+  background:#ffffff;
+  color:#172b47;
+  border-color:#3b82f6;
+  box-shadow:0 5px 0 #93c5fd;
+}
+body[data-apus-ui="bingo"].theme-light .top{
+  background:#eff6ff;
+}
+body[data-apus-ui="bingo"].theme-light .top .brand b,
+body[data-apus-ui="bingo"].theme-light h1,
+body[data-apus-ui="bingo"].theme-light h3{
+  color:#92400e;
+  text-shadow:none;
+}
+body[data-apus-ui="bingo"].theme-light h2{
+  color:#1d4ed8;
+  text-shadow:none;
+}
+body[data-apus-ui="bingo"].theme-light .box p,
+body[data-apus-ui="bingo"].theme-light .glass p,
+body[data-apus-ui="bingo"].theme-light .modal p,
+body[data-apus-ui="bingo"].theme-light .muted{
+  color:#334155;
+}
+body[data-apus-ui="bingo"].theme-light .bigbtn:not(.orange):not(.green):not(.red),
+body[data-apus-ui="bingo"].theme-light .smallbtn:not(.orange):not(.green):not(.red){
+  background:#3b82f6;
+  color:#ffffff;
+  border-color:#1d4ed8;
+  box-shadow:0 4px 0 #1e40af;
+}
+body[data-apus-ui="bingo"].theme-light .input{
+  background:#ffffff;
+  color:#172b47;
+  border-color:#60a5fa;
+}
+body[data-apus-ui="bingo"].theme-light .chip,
+body[data-apus-ui="bingo"].theme-light .notice,
+body[data-apus-ui="bingo"].theme-light .player,
+body[data-apus-ui="bingo"].theme-light .opponent{
+  background:#eff6ff;
+  color:#172b47;
+  border-color:#93c5fd;
+}
+/* Los estados "marcado", "llamado" y "ganador" no se retocan. */
