@@ -3372,6 +3372,9 @@ renderLandscapeScene = function(canvas, levelId, tick, showCharacters=true) {
     else if(passedLevel){ sfxCorrect(); }
     else { sfxWrong(); }
     saveProgress();
+    if(passedLevel && window.parent!==window)try{
+      window.parent.postMessage({apusWikiApus:'ACHIEVEMENT_LEVEL',level:lvl,score,passed:true},'*');
+    }catch(_){}
     // Derive the official score from actual answers, not from the local
     // cumulative header (which can contain points from older sessions).
     frikiSessionPoints=calculateFrikiPoints(currentQuiz.resultsHistory,lvl);

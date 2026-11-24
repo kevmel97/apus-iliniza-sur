@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="css/apus-voice.css?v=32.0.20">
 <link rel="stylesheet" href="css/apus-unificado.css?v=32.0.21">
 <link rel="stylesheet" href="css/apus-voz-pixel.css?v=32.0.21.1">
+<link rel="stylesheet" href="css/apus-logros.css?v=32.0.22">
 </head>
 <body>
 <!-- Apertura v31.4: solo aparece DESPUÉS de terminar la revisión OTA. -->
@@ -76,6 +77,7 @@
       <button class="menu-btn" onclick="continueGame()">▶️ CONTINUAR PARTIDA</button>
       <button class="menu-btn" onclick="openSavedGames()">💾 PARTIDAS GUARDADAS</button>
       <button class="menu-btn" onclick="openRanking()">🏆 RANKING GLOBAL</button>
+      <button class="menu-btn" type="button" onclick="window.ApusAchievements?.open()">🏅 MIS LOGROS</button>
       <button class="menu-btn" onclick="showOverlay('minigames-hub-overlay')">🎮 MINI JUEGOS</button>
       <button class="menu-btn" onclick="openRefugioApus()">🏕️ REFUGIO APUS <span style="font-size:8px">(FASE 1)</span></button>
       <button class="menu-btn" onclick="showOverlay('community-overlay')">🏔️ ÚNETE A NUESTRA COMUNIDAD</button>
@@ -779,5 +781,6 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' &&
 <script src="js/voice-policy.js?v=32.0.20"></script>
 <script src="js/apus-voice.js?v=32.0.20"></script>
 <script src="js/apus-ui-32_0_20.js?v=32.0.20"></script>
+<script src="js/apus-logros.js?v=32.0.22"></script>
 </body>
 </html>

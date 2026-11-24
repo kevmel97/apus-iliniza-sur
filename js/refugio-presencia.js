@@ -18,7 +18,7 @@
     return out;
   }
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:a));
-  function state(input){const s=input||{};return {x:Math.round(clamp(s.x,38,922)),y:Math.round(clamp(s.y,302,570)),facing:s.facing===-1?-1:1,moving:s.moving===true,avatar:avatar(s.avatar)};}
+  function state(input){const s=input||{};return {x:Math.round(clamp(s.x,38,922)),y:Math.round(clamp(s.y,302,570)),facing:s.facing===-1?-1:1,moving:s.moving===true,avatar:avatar(s.avatar),legendary:s.legendary===true,aura:s.legendary===true&&s.aura===true};}
   const GESTURES=['dance','wave','hug','jump','fight'];
   function transient(data,now){
     const out={};
@@ -57,7 +57,7 @@
       if(!force&&time-lastWrite<100)return;
       if(!force&&signature===lastBody&&time-lastWrite<20000)return;
       pending=true;const ref=session,token=epoch;lastWrite=time;
-      const outfit=JSON.stringify(body.avatar);
+      const outfit=JSON.stringify([body.avatar,body.legendary,body.aura]);
       try{
         if(force||outfit!==lastAvatar)await ref.update({schema:1,username:cleanText(username,24,'MONTAÑISTA'),...body,updatedAt:serverTimestamp});
         else await ref.update({x:body.x,y:body.y,facing:body.facing,moving:body.moving,updatedAt:serverTimestamp});

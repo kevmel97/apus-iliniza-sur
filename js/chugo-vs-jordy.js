@@ -73,6 +73,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
   fighters = [
     {
       char: myInfo.char, displayName: myInfo.displayName, customConfig: myInfo.customConfig,
+      legendary:myInfo.legendary===true,aura:myInfo.aura===true,
       isAI: false, x: p1StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350, hpGhost: 350,
       facing: p1StartX < p2StartX ? 1 : -1, onGround: true, blocking: false,
       action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0,
@@ -81,6 +82,7 @@ function startVersusMiniGame(onlineMode = false, remoteFighterInfo = null) {
     },
     {
       char: p2Char, displayName: p2DisplayName, customConfig: p2CustomConfig,
+      legendary:!!onlineMode&&lastRemoteFighterInfo?.legendary===true,aura:!!onlineMode&&lastRemoteFighterInfo?.aura===true,
       isAI: !onlineMode, x: p2StartX, y: groundY, vx: 0, vy: 0, hp: 350, maxHp: 350, hpGhost: 350,
       facing: p2StartX < p1StartX ? 1 : -1, onGround: true, blocking: false,
       action: null, actionTimer: 0, cooldown: 0, hurtTimer: 0, anim: 0,
@@ -238,6 +240,7 @@ function declareVersusWinner(idx) {
   if (!w) return;
   vsWinnerIdx = idx;
   vsWinner = w.displayName || w.char;
+  if(!tournament && idx===0) window.ApusAchievements?.record("duel");
   vsEndAnimTimer = 180;
   projectiles = [];
   // La música Boss Rush debe pausarse ANTES de reproducir el resultado.
@@ -1894,6 +1897,8 @@ function renderVersusMiniGame() {
   drawApusFightGround();
 
   fighters.forEach((f, i) => {
+    if(f.char==="CUSTOM" && f.legendary===true && f.aura===true && !(i===0&&tournament?.cpuAutoplay))
+      window.ApusAchievements?.drawAura(ctx,stageXToCanvasX(f.x),f.y-52,1.5,performance.now());
     const isWinner = !!vsWinner && i === vsWinnerIdx;
     const isLoser = !!vsWinner && i !== vsWinnerIdx;
     drawMountaineerSprite(ctx, f.char, stageXToCanvasX(f.x), f.y, {

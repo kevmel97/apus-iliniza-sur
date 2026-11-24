@@ -62,7 +62,7 @@
  function connect(options){
   if(service&&uid===options.uid)return;
   disconnect();uid=options.uid;const epoch=generation;
-  service=window.ApusFriends.create({...options,onChange:s=>{if(epoch===generation){state=s;render();}},onStatus:s=>{if(epoch===generation){status=s;render();}}});
+  service=window.ApusFriends.create({...options,onChange:s=>{if(epoch===generation){state=s;render();const count=Object.values(s.links||{}).filter(r=>r.status==='accepted').length;window.ApusAchievements?.observeFriends(count);}},onStatus:s=>{if(epoch===generation){status=s;render();}}});
  }
  launch.addEventListener('click',open);$('apus-friends-close').addEventListener('click',close);
  for(const b of panel.querySelectorAll('[data-friend-tab]'))b.addEventListener('click',()=>{tab=b.dataset.friendTab;notice('');render();});
