@@ -1897,7 +1897,7 @@ function renderVersusMiniGame() {
   drawApusFightGround();
 
   fighters.forEach((f, i) => {
-    if(f.char==="CUSTOM" && !f.isAI && (i===0?window.ApusAchievements?.showAura():(f.legendary&&f.aura)))
+    if(f.char==="CUSTOM" && f.legendary===true && f.aura===true && !(i===0&&tournament?.cpuAutoplay))
       window.ApusAchievements?.drawAura(ctx,stageXToCanvasX(f.x),f.y-52,1.5,performance.now());
     const isWinner = !!vsWinner && i === vsWinnerIdx;
     const isLoser = !!vsWinner && i !== vsWinnerIdx;
