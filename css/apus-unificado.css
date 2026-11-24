@@ -1,0 +1,216 @@
+/*
+ * APUS 32.0.21 · UNIFICACIÓN VISUAL (SOLO CSS)
+ * Referencia: menú principal y Chugo vs Jordy (32.0.20).
+ * No modifica JS, elementos funcionales, canvas, sonido, posiciones táctiles ni datos.
+ */
+:root{
+  --apus-ui-bg:#192236;
+  --apus-ui-deep:#111827;
+  --apus-ui-panel:#1e2942;
+  --apus-ui-button:#2b3954;
+  --apus-ui-border:#8ba3c7;
+  --apus-ui-button-border:#6b82a8;
+  --apus-ui-gold:#f7931e;
+  --apus-ui-blue:#63b3ed;
+  --apus-ui-text:#f8fafc;
+  --apus-ui-subtext:#e2e8f0;
+  --apus-ui-ok:#187a75;
+  --apus-ui-alert:#a63745;
+  --apus-ui-shadow:#0b0e17;
+}
+
+/* COMUNIDAD: reservar espacio real al principio de la pantalla.
+   La barra existente sigue operativa y no tapa APUS GUARDIANS. */
+#community-overlay.active{
+  padding-top:calc(66px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)));
+  padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+}
+#community-overlay .retro-box{
+  max-height:calc(100dvh - 80px - max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)));
+  background:rgba(25,34,54,.97);
+  border-color:var(--apus-ui-border);
+}
+#community-overlay h1{color:var(--apus-ui-gold)}
+#community-overlay h2{color:var(--apus-ui-blue)}
+#community-overlay .community-intro,
+#community-overlay .community-story{
+  background:rgba(17,24,39,.75);
+  border-color:var(--apus-ui-button-border);
+}
+#community-overlay .community-whatsapp{border-width:3px;border-radius:4px}
+/* Pequeñas pantallas: priorizar la lectura del logo, no cubrir controles. */
+@media(max-height:520px){
+  #community-overlay.active{padding-top:calc(55px + env(safe-area-inset-top,0px))}
+  #community-overlay .retro-box{max-height:calc(100dvh - 65px - env(safe-area-inset-top,0px))}
+}
+
+/* REFUGIO: solo paleta, marcos y tipografía de la interfaz; no el paisaje. */
+#apus-refugio-overlay{
+  background:var(--apus-ui-deep);
+  color:var(--apus-ui-text);
+}
+#apus-refugio-overlay .ref-head,
+#apus-refugio-overlay .ref-dialog-inner,
+#apus-refugio-overlay .ref-friends-inner,
+#apus-refugio-overlay .ref-board-inner,
+#apus-meeting-panel .ref-meeting-inner{
+  background:var(--apus-ui-bg);
+  color:var(--apus-ui-text);
+  border-color:var(--apus-ui-border);
+  box-shadow:4px 4px 0 var(--apus-ui-shadow);
+  border-radius:4px;
+}
+#apus-refugio-overlay .ref-head .ref-title,
+#apus-refugio-overlay .ref-dialog h3,
+#apus-refugio-overlay .ref-friends-title h3,
+#apus-refugio-overlay .ref-board-head h3,
+#apus-refugio-overlay .ref-board-card h4,
+#apus-meeting-panel h3,#apus-meeting-panel h4{
+  color:var(--apus-ui-gold);
+  text-shadow:2px 2px 0 #080c16;
+}
+#apus-refugio-overlay .ref-subtitle,
+#apus-refugio-overlay .ref-dialog p,
+#apus-refugio-overlay .ref-board-note,
+#apus-meeting-panel .meeting-kicker{
+  color:var(--apus-ui-subtext);
+}
+#apus-refugio-overlay .ref-btn,
+#apus-meeting-panel .ref-btn{
+  font-family:'Press Start 2P',monospace;
+  background:var(--apus-ui-button);
+  color:var(--apus-ui-text);
+  border-color:var(--apus-ui-button-border);
+  border-radius:4px;
+  text-shadow:1px 1px 0 #05080f;
+  box-shadow:0 3px 0 var(--apus-ui-shadow);
+}
+#apus-refugio-overlay .ref-btn-orange,
+#apus-meeting-panel .ref-btn-orange{
+  background:#ad5d27;border-color:#ffc17c;
+}
+#apus-refugio-overlay .ref-btn:focus-visible,
+#apus-meeting-panel .ref-btn:focus-visible,
+#apus-voice button:focus-visible{
+  outline:3px solid var(--apus-ui-gold);outline-offset:3px;
+}
+#apus-refugio-overlay .ref-actions .ref-btn,
+#apus-refugio-overlay .ref-head-actions .ref-btn{border-width:3px}
+#apus-refugio-overlay .ref-stage{
+  border-color:var(--apus-ui-border);
+}
+/* La cruceta, el canvas y las coordenadas de movimiento se dejan intactos. */
+#apus-refugio-overlay .ref-stage-tag,
+#apus-refugio-overlay .ref-stage-tip,
+#apus-refugio-overlay .ref-toast,
+#apus-refugio-overlay .ref-board-card,
+#apus-meeting-panel .meeting-person{
+  background-color:var(--apus-ui-panel);
+  border-color:var(--apus-ui-button-border);
+  color:var(--apus-ui-subtext);
+}
+#apus-refugio-overlay .ref-board-tabs [aria-pressed="true"],
+#apus-refugio-overlay .ref-slot-card[aria-pressed="true"]{
+  background:#a65d21;border-color:#ffd088;
+}
+#apus-refugio-overlay .ref-board-card strong,
+#apus-refugio-overlay .ref-board-head h3,
+#apus-refugio-overlay .ref-friends-title h3{color:var(--apus-ui-gold)}
+#apus-refugio-overlay .ref-friends-tabs .ref-btn,
+#apus-refugio-overlay .ref-board-tabs .ref-btn{
+  border-color:var(--apus-ui-border);
+}
+#apus-refugio-overlay #ref-social-message,
+#apus-refugio-overlay .ref-board-inner input,
+#apus-refugio-overlay .ref-board-inner textarea,
+#apus-refugio-overlay .ref-board-inner select,
+#apus-meeting-panel #meeting-lobby input,
+#apus-meeting-panel #meeting-lobby select{
+  background:#10192b;
+  color:#f8fafc;
+  border-color:var(--apus-ui-border);
+  border-radius:4px;
+}
+#apus-refugio-overlay #ref-social-message::placeholder,
+#apus-refugio-overlay .ref-board-inner input::placeholder,
+#apus-refugio-overlay .ref-board-inner textarea::placeholder{
+  color:#b7c8dc;opacity:1;
+}
+#apus-meeting-panel .meeting-controls{
+  background:var(--apus-ui-bg);
+  border-bottom:2px solid var(--apus-ui-button-border);
+}
+#apus-meeting-panel .meeting-danger{background:var(--apus-ui-alert);border-color:#f9b1b6}
+#apus-meeting-panel .meeting-controls [aria-pressed=true]{
+  background:var(--apus-ui-ok);border-color:#a8efdb;
+}
+/* Paneles de voz: conservar posición, arrastre, apertura y tamaño originales. */
+#apus-voice{color:var(--apus-ui-text)}
+#apus-voice #voice-panel{
+  background:var(--apus-ui-bg);
+  color:var(--apus-ui-text);
+  border:3px solid var(--apus-ui-border);
+  border-radius:4px;
+  box-shadow:5px 5px 0 var(--apus-ui-shadow);
+}
+#apus-voice #voice-panel header{
+  border-bottom:2px solid var(--apus-ui-button-border);
+  color:var(--apus-ui-gold);
+}
+#apus-voice #voice-panel header strong{
+  font:normal 9px/1.65 'Press Start 2P',monospace;
+}
+#apus-voice button{
+  color:var(--apus-ui-text);
+  background:var(--apus-ui-button);
+  border:2px solid var(--apus-ui-border);
+  border-radius:4px;
+  box-shadow:0 3px 0 var(--apus-ui-shadow);
+}
+#apus-voice #voice-panel button{font:normal 8px/1.55 'Press Start 2P',monospace}
+#apus-voice #voice-accept{background:var(--apus-ui-ok);border-color:#a8efdb}
+#apus-voice #voice-end{background:var(--apus-ui-alert);border-color:#f9b1b6}
+#apus-voice #voice-note{color:#dcecff}
+#apus-voice #voice-badge{color:#ffffff}
+
+/* Tema claro: conservar su función y contraste. */
+body.theme-light #community-overlay .retro-box,
+body.theme-light #apus-refugio-overlay .ref-head,
+body.theme-light #apus-refugio-overlay .ref-dialog-inner,
+body.theme-light #apus-refugio-overlay .ref-friends-inner,
+body.theme-light #apus-refugio-overlay .ref-board-inner,
+body.theme-light #apus-meeting-panel .ref-meeting-inner,
+body.theme-light #apus-voice #voice-panel{
+  background:#eef3f8;color:#182c44;border-color:#6b82a8;
+  box-shadow:4px 4px 0 #7990a8;
+}
+body.theme-light #apus-refugio-overlay{background:#d7e5f0;color:#182c44}
+body.theme-light #apus-refugio-overlay .ref-title,
+body.theme-light #apus-refugio-overlay .ref-dialog h3,
+body.theme-light #apus-refugio-overlay .ref-friends-title h3,
+body.theme-light #apus-refugio-overlay .ref-board-head h3,
+body.theme-light #apus-meeting-panel h3,
+body.theme-light #apus-meeting-panel h4,
+body.theme-light #apus-voice #voice-panel header{
+  color:#8b4c13;text-shadow:none;
+}
+body.theme-light #apus-refugio-overlay .ref-subtitle,
+body.theme-light #apus-refugio-overlay .ref-dialog p,
+body.theme-light #apus-refugio-overlay .ref-board-note{
+  color:#34516c;
+}
+body.theme-light #apus-refugio-overlay .ref-btn:not(.ref-btn-orange),
+body.theme-light #apus-meeting-panel .ref-btn:not(.ref-btn-orange),
+body.theme-light #apus-voice button{
+  background:#dbe8f5;border-color:#6b82a8;color:#1c3652;text-shadow:none;
+}
+body.theme-light #apus-refugio-overlay #ref-social-message,
+body.theme-light #apus-refugio-overlay .ref-board-inner input,
+body.theme-light #apus-refugio-overlay .ref-board-inner textarea,
+body.theme-light #apus-refugio-overlay .ref-board-inner select,
+body.theme-light #apus-meeting-panel #meeting-lobby input,
+body.theme-light #apus-meeting-panel #meeting-lobby select{
+  background:#ffffff;color:#172b45;
+}
+body.theme-light #apus-meeting-panel .meeting-controls{background:#eef3f8}
+body.theme-light #apus-voice #voice-note{color:#324b68}
