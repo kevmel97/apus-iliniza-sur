@@ -183,7 +183,7 @@ function build(){
  const container=el('game-container');if(!container)return;
  const overlay=document.createElement('section');
  overlay.id='apus-logros-overlay';overlay.className='overlay';overlay.setAttribute('aria-label','Mis logros y medallas');
- overlay.innerHTML='<div class="retro-box apus-logros-box"><div class="apus-logros-head"><h2>🏅 MIS LOGROS</h2><button type="button" id="apus-logros-close" class="menu-btn">✕ VOLVER</button></div><p id="apus-logros-status"></p><div id="apus-logros-grid"></div><div class="apus-logros-legend" id="apus-logros-legend"></div><label id="apus-aura-label"><input type="checkbox" id="apus-aura-checkbox"> ✨ MOSTRAR AURA LEGENDARIA</label></div>';
+ overlay.innerHTML='<div class="retro-box apus-logros-box"><div class="apus-logros-head"><h2>🏅 MIS LOGROS</h2><button type="button" id="apus-logros-close" class="menu-btn">✕ VOLVER</button></div><p id="apus-logros-status"></p><div id="apus-logros-profile"><canvas id="apus-logros-avatar" width="120" height="125" aria-label="Retrato de tu montañista"></canvas><div><strong id="apus-logros-username">MONTAÑISTA</strong><small id="apus-logros-title">MEDALLAS Y RECOMPENSAS</small></div></div><div id="apus-logros-grid"></div><div class="apus-logros-legend" id="apus-logros-legend"></div><label id="apus-aura-label"><input type="checkbox" id="apus-aura-checkbox"> ✨ MOSTRAR AURA LEGENDARIA</label></div>';
  container.append(overlay);
  el('apus-logros-close').addEventListener('click',()=>{if(typeof showOverlay==='function')showOverlay('menu-overlay');else overlay.classList.remove('active');});
  el('apus-aura-checkbox').addEventListener('change',e=>record('aura',{visible:e.target.checked}));
@@ -214,6 +214,21 @@ function render(){
  const legendary=el('apus-logros-legend');
  if(legendary){legendary.classList.toggle('obtained',!!u.legend);
   legendary.textContent=(u.legend?'🏆 GUARDIÁN LEGENDARIO DESBLOQUEADO':'🔒 GUARDIÁN LEGENDARIO · REQUIERE LAS 6 MEDALLAS DE ORO');
+ }
+ const profileTitle=el('apus-logros-title'),profileName=el('apus-logros-username');
+ if(profileTitle)profileTitle.textContent=u.legend?'🏆 GUARDIÁN LEGENDARIO':'MEDALLAS Y RECOMPENSAS';
+ if(profileName)profileName.textContent=(typeof currentUser!=='undefined'&&currentUser?.username)||'MONTAÑISTA';
+ const portrait=el('apus-logros-avatar');
+ if(portrait){portrait.classList.toggle('apus-legend-frame',!!u.legend);
+  const ctx=portrait.getContext('2d');if(ctx){ctx.clearRect(0,0,120,125);
+   if(u.legend&&s.auraVisible!==false)drawAura(ctx,60,70,.95,performance.now());
+   try{
+    if(typeof drawMountaineerSprite==='function'){
+     const custom=typeof customCharSlots!=='undefined'&&Array.isArray(customCharSlots)?customCharSlots[typeof activeCustomSlot!=='undefined'?activeCustomSlot:0]:null;
+     drawMountaineerSprite(ctx,custom?'CUSTOM':'JORDY',60,92,{scale:1.2,facing:1,customConfig:custom});
+    }
+   }catch(_){}
+  }
  }
  const aura=el('apus-aura-label'),input=el('apus-aura-checkbox');
  if(aura)aura.hidden=!u.legend;
