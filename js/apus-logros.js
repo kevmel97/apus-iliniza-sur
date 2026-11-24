@@ -82,7 +82,12 @@ function apply(s,events){
 }
 function displayState(){return apply(confirmed,pending);}
 function isLegendary(){return !!confirmed.unlocked.legend;}
-function showAura(){return isLegendary()&&confirmed.auraVisible!==false;}
+function showAura(){
+ if(!isLegendary())return false;
+ // Respetar preferencia local inmediatamente, aun sin conexión.
+ for(let i=pending.length-1;i>=0;i--)if(pending[i]?.type==='aura')return pending[i].data?.visible!==false;
+ return confirmed.auraVisible!==false;
+}
 function publicBadge(){return {legendary:isLegendary(),aura:showAura()};}
 function authChanged(){
  const next=username();if(next===uid)return;
