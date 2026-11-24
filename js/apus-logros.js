@@ -146,6 +146,7 @@ async function flush(){
   if(earned.length){const name=earned.includes('legend')?'🏆 GUARDIÁN LEGENDARIO':(categories.flatMap(c=>c.medals).find(m=>m[0]===earned[0])||[])[1];
     notify('🏅 LOGRO DESBLOQUEADO · '+name);}
   render();decoratePortrait();
+  try{if(typeof renderCustomCardPreview==='function')renderCustomCardPreview();}catch(_){}
  }catch(e){console.warn('APUS Logros: pendiente de sincronización:',e);}
  finally{syncing=false;}
  if(uid===owner&&pending.length&&Date.now()-lastTry>2500)flush();
@@ -184,7 +185,7 @@ function build(){
  overlay.id='apus-logros-overlay';overlay.className='overlay';overlay.setAttribute('aria-label','Mis logros y medallas');
  overlay.innerHTML='<div class="retro-box apus-logros-box"><div class="apus-logros-head"><h2>🏅 MIS LOGROS</h2><button type="button" id="apus-logros-close" class="menu-btn">✕ VOLVER</button></div><p id="apus-logros-status"></p><div id="apus-logros-grid"></div><div class="apus-logros-legend" id="apus-logros-legend"></div><label id="apus-aura-label"><input type="checkbox" id="apus-aura-checkbox"> ✨ MOSTRAR AURA LEGENDARIA</label></div>';
  container.append(overlay);
- el('apus-logros-close').addEventListener('click',()=>{overlay.classList.remove('active');overlay.style.display='none';});
+ el('apus-logros-close').addEventListener('click',()=>{if(typeof showOverlay==='function')showOverlay('menu-overlay');else overlay.classList.remove('active');});
  el('apus-aura-checkbox').addEventListener('change',e=>record('aura',{visible:e.target.checked}));
  const toast=document.createElement('div');toast.id='apus-logros-toast';toast.hidden=true;toast.setAttribute('role','status');document.body.append(toast);
  render();
@@ -192,7 +193,7 @@ function build(){
 function open(){
  build();const overlay=el('apus-logros-overlay');if(!overlay)return;
  if(typeof showOverlay==='function')showOverlay('apus-logros-overlay');
- else{overlay.classList.add('active');overlay.style.display='flex';}
+ else{overlay.classList.add('active');}
  render();
 }
 function render(){
