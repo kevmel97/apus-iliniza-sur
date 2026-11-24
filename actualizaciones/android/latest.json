@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.20",
-  "bundleId": "apus-32-0-20",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-20.zip",
-  "checksum": "921488b38f0c492d693659edf43829a9a94364c8d2ec3c0c427170ca13004fb1",
-  "signature": "aV0pkdUeYLvRreeEbqHO4bArnXP1ho8g+iGeS73Be91XU1iQjXLsU2pvDNzF+z2E7Nw8gdYbNX2CR2QqF8Zk2A6uLsxqFBoIzlobL/fMs8kl+Zi9pnDmA8yEaQWU59EUprYuKsBNR/+Ctioq1Y1IGYbhwrBSzvqjoykpH8OolsGSSNG2ofz56+REDq1IE3TrVnhO2vMMAUaWKdALOYEiw8sCnsq0M7KpGXES6w7nBaQd9oKIx6bERDSR0ZgVovntRFUN8Pymayn2CiX7Pjv2jssGZHtqvlSQalw1NjeBw7x+L5qG3tRH7+Gb8X6zFRILhZguBbRQZpKutFGUM1Hp+eg1eA8hEh9nnEG3Qjo3glzOMdHyxUV2kIbLgOsPifgA4RMl7pdIYjDTAvVQlyoA6wduPg6JP/NFqQeRe3ZFX2Y20Frocs2FYzdD2EGl44wgTdL9JgZ1BA48h3qOP9uJFA8W3yXtPNPne5Uxt1t2+s+H4IGpBl3F4+9Rw1Im/TW6",
+  "version": "32.0.21",
+  "bundleId": "apus-32-0-21",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-21.zip",
+  "checksum": "7761c0ca6dd110453c00f1cd519adfab93d94debfbc605a2e71de81004b1345e",
+  "signature": "gwfvBsbLX7zIn39sHMYJOHzUe1tv79aCvcTDcgQrSN9IkphcG/sjWjjcSOs86836+cHZ2X/uy0xo5KCAJkSGbhgmaLH4m/BiJJ4XG7YOceS7aMN5KAVLxBe5VAcMyzdHA+4r5tGDg0lQ31231LXY21guOH9ATM9RBnuMpaqxzhV1IfDSn3Lc6awYQEmpqnGVDFCzUQN1riphy1zZoBnfu6v8rNLeRUwJu/5ID2TEi+q/nPvvza5y4RjQKIgJ683eZUi1w9gNqrnlOd3PDhKo16Wy7/vV31AGs6/qDRWnWCBPEi3xosTFSSm5liTz5fgDgucVSj9indVLSdyogikGV73AiCBP9uA8flNQmOgA9ebRPFaR7TMpfasGpZX+5Cto6lHXZVbsqNyf/Y79TIhjeRRTo7mp4ZySITCzIQHw/nXVerooMj1GNefsplpgAIY4bfkc9MAcnXicGyeAT3rMEFd65pFzclFmeHCoMBrY39dKSOvpu9kznBHUbs+5krgD",
   "minNativeVersionCode": 11,
-  "notes": "Controles propios en menu/refugio, llamada desplazable y restauracion historica confirmada Friki."
+  "notes": "Unificacion visual exclusiva de menús, refugio, comunidad, minijuegos y llamadas; ninguna funcion nueva"
 }
