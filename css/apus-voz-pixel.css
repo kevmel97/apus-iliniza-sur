@@ -1,0 +1,225 @@
+/*
+ * APUS 32.0.21 · Llamadas privadas entre dos amigos · estética pixel art.
+ * EXCLUSIVAMENTE presentación. No cambia WebRTC, Firebase, control de
+ * micrófono, volumen, tiempos, panel oculto, arrastre ni eventos.
+ * Dimensiones y posición de la pestaña flotante: se mantienen.
+ */
+@font-face{
+  font-family:"APUS Voz Pixel";
+  src:url("../assets/fonts/friki-pixel.ttf") format("truetype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* Misma familia visual del menú principal, incluso sin conexión a Google Fonts. */
+#apus-voice{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace;
+  font-size:9px;
+  line-height:1.75;
+  letter-spacing:0;
+  color:#f8fafc;
+}
+#apus-voice #voice-toggle{
+  /* Conservar los 40x48 px y los eventos de arrastre originales. */
+  width:40px;
+  height:48px;
+  background:#2b3954;
+  border:3px solid #8ba3c7;
+  border-radius:0 4px 4px 0;
+  box-shadow:3px 3px 0 #0b0e17;
+}
+#apus-voice #voice-face{
+  width:36px;
+  height:36px;
+  border-radius:2px;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
+#apus-voice #voice-badge{
+  border:2px solid #8ba3c7;
+  border-radius:3px;
+  background:#192236;
+  box-shadow:2px 2px 0 #0b0e17;
+  color:#f8fafc;
+  font-size:13px;
+  line-height:1.2;
+  padding:2px;
+}
+#apus-voice.voice-active #voice-toggle{
+  border-color:#74edaa;
+  box-shadow:3px 3px 0 #0b0e17;
+}
+#apus-voice.voice-active #voice-badge{border-color:#74edaa}
+
+/* Ventana de voz: no cambiar su tamaño, anclaje, scroll ni visibilidad. */
+#apus-voice #voice-panel{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace;
+  font-size:8px;
+  line-height:1.8;
+  color:#f8fafc;
+  background:#192236;
+  border:3px solid #8ba3c7;
+  border-radius:4px;
+  box-shadow:6px 6px 0 #0b0e17;
+  overflow-wrap:anywhere;
+}
+#apus-voice #voice-panel header{
+  padding-bottom:9px;
+  margin-bottom:10px;
+  border-bottom:3px solid #6b82a8;
+  color:#f7931e;
+}
+#apus-voice #voice-panel header strong{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace;
+  font-size:9px;
+  font-weight:400;
+  line-height:1.7;
+  color:#f7931e;
+  text-shadow:2px 2px 0 #080c16;
+}
+#apus-voice #voice-panel #voice-close{
+  flex:0 0 auto;
+  min-width:34px;
+  min-height:34px;
+  padding:6px;
+  border-color:#c09f9f;
+  background:#69313b;
+  font-size:12px;
+}
+#apus-voice #voice-note{
+  margin:10px 0;
+  padding:9px 8px;
+  background:#111827;
+  border:2px solid #6b82a8;
+  border-radius:3px;
+  color:#e2e8f0;
+  font-size:8px;
+  line-height:1.8;
+}
+#apus-voice #voice-friends{
+  gap:7px;
+}
+#apus-voice #voice-friends button{
+  display:block;
+  width:100%;
+  text-align:left;
+  overflow-wrap:anywhere;
+}
+#apus-voice #voice-call{
+  background:#111827;
+  border:2px solid #6b82a8;
+  border-radius:3px;
+  padding:8px;
+}
+#apus-voice #voice-peer{
+  padding:8px 6px;
+  margin:0 0 8px;
+  color:#f7931e;
+  background:#1e2942;
+  border:2px solid #8ba3c7;
+  border-radius:3px;
+  font-size:9px;
+  line-height:1.75;
+  text-shadow:1px 1px 0 #080c16;
+  overflow-wrap:anywhere;
+}
+#apus-voice #voice-panel button{
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace;
+  font-weight:400;
+  font-size:8px;
+  line-height:1.65;
+  color:#f8fafc;
+  background:#2b3954;
+  border:2px solid #8ba3c7;
+  border-radius:4px;
+  box-shadow:0 3px 0 #0b0e17;
+  text-shadow:1px 1px 0 #070b12;
+}
+#apus-voice #voice-call button{
+  min-height:38px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#apus-voice #voice-accept{
+  background:#187a75;
+  border-color:#a6efdc;
+}
+#apus-voice #voice-end{
+  background:#a63745;
+  border-color:#f9b1b6;
+}
+#apus-voice #voice-mute[aria-pressed="true"]{
+  background:#a65d21;
+  border-color:#ffd088;
+}
+#apus-voice #voice-panel small{
+  display:block;
+  padding-top:9px;
+  margin-top:12px;
+  border-top:2px solid #6b82a8;
+  color:#cbd5e1;
+  font-family:"APUS Voz Pixel","Press Start 2P",monospace;
+  font-size:7px;
+  line-height:1.85;
+  opacity:1;
+}
+
+/* Conservar contraste en modo claro; la llamada sigue siendo idéntica. */
+body.theme-light #apus-voice #voice-panel{
+  background:#eef3f8;
+  border-color:#6b82a8;
+  color:#182c44;
+  box-shadow:5px 5px 0 #7990a8;
+}
+body.theme-light #apus-voice #voice-panel header,
+body.theme-light #apus-voice #voice-panel header strong{
+  color:#8b4c13;
+  text-shadow:none;
+}
+body.theme-light #apus-voice #voice-note,
+body.theme-light #apus-voice #voice-call{
+  background:#dbe8f5;
+  border-color:#6b82a8;
+  color:#182c44;
+}
+body.theme-light #apus-voice #voice-peer{
+  background:#dbe8f5;
+  color:#8b4c13;
+  text-shadow:none;
+}
+body.theme-light #apus-voice #voice-panel button:not(#voice-accept):not(#voice-end):not(#voice-close){
+  background:#2b3954;
+  border-color:#8ba3c7;
+  color:#ffffff;
+}
+body.theme-light #apus-voice #voice-panel #voice-accept{
+  background:#187a75;
+  border-color:#a6efdc;
+  color:#ffffff;
+}
+body.theme-light #apus-voice #voice-panel #voice-end,
+body.theme-light #apus-voice #voice-panel #voice-close{
+  background:#a63745;
+  border-color:#f9b1b6;
+  color:#ffffff;
+}
+body.theme-light #apus-voice #voice-panel small{
+  color:#34516c;
+}
+body.theme-light #apus-voice #voice-badge,
+body.theme-light #apus-voice #voice-toggle{
+  background:#2b3954;
+  color:#ffffff;
+}
+@media(max-width:360px){
+  #apus-voice #voice-panel{
+    font-size:7px;
+  }
+  #apus-voice #voice-panel header strong{
+    font-size:8px;
+  }
+  #apus-voice #voice-panel button{
+    font-size:7px;
+  }
+}
