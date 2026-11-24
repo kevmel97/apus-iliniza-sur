@@ -49,7 +49,9 @@ function getMyFighterPayload() {
     return {
       char: "CUSTOM",
       displayName: (cfg.name || (currentUser ? currentUser.username : "PERS. " + (activeCustomSlot + 1))).toUpperCase(),
-      customConfig: cfg
+      customConfig: cfg,
+      legendary:window.ApusAchievements?.publicBadge()?.legendary===true,
+      aura:window.ApusAchievements?.publicBadge()?.aura===true
     };
   }
   return {
