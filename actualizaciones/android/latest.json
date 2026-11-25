@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.22",
-  "bundleId": "apus-32-0-22",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-22.zip",
-  "checksum": "7898bd795bfd8f80589a49a3a3f7340c31b2633a6133a740c8b45dc31a311cd2",
-  "signature": "Txu0fOiYyQcqeL7BjXQlX5gu+0qEtcSw1q/vLSDjHqrBrigF4qLzoUzCgPNKqg4qeJ9OnO0S7FM2BjKBq9hrfvjAskOJUFX2ZLSAq2dj5badLBgj9D+nF7qF8LRgySqSWfeR8bCRabwmAMcGCk03WI763t/RlMcJsQSrSlAT/jJ63MqQ5uLcfdxrEepj+Ir4tH1mMp2ID3FsfURLD8YOHCCq8nXDRVBDvpw84AkiVGljJ1WfPRjgsp/ymtHWAptktWHT/zgLDoJaWikvcLegzcPkZbYEVNE4UBJit97Md7CA9YATPJA0woTQ/PtVwbUtzSdWpuv2YkTTkYp02t/mVKZGVioLMR1+0BwABKJMBSrU8+qKV3uto4Rq4AMY39KpXgY6J2l0M0TYtim3Kyye/qjE1wNpIlJ6jC986vG+O6EczYlXrBD8HuE8aiuiIbTodvowZ7FIp2OLL/aOKWDHHsqcziYXBXesHYgBdATtH5yWgrB2/sIWgKAA6MgUzABi",
+  "version": "32.0.23",
+  "bundleId": "apus-32-0-23",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-23.zip",
+  "checksum": "6e7387d66797dfe44b546fd489e3783ba07b713525b89eea1e5dd38abc7cb629",
+  "signature": "ov/56Y2CBQYKXRkGxrOqhVnTkR8PzyDvdLJdUeElzM0i5eDJF/cWII/WL4Ythc1P8yF2dO3n4IN8KlH18iO8huZUH7hAYzvvk7HGs4aBFw0pO57ATbnWYcHJNA53yHyP399qDxbhTsGN5hW2gl8kXKOFd3hD+X67nfgCVNZs2pi9XRUrLoRDRfI5lNOH0rNOmJ+j+dqVKFLVE2tWAgzEhTwLjzfFxY5UPbI/deJ3LRrLoUvOiPUBHlOl4ejsZQLkjVB7te78RrFPTeWNQzQ2ILdN7sZU6q3jmQkZER+D6LkUDlN4Kf9WfPVFZyDalbl6U8MkzXHFiUqnjadA1NOrJYtCfRyQvpqX5nI9XFEYqtqaejuy1pXXVr984IvkV5NT8pztzoh2rjnkJVjlVx4a2iRxcmKEKQSWM1aYZwdIe00nfoM2ybjxGkXr5IErtTidiMWUIRwuY+eAPm/PPVSJx9dHhRuxKAH2eHhJD2/ryzFJfjT6l8/chKV/iEyUpYlj",
   "minNativeVersionCode": 3,
-  "notes": "Logros, Guardián Legendario, estilos unificados y mejoras de Friki Apus"
+  "notes": "Corrección y recuperación del progreso de Friki Apus"
 }

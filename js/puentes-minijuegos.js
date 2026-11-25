@@ -139,7 +139,7 @@ function openWikiApus() {
   if (!apusWikiLoaded) {
     apusWikiLoaded = true;apusWikiReady=false;
     frikiLoadingUI('CARGANDO FRIKI APUS…');clearTimeout(apusWikiBootTimer);
-    frame.src = 'minijuegos/friki-apus.html?v=32.0.11';
+    frame.src = 'minijuegos/friki-apus.html?v=32.0.23';
     apusWikiBootTimer=setTimeout(()=>{if(!apusWikiReady)frikiLoadingUI('NO SE PUDO COMPLETAR LA CARGA. PUEDES REINTENTAR O VOLVER.');},6000);
   } else {
     sendWikiApusTheme();
