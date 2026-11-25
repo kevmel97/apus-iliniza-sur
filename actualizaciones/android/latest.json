@@ -2,11 +2,11 @@
   "schema": 1,
   "enabled": true,
   "channel": "production",
-  "version": "32.0.21",
-  "bundleId": "apus-32-0-21",
-  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-21.zip",
-  "checksum": "7761c0ca6dd110453c00f1cd519adfab93d94debfbc605a2e71de81004b1345e",
-  "signature": "gwfvBsbLX7zIn39sHMYJOHzUe1tv79aCvcTDcgQrSN9IkphcG/sjWjjcSOs86836+cHZ2X/uy0xo5KCAJkSGbhgmaLH4m/BiJJ4XG7YOceS7aMN5KAVLxBe5VAcMyzdHA+4r5tGDg0lQ31231LXY21guOH9ATM9RBnuMpaqxzhV1IfDSn3Lc6awYQEmpqnGVDFCzUQN1riphy1zZoBnfu6v8rNLeRUwJu/5ID2TEi+q/nPvvza5y4RjQKIgJ683eZUi1w9gNqrnlOd3PDhKo16Wy7/vV31AGs6/qDRWnWCBPEi3xosTFSSm5liTz5fgDgucVSj9indVLSdyogikGV73AiCBP9uA8flNQmOgA9ebRPFaR7TMpfasGpZX+5Cto6lHXZVbsqNyf/Y79TIhjeRRTo7mp4ZySITCzIQHw/nXVerooMj1GNefsplpgAIY4bfkc9MAcnXicGyeAT3rMEFd65pFzclFmeHCoMBrY39dKSOvpu9kznBHUbs+5krgD",
-  "minNativeVersionCode": 11,
-  "notes": "Unificacion visual exclusiva de menús, refugio, comunidad, minijuegos y llamadas; ninguna funcion nueva"
+  "version": "32.0.22",
+  "bundleId": "apus-32-0-22",
+  "url": "https://kevmel97.github.io/apus-iliniza-sur/actualizaciones/android/apus-32-0-22.zip",
+  "checksum": "7898bd795bfd8f80589a49a3a3f7340c31b2633a6133a740c8b45dc31a311cd2",
+  "signature": "Txu0fOiYyQcqeL7BjXQlX5gu+0qEtcSw1q/vLSDjHqrBrigF4qLzoUzCgPNKqg4qeJ9OnO0S7FM2BjKBq9hrfvjAskOJUFX2ZLSAq2dj5badLBgj9D+nF7qF8LRgySqSWfeR8bCRabwmAMcGCk03WI763t/RlMcJsQSrSlAT/jJ63MqQ5uLcfdxrEepj+Ir4tH1mMp2ID3FsfURLD8YOHCCq8nXDRVBDvpw84AkiVGljJ1WfPRjgsp/ymtHWAptktWHT/zgLDoJaWikvcLegzcPkZbYEVNE4UBJit97Md7CA9YATPJA0woTQ/PtVwbUtzSdWpuv2YkTTkYp02t/mVKZGVioLMR1+0BwABKJMBSrU8+qKV3uto4Rq4AMY39KpXgY6J2l0M0TYtim3Kyye/qjE1wNpIlJ6jC986vG+O6EczYlXrBD8HuE8aiuiIbTodvowZ7FIp2OLL/aOKWDHHsqcziYXBXesHYgBdATtH5yWgrB2/sIWgKAA6MgUzABi",
+  "minNativeVersionCode": 3,
+  "notes": "Logros, Guardián Legendario, estilos unificados y mejoras de Friki Apus"
 }
